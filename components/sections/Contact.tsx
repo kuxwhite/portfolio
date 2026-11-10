@@ -1,12 +1,13 @@
 import { Icon } from "@/components/ui/Icon";
 import { asset } from "@/lib/asset";
 import { links } from "@/lib/site";
+import type { Content } from "@/lib/content";
 
 const tile =
   "flex h-36 min-w-0 flex-1 flex-col justify-between overflow-hidden rounded-[24px] p-6 transition-colors duration-150 " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg-primary";
 
-export function Contact() {
+export function Contact({ t }: { t: Content["contact"] }) {
   return (
     <section aria-labelledby="contact-title" className="bg-bg-section py-(--portfolio-section-padding-y) pb-[calc(var(--portfolio-section-padding-y)+64px)]">
       <div className="content flex flex-col gap-(--portfolio-section-gap)">
@@ -14,10 +15,10 @@ export function Contact() {
         <img src={asset("img/avatar.webp")} alt="" aria-hidden width={90} height={90} className="size-[90px] rounded-full object-cover" />
         <div className="flex flex-col gap-8">
           <h2 id="contact-title" className="text-heading text-fg-primary">
-            Давайте поработаем
+            {t.title}
           </h2>
           <p className="text-body-l text-fg-primary">
-            Открыт к предложениям на позицию Senior Product Designer. Быстрее всего отвечаю в Telegram.
+            {t.text}
           </p>
         </div>
         <div className="flex gap-4">

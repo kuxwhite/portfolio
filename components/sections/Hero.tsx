@@ -1,14 +1,27 @@
+import Link from "next/link";
 import { asset } from "@/lib/asset";
+import type { Content, Lang } from "@/lib/content";
 
-export function Hero() {
+const langLink = "transition-colors hover:text-fg-primary";
+
+export function Hero({ t, lang }: { t: Content["hero"]; lang: Lang }) {
   return (
     <header className="relative pt-(--portfolio-hero-padding-top) pb-(--portfolio-hero-padding-bottom)">
       <p className="absolute left-(--portfolio-hero-padding-bottom) top-(--portfolio-hero-padding-top) text-label text-fg-subtle max-md:left-(--portfolio-section-padding-x) max-md:top-(--portfolio-section-padding-x)">
-        Пермь, Россия
+        {t.location}
       </p>
       <p className="absolute right-(--portfolio-hero-padding-bottom) top-(--portfolio-hero-padding-top) text-label max-md:right-(--portfolio-section-padding-x) max-md:top-(--portfolio-section-padding-x)">
-        <span className="text-fg-primary">Ru</span>
-        <span className="text-fg-subtle"> / En</span>
+        {lang === "ru" ? (
+          <span className="text-fg-primary" aria-current="page">Ru</span>
+        ) : (
+          <Link href="/" hrefLang="ru" lang="ru" className={`text-fg-subtle ${langLink}`}>Ru</Link>
+        )}
+        <span className="text-fg-subtle"> / </span>
+        {lang === "en" ? (
+          <span className="text-fg-primary" aria-current="page">En</span>
+        ) : (
+          <Link href="/en/" hrefLang="en" lang="en" className={`text-fg-subtle ${langLink}`}>En</Link>
+        )}
       </p>
 
       <div className="content flex flex-col gap-(--portfolio-section-gap)">
@@ -23,7 +36,7 @@ export function Hero() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={asset("img/avatar.webp")}
-            alt="Кирилл Новиков"
+            alt={t.avatarAlt}
             width={86}
             height={86}
             className="absolute left-1/2 top-1/2 size-[91.5%] -translate-x-1/2 -translate-y-1/2 rounded-full object-cover"
@@ -32,15 +45,14 @@ export function Hero() {
 
         <div className="flex flex-col gap-8 max-md:gap-5">
           <h1 className="text-heading text-fg-tertiary">
-            Кирилл Новиков,
+            {t.name[0]}
             <br />
-            Senior Product Designer
+            {t.name[1]}
           </h1>
           <p className="text-body-l text-fg-primary">
-            Помогаю финтех, AI, web3 командам быстро проверять идеи через концепции и выпускать понятные
-            продукты, в которых сложные сценарии остаются простыми для пользователя.
+            {t.pitch}
           </p>
-          <p className="text-body-l text-fg-tertiary">6+ лет · Module agency · ex-Intelinvest</p>
+          <p className="text-body-l text-fg-tertiary">{t.facts}</p>
         </div>
       </div>
     </header>

@@ -5,8 +5,6 @@ import { AnimatePresence, motion, useMotionValueEvent, type MotionValue } from "
 
 export type Step<P extends string> = { phase: P; ms: number };
 
-/** Camera moves (phone lift / return): symmetric ease-in-out. */
-export const MOVE = { duration: 1.1, ease: [0.65, 0, 0.35, 1] as const };
 /** Screen cross-fades and reveals: emphasized decelerate. */
 export const FADE = { duration: 0.45, ease: [0.2, 0, 0, 1] as const };
 
@@ -69,104 +67,108 @@ export function Frame({ src, visible, alt = "" }: { src: string; visible: boolea
   );
 }
 
-/** Touch indicator: a soft 44pt disc that settles in, then fades on release. */
-export function TapRipple({ show, x, y }: { show: boolean; x: number; y: number }) {
+/** Camera move of the phone inside the card: a critically damped spring (no bounce). */
+export const CAMERA = { type: "spring", duration: 1.15, bounce: 0 } as const;
+/** Sheets sliding over a screen, as in iOS. */
+export const SHEET = { type: "spring", duration: 0.75, bounce: 0 } as const;
+/** Press: 0.96 over 150ms ease-out, release springs back. */
+const PRESS = { duration: 0.15, ease: "easeOut" } as const;
+const RELEASE = { type: "spring", duration: 0.35, bounce: 0 } as const;
+
+/** Patch of screen background that hides the baked element under a live copy. */
+function Patch({ style, color }: { style: CSSProperties; color: string }) {
+  return <span aria-hidden className="absolute" style={{ ...style, background: color }} />;
+}
+
+/**
+ * A control cut from the frame (same pixels, real font) laid over a background patch, so pressing
+ * it simply shrinks the control to 0.96 with nothing peeking out from under it.
+ */
+export function Pressable({
+  src,
+  style,
+  bg,
+  visible = true,
+  pressed,
+  radius = "9999px",
+  children,
+  hideImage = false,
+}: {
+  src: string;
+  style: CSSProperties;
+  bg: string;
+  visible?: boolean;
+  pressed: boolean;
+  radius?: string;
+  children?: React.ReactNode;
+  hideImage?: boolean;
+}) {
+  if (!visible) return null;
+  return (
+    <>
+      <Patch style={style} color={bg} />
+      <motion.div
+        aria-hidden
+        className="absolute z-10 overflow-hidden"
+        style={{ ...style, borderRadius: radius }}
+        initial={false}
+        animate={{ scale: pressed ? 0.96 : 1 }}
+        transition={pressed ? PRESS : RELEASE}
+      >
+        {children}
+        <motion.img
+          src={src}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 block h-full w-full max-w-none"
+          initial={false}
+          animate={{ opacity: hideImage ? 0 : 1 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+        />
+      </motion.div>
+    </>
+  );
+}
+
+/** 270° arc spinner, like the app's button loader (24pt). */
+export function Loader({ show }: { show: boolean }) {
   return (
     <AnimatePresence>
       {show && (
         <motion.span
-          key="tap"
-          aria-hidden
-          className="pointer-events-none absolute z-20 size-[10.95cqw] rounded-full bg-[#131313]/15"
-          style={{ left: `${(x / 402) * 100}%`, top: `${(y / 874) * 100}%`, translate: "-50% -50%" }}
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1, transition: { duration: 0.15, ease: "easeOut" } }}
-          exit={{ scale: 1.15, opacity: 0, transition: { duration: 0.3, ease: "easeOut" } }}
-        />
+          key="loader"
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+        >
+          <motion.svg
+            viewBox="0 0 24 24"
+            className="block size-[5.97cqw]"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 0.9, ease: "linear", repeat: Infinity }}
+            aria-hidden
+          >
+            <circle cx="12" cy="12" r="9.5" fill="none" stroke="#131313" strokeWidth="2.25" strokeLinecap="round" strokeDasharray="44.8 59.7" />
+          </motion.svg>
+        </motion.span>
       )}
     </AnimatePresence>
   );
 }
 
-/** 270° arc spinner, like the app's button loader (24pt). */
-export function Loader() {
+/** A screen that slides up from the bottom like an iOS sheet and slides back down to dismiss. */
+export function Sheet({ src, open, alt = "" }: { src: string; open: boolean; alt?: string }) {
   return (
-    <motion.svg
-      viewBox="0 0 24 24"
-      className="block size-[5.97cqw]"
-      animate={{ rotate: 360 }}
-      transition={{ duration: 0.9, ease: "linear", repeat: Infinity }}
-      aria-hidden
-    >
-      <circle cx="12" cy="12" r="9.5" fill="none" stroke="#131313" strokeWidth="2.25" strokeLinecap="round" strokeDasharray="44.8 59.7" />
-    </motion.svg>
-  );
-}
-
-const ROUNDED = "'SF Pro Rounded', ui-rounded, var(--portfolio-font-family)";
-
-/**
- * The app's primary green button (Figma ".button master", 52pt) redrawn in DOM on top of the
- * frame, so press and loading stay crisp. It covers the baked button for the whole scene,
- * which keeps the label from swapping. Colors are the app's own (inside the mockup).
- */
-export function AppButton({
-  label,
-  visible,
-  pressed,
-  loading,
-  style,
-}: {
-  label: string;
-  visible: boolean;
-  pressed: boolean;
-  loading: boolean;
-  style: CSSProperties;
-}) {
-  return (
-    <motion.div
-      aria-hidden
-      className="absolute z-10 flex items-center justify-center rounded-full bg-[#22df6b] text-[#131313]"
-      style={style}
+    <motion.img
+      src={src}
+      alt={alt}
+      draggable={false}
       initial={false}
-      animate={{
-        opacity: visible ? 1 : 0,
-        scale: pressed ? 0.96 : 1,
-        filter: pressed ? "brightness(0.9)" : "brightness(1)",
-      }}
-      transition={{
-        opacity: { duration: 0 },
-        scale: { duration: 0.15, ease: "easeOut" },
-        filter: { duration: 0.15, ease: "easeOut" },
-      }}
-    >
-      <AnimatePresence mode="popLayout" initial={false}>
-        {loading ? (
-          <motion.span
-            key="loader"
-            initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
-            transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-          >
-            <Loader />
-          </motion.span>
-        ) : (
-          <motion.span
-            key="label"
-            className="whitespace-nowrap text-[4.23cqw] leading-[5.97cqw]"
-            style={{ fontFamily: ROUNDED, fontWeight: 500 }}
-            initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
-            transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-          >
-            {label}
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      animate={{ y: open ? "0%" : "102%" }}
+      transition={SHEET}
+      className="absolute inset-0 z-20 block h-full w-full max-w-none"
+    />
   );
 }
-
-export { ROUNDED };

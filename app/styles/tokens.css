@@ -52,7 +52,7 @@
   --portfolio-button-secondary-fg-disabled: #c7c7cc;
 
   /* Portfolio / Typography (Desktop) */
-  --portfolio-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+  --portfolio-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Variable", "Inter", sans-serif;
   --portfolio-font-weight-regular: 400;
   --portfolio-font-weight-medium: 500;
   --portfolio-font-weight-semibold: 600;

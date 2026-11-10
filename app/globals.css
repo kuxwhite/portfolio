@@ -95,3 +95,9 @@ body {
 .bleed-x::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

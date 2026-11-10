@@ -68,9 +68,9 @@ export function Frame({ src, visible, alt = "" }: { src: string; visible: boolea
 }
 
 /** Camera move of the phone inside the card: a critically damped spring (no bounce). */
-export const CAMERA = { type: "spring", duration: 1.15, bounce: 0 } as const;
+export const CAMERA = { type: "spring", duration: 1.4, bounce: 0 } as const;
 /** Sheets sliding over a screen, as in iOS. */
-export const SHEET = { type: "spring", duration: 0.75, bounce: 0 } as const;
+export const SHEET = { type: "spring", duration: 1.4, bounce: 0 } as const;
 /** Press: 0.96 over 150ms ease-out, release springs back. */
 const PRESS = { duration: 0.15, ease: "easeOut" } as const;
 const RELEASE = { type: "spring", duration: 0.35, bounce: 0 } as const;
@@ -93,6 +93,8 @@ export function Pressable({
   radius = "9999px",
   children,
   hideImage = false,
+  pressScale = 0.96,
+  darken = false,
 }: {
   src: string;
   style: CSSProperties;
@@ -102,6 +104,9 @@ export function Pressable({
   radius?: string;
   children?: React.ReactNode;
   hideImage?: boolean;
+  /** Small icon buttons need a deeper press to read at mockup scale. */
+  pressScale?: number;
+  darken?: boolean;
 }) {
   if (!visible) return null;
   return (
@@ -112,7 +117,7 @@ export function Pressable({
         className="absolute z-10 overflow-hidden"
         style={{ ...style, borderRadius: radius }}
         initial={false}
-        animate={{ scale: pressed ? 0.96 : 1 }}
+        animate={{ scale: pressed ? pressScale : 1, filter: pressed && darken ? "brightness(0.9)" : "brightness(1)" }}
         transition={pressed ? PRESS : RELEASE}
       >
         {children}
@@ -158,17 +163,38 @@ export function Loader({ show }: { show: boolean }) {
   );
 }
 
-/** A screen that slides up from the bottom like an iOS sheet and slides back down to dismiss. */
-export function Sheet({ src, open, alt = "" }: { src: string; open: boolean; alt?: string }) {
+const STATUS = (62 / 874) * 100; // status bar band of a 402×874 frame, in %
+
+/**
+ * Body of a screen that slides up like an iOS full-screen sheet. The status bar band is cut off:
+ * in iOS the status bar stays put while the sheet slides under it (see StatusBand).
+ */
+export function SheetBody({ src, alt = "" }: { src: string; alt?: string }) {
   return (
-    <motion.img
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       src={src}
       alt={alt}
       draggable={false}
+      className="absolute inset-0 block h-full w-full max-w-none"
+      style={{ clipPath: `inset(${STATUS}% 0 0 0)` }}
+    />
+  );
+}
+
+/** The fixed status bar band of a screen, cross-faded in place while its sheet slides. */
+export function StatusBand({ src, visible }: { src: string; visible: boolean }) {
+  return (
+    <motion.img
+      src={src}
+      alt=""
+      aria-hidden
+      draggable={false}
+      className="absolute inset-0 z-30 block h-full w-full max-w-none"
+      style={{ clipPath: `inset(0 0 ${100 - STATUS}% 0)` }}
       initial={false}
-      animate={{ y: open ? "0%" : "102%" }}
-      transition={SHEET}
-      className="absolute inset-0 z-20 block h-full w-full max-w-none"
+      animate={{ opacity: visible ? 1 : 0 }}
+      transition={{ duration: 0.6, ease: [0.2, 0, 0, 1] }}
     />
   );
 }

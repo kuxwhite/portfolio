@@ -1,26 +1,97 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* Tailwind theme mapped onto Portfolio tokens only */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--portfolio-font-family);
+
+  --color-fg-primary: var(--portfolio-text-primary);
+  --color-fg-secondary: var(--portfolio-text-secondary);
+  --color-fg-tertiary: var(--portfolio-text-tertiary);
+  --color-fg-muted: var(--portfolio-text-muted);
+  --color-fg-subtle: var(--portfolio-text-subtle);
+  --color-fg-inverse: var(--portfolio-text-inverse);
+  --color-fg-accent: var(--portfolio-text-accent);
+  --color-icon-primary: var(--portfolio-icon-primary);
+  --color-bg-page: var(--portfolio-bg-page);
+  --color-bg-card: var(--portfolio-bg-card);
+  --color-bg-section: var(--portfolio-bg-section);
+  --color-bg-subtle: var(--portfolio-bg-subtle);
+  --color-border-subtle: var(--portfolio-border-subtle);
+  --color-pagination-track: var(--portfolio-pagination-track);
+  --color-pagination-dot: var(--portfolio-pagination-dot);
+  --color-pagination-dot-active: var(--portfolio-pagination-dot-active);
+
+  /* Portfolio/* text styles */
+  --text-display: var(--portfolio-font-size-display);
+  --text-display--line-height: normal;
+  --text-display--letter-spacing: -0.005em;
+  --text-display--font-weight: var(--portfolio-font-weight-semibold);
+  --text-heading: var(--portfolio-font-size-heading);
+  --text-heading--line-height: normal;
+  --text-heading--letter-spacing: -0.005em;
+  --text-heading--font-weight: var(--portfolio-font-weight-medium);
+  --text-body-l: var(--portfolio-font-size-body-l);
+  --text-body-l--line-height: normal;
+  --text-body-l--font-weight: var(--portfolio-font-weight-medium);
+  --text-body-m: var(--portfolio-font-size-body-m);
+  --text-body-m--line-height: normal;
+  --text-body-m--letter-spacing: -0.003em;
+  --text-body-m--font-weight: var(--portfolio-font-weight-medium);
+  --text-label: var(--portfolio-font-size-label);
+  --text-label--line-height: 20px;
+  --text-label--font-weight: var(--portfolio-font-weight-medium);
+  --text-caption: var(--portfolio-font-size-caption);
+  --text-caption--line-height: 20px;
+  --text-caption--font-weight: var(--portfolio-font-weight-regular);
+
+  --radius-card: var(--portfolio-radius-card);
+  --radius-full: var(--portfolio-radius-full);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--portfolio-bg-page);
+  color: var(--portfolio-text-primary);
+  font-family: var(--portfolio-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/*
+ * Centered content column: 648px on desktop, 20px side gutters on mobile.
+ * 20px = Mobile value of --portfolio-section-padding-x, reused as the
+ * minimum gutter for in-between widths.
+ */
+.content {
+  --gutter-min: 20px;
+  width: min(100% - 2 * var(--gutter-min), var(--portfolio-content-max-width));
+  margin-inline: auto;
+}
+@media (max-width: 767px) {
+  .content {
+    width: calc(100% - 2 * var(--portfolio-section-padding-x));
+  }
+}
+
+/* Horizontal scroller that bleeds to the viewport edges but snaps to the column */
+.bleed-x {
+  --bleed: calc((100vw - min(100vw - 40px, var(--portfolio-content-max-width))) / 2);
+  margin-inline: calc(var(--bleed) * -1);
+  padding-inline: var(--bleed);
+  scroll-padding-inline: var(--bleed);
+  scrollbar-width: none;
+}
+@media (max-width: 767px) {
+  .bleed-x {
+    --bleed: var(--portfolio-section-padding-x);
+  }
+}
+.bleed-x::-webkit-scrollbar {
+  display: none;
 }

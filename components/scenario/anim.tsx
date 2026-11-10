@@ -220,11 +220,11 @@ export function Shine({ on }: { on: boolean }) {
           exit={{ opacity: 0, transition: { duration: 0.15 } }}
         >
           <motion.span
-            className="absolute inset-y-0 w-[45%]"
-            style={{ background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 100%)" }}
+            className="absolute inset-y-0 w-[60%]"
+            style={{ background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.26) 50%, rgba(255,255,255,0) 100%)" }}
             initial={{ x: "-110%" }}
-            animate={{ x: "330%" }}
-            transition={{ duration: 1.1, ease: [0.45, 0, 0.55, 1], repeat: Infinity, repeatDelay: 0.6 }}
+            animate={{ x: "200%" }}
+            transition={{ duration: 1.3, ease: [0.45, 0, 0.55, 1], repeat: Infinity, repeatDelay: 0.8 }}
           />
         </motion.span>
       )}

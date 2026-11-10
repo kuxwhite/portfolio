@@ -1,10 +1,12 @@
 "use client";
 
-import { motion, type MotionValue } from "motion/react";
+import { AnimatePresence, motion, type MotionValue } from "motion/react";
+import { useId } from "react";
 import { asset } from "@/lib/asset";
 import { PhoneFrame } from "./PhoneFrame";
 import { PhoneSlot } from "./ScenarioCard";
 import { AmountField } from "./AmountField";
+import { Mascot } from "./Mascot";
 import { CAMERA, Frame, FrameBand, LIFT, Loader, Pressable, ScreenCanvas, Shine, rect, totalMs, usePhase, type Step } from "./anim";
 
 type Phase =
@@ -47,6 +49,7 @@ const IN = { duration: 0.4, ease: [0, 0, 0.2, 1] } as const;
 
 export function TransferAnimation({ clock, active }: { clock: MotionValue<number>; active: boolean }) {
   const phase = usePhase(STEPS, clock, active);
+  const uid = useId().replace(/:/g, "");
   const i = STEPS.findIndex((s) => s.phase === phase);
   const at = (p: Phase) => i >= STEPS.findIndex((s) => s.phase === p);
 
@@ -90,7 +93,7 @@ export function TransferAnimation({ clock, active }: { clock: MotionValue<number
                 animate={{ opacity: shown ? 1 : 0 }}
                 transition={shown ? IN : { duration: 0 }}
               >
-                <FrameBand src={asset("screens/transfer-05.webp")} from={HEADER[0]} to={HEADER[1]} alt="Перевод отправлен" />
+                <FrameBand src={asset("screens/transfer-05-clean.webp")} from={HEADER[0]} to={HEADER[1]} alt="Перевод отправлен" />
               </motion.div>
               <motion.div
                 className="absolute inset-0"
@@ -99,15 +102,23 @@ export function TransferAnimation({ clock, active }: { clock: MotionValue<number
                 animate={{ opacity: shown ? 1 : 0, scale: shown ? 1 : 0.96 }}
                 transition={shown ? IN : { duration: 0 }}
               >
-                <FrameBand src={asset("screens/transfer-05.webp")} from={HERO[0]} to={HERO[1]} />
+                <FrameBand src={asset("screens/transfer-05-clean.webp")} from={HERO[0]} to={HERO[1]} />
               </motion.div>
+              {/* Live mascot: drops in, breathes and winks */}
+              <AnimatePresence>
+                {shown && (
+                  <motion.div key="mascot" className="absolute inset-0" exit={{ opacity: 0, transition: { duration: 0.25 } }}>
+                    <Mascot uid={uid} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <motion.div
                 className="absolute inset-0"
                 initial={false}
                 animate={{ opacity: shown ? 1 : 0, y: shown ? "0%" : "1.6%" }}
                 transition={shown ? { ...IN, delay: 0.12 } : { duration: 0 }}
               >
-                <FrameBand src={asset("screens/transfer-05.webp")} from={ACTIONS[0]} to={ACTIONS[1]} />
+                <FrameBand src={asset("screens/transfer-05-clean.webp")} from={ACTIONS[0]} to={ACTIONS[1]} />
                 <Pressable src={asset("parts/btn-close.webp")} style={CLOSE} bg="#ffffff" pressed={phase === "pressClose"} pressScale={0.86} darken />
               </motion.div>
             </motion.div>

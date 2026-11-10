@@ -73,12 +73,16 @@ export function CaseSection({ t }: { t: Content["case"] }) {
           className="bleed-x flex snap-x snap-mandatory items-start gap-8 overflow-x-auto max-md:gap-3"
         >
           <ScenarioCard
+            current={active === 0}
+            onSelect={() => scrollTo(0)}
             caption={t.transfer}
           >
             <TransferAnimation clock={clock} active={active === 0 && playing} />
           </ScenarioCard>
 
           <ScenarioCard
+            current={active === 1}
+            onSelect={() => scrollTo(1)}
             caption={t.loan}
           >
             <PhoneSlot>
@@ -89,6 +93,8 @@ export function CaseSection({ t }: { t: Content["case"] }) {
           </ScenarioCard>
 
           <ScenarioCard
+            current={active === 2}
+            onSelect={() => scrollTo(2)}
             caption={t.qr}
           >
             <PhoneSlot>

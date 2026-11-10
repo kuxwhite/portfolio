@@ -16,11 +16,12 @@ export function useCarousel(count: number) {
       setActive(slides.length - 1);
       return;
     }
-    const start = track.scrollLeft + parseFloat(getComputedStyle(track).paddingLeft);
+    const pad = parseFloat(getComputedStyle(track).paddingLeft);
+    const left = track.getBoundingClientRect().left + pad;
     let best = 0;
     let bestDist = Infinity;
     slides.forEach((s, i) => {
-      const d = Math.abs(s.offsetLeft - start);
+      const d = Math.abs(s.getBoundingClientRect().left - left);
       if (d < bestDist) {
         bestDist = d;
         best = i;
@@ -50,9 +51,12 @@ export function useCarousel(count: number) {
     const track = trackRef.current;
     const slide = track?.children[index] as HTMLElement | undefined;
     if (!track || !slide) return;
+    // Position relative to the track itself (offsetLeft is relative to the offset parent, not the track).
     const pad = parseFloat(getComputedStyle(track).paddingLeft);
+    const target = track.scrollLeft + slide.getBoundingClientRect().left - track.getBoundingClientRect().left - pad;
+    const max = track.scrollWidth - track.clientWidth;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    track.scrollTo({ left: slide.offsetLeft - pad, behavior: reduce ? "auto" : "smooth" });
+    track.scrollTo({ left: Math.max(0, Math.min(max, target)), behavior: reduce ? "auto" : "smooth" });
   }, []);
 
   return { trackRef, active, scrollTo };

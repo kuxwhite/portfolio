@@ -20,7 +20,7 @@ type LinkProps = CommonProps &
 
 const base =
   "inline-flex shrink-0 items-center justify-center rounded-full text-label whitespace-nowrap select-none " +
-  "transition-[background-color,transform] duration-150 ease-out active:scale-[0.97] " +
+  "transition-[background-color,transform] duration-150 ease-out not-disabled:active:scale-[0.96] " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg-primary " +
   "disabled:pointer-events-none";
 
@@ -36,10 +36,10 @@ const styles: Record<Style, string> = {
 };
 
 // Stronger secondary fill (Figma instances on #f7f7f7 sections): default uses the pressed token,
-// hover goes lighter to the default token, pressed goes a step darker.
+// hover goes a step darker (neutral-150) so the circle never fades into the section; pressed darker still.
 const strongSecondary =
   "bg-(--portfolio-button-secondary-bg-pressed) text-(--portfolio-button-secondary-fg) " +
-  "hover:bg-(--portfolio-button-secondary-bg-default) active:bg-(--portfolio-button-secondary-bg-pressed) active:brightness-95";
+  "hover:bg-(--portfolio-palette-neutral-150) active:bg-(--portfolio-palette-neutral-150) active:brightness-95";
 
 const sizes: Record<Content, string> = {
   text: "h-11 gap-(--portfolio-button-gap) px-(--portfolio-button-padding-x) py-(--portfolio-button-padding-y)",

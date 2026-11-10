@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { useEffect } from "react";
+import { motion, useAnimate, useReducedMotion } from "motion/react";
 import { asset } from "@/lib/asset";
 
 /*
@@ -30,20 +31,84 @@ const GLOW_FILTER = (id: string) => (
 const STROKE = { stroke: "white", strokeWidth: 11, strokeLinecap: "round", strokeLinejoin: "round", fill: "none" } as const;
 
 // Strokes exported from Figma (Face group, 124 × 120 incl. glow)
-const EYE_L = "M32.1689 24.4469L31.6516 25.2639L31.1373 26.1343L30.6395 27.0388L30.1359 27.9848L29.6486 28.9649L29.1763 29.9894L28.7085 31.057L28.2467 32.1572L27.8028 33.2811L27.3634 34.4479L26.93 35.6474L26.5145 36.8706L26.1168 38.1175L25.7252 39.397L25.3514 40.7002L24.9851 42.0256";
-const EYE_R = "M98.1582 33.7212L98.4303 34.6491L98.6847 35.6275L98.9139 36.6342L99.1373 37.6824L99.3355 38.7588L99.5072 39.8739L99.6626 41.029L99.8032 42.2138L99.9201 43.4165L100.021 44.6593L100.107 45.9318L100.169 47.2221L100.208 48.5303L100.231 49.8682L100.232 51.224L100.218 52.599";
 const NOSE = "M65.9474 23.5008L65.7284 25.0587L65.4963 26.7102L65.2511 28.4551L64.9927 30.2935L64.7241 32.2046L64.4439 34.1988L64.1534 36.2658L63.8527 38.4054L63.5447 40.5969L63.2279 42.8508L62.9053 45.1462L62.5769 47.4831L62.2426 49.8616L61.904 52.2713L61.5609 54.7121L61.2164 57.1633L60.7101 59.56L59.936 61.6013L58.8644 63.2725L57.5279 64.5675L55.9147 65.4953L54.0366 66.0469L51.8936 66.2223L49.4947 66.0334L46.4885 65.5686";
 const SMILE = "M23.5 75.8838L25.2389 78.0559L27.0651 80.1343L28.9816 82.0983L30.9675 83.9449L33.0139 85.6624L35.1194 87.2611L37.275 88.7291L39.4704 90.065L41.7144 91.2807L43.9893 92.3524L46.3039 93.292L48.6375 94.0966L51.0093 94.7795L53.3913 95.3155L55.8011 95.7283L58.2314 95.9957L60.6688 96.137L63.137 96.1344L65.6019 96.0042L68.0859 95.739L70.568 95.3358L73.0602 94.7858L75.5388 94.1067L78.0155 93.2897L80.4801 92.3333L82.9206 91.2465L85.3386 90.0187L87.7222 88.6591L90.0505 87.1645L92.3208 85.5559";
 
-const BREATH = 3.2; // s, one breath
-const WINK_EVERY = 3.6; // s
+/*
+ * Eyes as quadratic curves fitted to the Figma polylines (deviation < 0.3pt), so their shape can morph:
+ * a blink brings the top end down and the bottom end up into a closed lid "‿".
+ */
+const EYE_L_OPEN = "M32.169 24.447 Q27.91 31.07 24.985 42.026";
+const EYE_L_SHUT = "M22.6 35.6 Q28.2 39.4 33.8 35.6";
+const EYE_R_OPEN = "M98.158 33.721 Q100.42 41.27 100.218 52.599";
+const EYE_R_SHUT = "M93.6 45.4 Q99.2 49.2 104.8 45.4";
+
+const BREATH = 3; // s, one breath
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function Mascot({ uid }: { uid: string }) {
   const reduce = useReducedMotion();
   const f = (name: string) => `url(#${uid}-${name})`;
+  const [scope, animate] = useAnimate();
+
+  // Life: blinks, glances and a proper wink, on a loop (~8.5s). Transforms go on plain <g>s
+  // without filters, and blinks morph the stroke itself, so nothing skews.
+  useEffect(() => {
+    if (reduce) return;
+    let alive = true;
+    const eyeL = `#${uid}-eyeL`;
+    const eyeR = `#${uid}-eyeR`;
+    const face = `#${uid}-face`;
+    const smile = `#${uid}-smile`;
+    const CLOSE = { duration: 0.07, ease: [0.4, 0, 1, 1] } as const;
+    const OPEN = { duration: 0.16, ease: [0, 0, 0.2, 1] } as const;
+
+    const blink = async () => {
+      await Promise.all([animate(eyeL, { d: EYE_L_SHUT }, CLOSE), animate(eyeR, { d: EYE_R_SHUT }, CLOSE)]);
+      await wait(40);
+      await Promise.all([animate(eyeL, { d: EYE_L_OPEN }, OPEN), animate(eyeR, { d: EYE_R_OPEN }, OPEN)]);
+    };
+    const glance = (dx: number, dy = 0) => animate(face, { x: dx, y: dy }, { type: "spring", duration: 0.45, bounce: 0.2 });
+    const wink = async () => {
+      animate(face, { rotate: 5, x: 2, y: -1 }, { type: "spring", duration: 0.5, bounce: 0.25 });
+      animate(smile, { scaleX: 1.1, scaleY: 1.18 }, { type: "spring", duration: 0.45, bounce: 0.3 });
+      await animate(eyeR, { d: EYE_R_SHUT }, { duration: 0.09, ease: [0.4, 0, 1, 1] });
+      await wait(320);
+      animate(smile, { scaleX: 1, scaleY: 1 }, { type: "spring", duration: 0.5, bounce: 0.2 });
+      animate(face, { rotate: 0, x: 0, y: 0 }, { type: "spring", duration: 0.6, bounce: 0.2 });
+      await animate(eyeR, { d: EYE_R_OPEN }, { duration: 0.18, ease: [0, 0, 0.2, 1] });
+    };
+
+    (async () => {
+      await wait(1100); // after the entrance
+      while (alive) {
+        await blink();
+        await wait(700);
+        if (!alive) break;
+        await wink();
+        await wait(1000);
+        await glance(4, -1);
+        await wait(650);
+        await glance(0);
+        await wait(450);
+        await blink();
+        await wait(140);
+        await blink();
+        await wait(800);
+        await glance(-4, 0.5);
+        await wait(700);
+        await glance(0);
+        await wait(1100);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [animate, reduce, uid]);
 
   return (
     <div
+      ref={scope}
       aria-hidden
       className="absolute"
       style={{ left: pct(BODY.x, 402), top: pct(BODY.y, 874), width: pct(BODY.w, 402), height: pct(BODY.h, 874) }}
@@ -60,7 +125,7 @@ export function Mascot({ uid }: { uid: string }) {
         <motion.div
           className="absolute inset-0"
           style={{ transformOrigin: "50% 82%" }}
-          animate={reduce ? undefined : { scaleY: [1, 1.035, 1], scaleX: [1, 0.985, 1], rotate: [0, 0.8, 0, -0.8, 0] }}
+          animate={reduce ? undefined : { scaleY: [1, 1.05, 1], scaleX: [1, 0.978, 1], rotate: [0, 1, 0, -1, 0] }}
           transition={{
             scaleY: { duration: BREATH, ease: "easeInOut", repeat: Infinity, delay: 1 },
             scaleX: { duration: BREATH, ease: "easeInOut", repeat: Infinity, delay: 1 },
@@ -81,7 +146,7 @@ export function Mascot({ uid }: { uid: string }) {
               height: pct(FACE.h, BODY.h),
             }}
             initial={reduce ? false : { opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1, y: reduce ? 0 : [0, -1.2, 0] }}
+            animate={{ opacity: 1, scale: 1, y: reduce ? 0 : [0, -1.8, 0] }}
             transition={{
               opacity: { duration: 0.3, delay: 0.42, ease: "easeOut" },
               scale: { type: "spring", duration: 0.5, bounce: 0.35, delay: 0.42 },
@@ -94,30 +159,22 @@ export function Mascot({ uid }: { uid: string }) {
               {GLOW_FILTER(`${uid}-g3`)}
               {GLOW_FILTER(`${uid}-g4`)}
             </defs>
-            <g filter={f("g1")}>
-              <path d={EYE_L} {...STROKE} />
+            <g id={`${uid}-face`}>
+              <g filter={f("g1")}>
+                <path id={`${uid}-eyeL`} d={EYE_L_OPEN} {...STROKE} />
+              </g>
+              <g filter={f("g2")}>
+                <path id={`${uid}-eyeR`} d={EYE_R_OPEN} {...STROKE} />
+              </g>
+              <g filter={f("g3")}>
+                <path d={NOSE} {...STROKE} />
+              </g>
+              <g id={`${uid}-smile`}>
+                <g filter={f("g4")}>
+                  <path d={SMILE} {...STROKE} />
+                </g>
+              </g>
             </g>
-            {/* Wink: the right eye closes for a beat */}
-            <motion.g
-              filter={f("g2")}
-              style={{ transformBox: "fill-box", transformOrigin: "50% 60%" }}
-              animate={reduce ? undefined : { scaleY: [1, 1, 0.12, 1, 1] }}
-              transition={{ duration: WINK_EVERY, times: [0, 0.55, 0.6, 0.66, 1], ease: "easeInOut", repeat: Infinity, delay: 1.4 }}
-            >
-              <path d={EYE_R} {...STROKE} />
-            </motion.g>
-            <g filter={f("g3")}>
-              <path d={NOSE} {...STROKE} />
-            </g>
-            {/* Smile widens a touch with the wink */}
-            <motion.g
-              filter={f("g4")}
-              style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
-              animate={reduce ? undefined : { scaleX: [1, 1, 1.07, 1, 1], scaleY: [1, 1, 1.12, 1, 1] }}
-              transition={{ duration: WINK_EVERY, times: [0, 0.55, 0.62, 0.72, 1], ease: "easeInOut", repeat: Infinity, delay: 1.4 }}
-            >
-              <path d={SMILE} {...STROKE} />
-            </motion.g>
           </motion.svg>
         </motion.div>
       </motion.div>

@@ -37,7 +37,8 @@ const StaticFill = () => <span className="absolute inset-y-0 left-0 w-3 rounded-
 
 export function Pagination({ count, active, onSelect, label, progress }: Props) {
   return (
-    <div role="tablist" aria-label={label} className="mx-auto flex items-center gap-1 rounded-full bg-pagination-track p-4">
+    // Each dot owns half of the 4px gap on both sides and the full track height: hit areas touch but never overlap.
+    <div role="tablist" aria-label={label} className="mx-auto flex items-center rounded-full bg-pagination-track px-3.5 py-0">
       {Array.from({ length: count }, (_, i) => {
         const current = i === active;
         return (
@@ -48,7 +49,7 @@ export function Pagination({ count, active, onSelect, label, progress }: Props) 
             aria-selected={current}
             aria-label={`${i + 1} / ${count}`}
             onClick={() => onSelect?.(i)}
-            className="group relative flex h-2 items-center before:absolute before:-inset-2 before:content-['']"
+            className="group relative flex h-10 items-center px-0.5 py-4"
           >
             <span
               className={

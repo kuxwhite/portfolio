@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { useAnimationFrame, useInView, useMotionValue, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Pagination } from "@/components/ui/Pagination";
@@ -7,18 +9,50 @@ import { useCarousel } from "@/components/ui/useCarousel";
 import { links } from "@/lib/site";
 import { ScenarioCard, PhoneSlot } from "@/components/scenario/ScenarioCard";
 import { PhoneFrame, Screen } from "@/components/scenario/PhoneFrame";
-import { TransferAnimation } from "@/components/scenario/TransferAnimation";
-import { QrAnimation } from "@/components/scenario/QrAnimation";
+import { TransferAnimation, TRANSFER_MS } from "@/components/scenario/TransferAnimation";
+import { QrAnimation, QR_MS } from "@/components/scenario/QrAnimation";
 import { asset } from "@/lib/asset";
 import type { Content } from "@/lib/content";
 
 const SLIDES = 3;
+const LOAN_MS = 6000;
+/** Playback length of each slide; the pagination pill fills over it, then the carousel advances. */
+const DURATIONS = [TRANSFER_MS, LOAN_MS, QR_MS];
 
 export function CaseSection({ t }: { t: Content["case"] }) {
   const { trackRef, active, scrollTo } = useCarousel(SLIDES);
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef, { amount: 0.35 });
+  const reduce = useReducedMotion();
+  const playing = inView && !reduce;
+
+  // One clock per active slide drives both the scene and the pagination fill.
+  const clock = useMotionValue(0);
+  const progress = useMotionValue(0);
+  const advancing = useRef(false);
+
+  useEffect(() => {
+    clock.set(0);
+    progress.set(0);
+    advancing.current = false;
+  }, [active, clock, progress]);
+
+  useAnimationFrame((_, delta) => {
+    if (!playing || advancing.current || document.hidden) return;
+    const next = clock.get() + Math.min(delta, 64);
+    if (next >= DURATIONS[active]) {
+      clock.set(DURATIONS[active]);
+      progress.set(1);
+      advancing.current = true;
+      scrollTo((active + 1) % SLIDES);
+    } else {
+      clock.set(next);
+      progress.set(next / DURATIONS[active]);
+    }
+  });
 
   return (
-    <section aria-labelledby="case-title" className="bg-bg-section py-(--portfolio-section-padding-y)">
+    <section ref={sectionRef} aria-labelledby="case-title" className="bg-bg-section py-(--portfolio-section-padding-y)">
       <div className="content flex flex-col gap-16 max-md:gap-8">
         <div className="flex items-end gap-[72px] max-md:gap-4">
           <h2 id="case-title" className="flex-1 text-heading">
@@ -42,7 +76,7 @@ export function CaseSection({ t }: { t: Content["case"] }) {
           <ScenarioCard
             caption={t.transfer}
           >
-            <TransferAnimation />
+            <TransferAnimation clock={clock} active={active === 0 && playing} />
           </ScenarioCard>
 
           <ScenarioCard
@@ -58,11 +92,11 @@ export function CaseSection({ t }: { t: Content["case"] }) {
           <ScenarioCard
             caption={t.qr}
           >
-            <QrAnimation />
+            <QrAnimation clock={clock} active={active === 2 && playing} />
           </ScenarioCard>
         </div>
 
-        <Pagination count={SLIDES} active={active} onSelect={scrollTo} label={t.carouselLabel} />
+        <Pagination count={SLIDES} active={active} onSelect={scrollTo} label={t.carouselLabel} progress={reduce ? undefined : progress} />
       </div>
     </section>
   );

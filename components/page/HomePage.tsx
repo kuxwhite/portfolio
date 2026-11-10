@@ -5,6 +5,8 @@ import { Experience } from "@/components/sections/Experience";
 import { Visuals } from "@/components/sections/Visuals";
 import { Contact } from "@/components/sections/Contact";
 import { content, type Lang } from "@/lib/content";
+import { SmoothScroll } from "./SmoothScroll";
+import { ScrollThumb } from "./ScrollThumb";
 
 export function HomePage({ lang }: { lang: Lang }) {
   const t = content[lang];
@@ -18,6 +20,8 @@ export function HomePage({ lang }: { lang: Lang }) {
         <Contact t={t.contact} />
       </main>
       <FloatingMenu t={t.menu} />
+      <SmoothScroll />
+      <ScrollThumb />
     </>
   );
 }

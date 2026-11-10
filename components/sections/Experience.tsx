@@ -1,53 +1,33 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { asset } from "@/lib/asset";
+import type { Content } from "@/lib/content";
 
-type Project = ReactNode[];
-type Item = { logo: string; years: string; company: string; description: string; projects: Project[] };
+type Item = Content["experience"]["items"][number];
 
 const Logo = ({ name }: { name: string }) => (
   // eslint-disable-next-line @next/next/no-img-element
   <img src={asset(`logos/${name}.svg`)} alt="" aria-hidden className="inline-block size-5 shrink-0" />
 );
 
-const ITEMS: Item[] = [
-  {
-    logo: "module",
-    years: "2022 — настоящее время",
-    company: "Module agency",
-    description: "Проектирую финтех- и AI-продукты для банков и e-commerce: платежи, кредитование, рассрочка, B2B-сервисы",
-    projects: [
-      ["Редизайн мобильного банка", <Logo key="l" name="round" />, "Round, сайт и оформление кредита наличными"],
-      ["A2C сервис для мерчантов в", <Logo key="l" name="uzum" />, "Uzum Bank"],
-      ["Рассрочка BNPL в", <Logo key="l" name="aliexpress" />, "Aliexpress"],
-    ],
-  },
-  {
-    logo: "intelinvest",
-    years: "2021 — 2022",
-    company: "Intelinvest",
-    description: "Крупнейший в СНГ сервис учёта инвестиций, больше 300 тысяч пользователей",
-    projects: [],
-  },
-];
-
-export function Experience() {
+export function Experience({ t }: { t: Content["experience"] }) {
   const [open, setOpen] = useState<Record<number, boolean>>({ 0: true });
   return (
     <section id="experience" aria-labelledby="experience-title" className="scroll-mt-6 bg-bg-section py-(--portfolio-section-padding-y)">
       <div className="content flex flex-col gap-16">
         <h2 id="experience-title" className="text-heading text-fg-primary">
-          Мой опыт
+          {t.title}
         </h2>
         <ul className="flex flex-col gap-11">
-          {ITEMS.map((item, i) => (
+          {t.items.map((item, i) => (
             <ExperienceItem
               key={item.company}
               item={item}
+              labels={t}
               expanded={!!open[i]}
               onToggle={() => setOpen((o) => ({ ...o, [i]: !o[i] }))}
             />
@@ -58,7 +38,17 @@ export function Experience() {
   );
 }
 
-function ExperienceItem({ item, expanded, onToggle }: { item: Item; expanded: boolean; onToggle: () => void }) {
+function ExperienceItem({
+  item,
+  labels,
+  expanded,
+  onToggle,
+}: {
+  item: Item;
+  labels: { expand: string; collapse: string };
+  expanded: boolean;
+  onToggle: () => void;
+}) {
   const reduce = useReducedMotion();
   const panelId = useId();
   const hasProjects = item.projects.length > 0;
@@ -99,7 +89,7 @@ function ExperienceItem({ item, expanded, onToggle }: { item: Item; expanded: bo
                         typeof part === "string" ? (
                           part.split(" ").map((w, k) => <span key={`${j}-${k}`}>{w}</span>)
                         ) : (
-                          part
+                          <Logo key={j} name={part.logo} />
                         ),
                       )}
                     </p>
@@ -117,7 +107,7 @@ function ExperienceItem({ item, expanded, onToggle }: { item: Item; expanded: bo
         strong
         aria-expanded={expanded}
         aria-controls={hasProjects ? panelId : undefined}
-        aria-label={expanded ? `Свернуть ${item.company}` : `Развернуть ${item.company}`}
+        aria-label={`${expanded ? labels.collapse : labels.expand} ${item.company}`}
         onClick={onToggle}
         icon={
           <motion.span

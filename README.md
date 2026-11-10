@@ -9,5 +9,7 @@ npm run build   # статическая сборка в ./out
 ```
 
 - Токены: `app/styles/tokens.css` (Figma: Portfolio / Typography, Colors, Dimensions). Mobile-режим ниже 768px.
+- Тексты RU/EN: `lib/content.ts` (английская версия на `/en/`).
 - Ссылки (Telegram, CV, кейс): `lib/site.ts`.
+- Деплой: Layero, настройки сборки в `layero.json` (результат в `out`).
 - Экраны мокапов: `public/assets/screens` (WebP @2x из Figma).

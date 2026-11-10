@@ -4,18 +4,20 @@ import { CaseSection } from "@/components/sections/CaseSection";
 import { Experience } from "@/components/sections/Experience";
 import { Visuals } from "@/components/sections/Visuals";
 import { Contact } from "@/components/sections/Contact";
+import { content, type Lang } from "@/lib/content";
 
-export default function Home() {
+export function HomePage({ lang }: { lang: Lang }) {
+  const t = content[lang];
   return (
     <>
       <main>
-        <Hero />
-        <CaseSection />
-        <Experience />
-        <Visuals />
-        <Contact />
+        <Hero t={t.hero} lang={lang} />
+        <CaseSection t={t.case} />
+        <Experience t={t.experience} />
+        <Visuals t={t.visuals} />
+        <Contact t={t.contact} />
       </main>
-      <FloatingMenu />
+      <FloatingMenu t={t.menu} />
     </>
   );
 }

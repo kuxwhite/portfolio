@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { content, type Lang } from "@/lib/content";
+// Inter is the real fallback where SF Pro is not installed (Windows, Android, Linux).
+import "@fontsource-variable/inter/wght.css";
 import "@/app/globals.css";
 
 export const viewport: Viewport = {

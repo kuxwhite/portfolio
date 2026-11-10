@@ -35,13 +35,10 @@ const NOSE = "M65.9474 23.5008L65.7284 25.0587L65.4963 26.7102L65.2511 28.4551L6
 const SMILE = "M23.5 75.8838L25.2389 78.0559L27.0651 80.1343L28.9816 82.0983L30.9675 83.9449L33.0139 85.6624L35.1194 87.2611L37.275 88.7291L39.4704 90.065L41.7144 91.2807L43.9893 92.3524L46.3039 93.292L48.6375 94.0966L51.0093 94.7795L53.3913 95.3155L55.8011 95.7283L58.2314 95.9957L60.6688 96.137L63.137 96.1344L65.6019 96.0042L68.0859 95.739L70.568 95.3358L73.0602 94.7858L75.5388 94.1067L78.0155 93.2897L80.4801 92.3333L82.9206 91.2465L85.3386 90.0187L87.7222 88.6591L90.0505 87.1645L92.3208 85.5559";
 
 /*
- * Eyes as quadratic curves fitted to the Figma polylines (deviation < 0.3pt), so their shape can morph:
- * a blink brings the top end down and the bottom end up into a closed lid "‿".
+ * Eyes as quadratic curves fitted to the Figma polylines (deviation < 0.3pt).
  */
 const EYE_L_OPEN = "M32.169 24.447 Q27.91 31.07 24.985 42.026";
-const EYE_L_SHUT = "M22.6 35.6 Q28.2 39.4 33.8 35.6";
 const EYE_R_OPEN = "M98.158 33.721 Q100.42 41.27 100.218 52.599";
-const EYE_R_SHUT = "M93.6 45.4 Q99.2 49.2 104.8 45.4";
 
 const BREATH = 3; // s, one breath
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -51,54 +48,27 @@ export function Mascot({ uid }: { uid: string }) {
   const f = (name: string) => `url(#${uid}-${name})`;
   const [scope, animate] = useAnimate();
 
-  // Life: blinks, glances and a proper wink, on a loop (~8.5s). Transforms go on plain <g>s
-  // without filters, and blinks morph the stroke itself, so nothing skews.
+  // Life: the face slowly looks right and left while the body breathes. Transforms go on a plain <g>
+  // without filters, so nothing skews.
   useEffect(() => {
     if (reduce) return;
     let alive = true;
-    const eyeL = `#${uid}-eyeL`;
-    const eyeR = `#${uid}-eyeR`;
     const face = `#${uid}-face`;
-    const smile = `#${uid}-smile`;
-    const CLOSE = { duration: 0.07, ease: [0.4, 0, 1, 1] } as const;
-    const OPEN = { duration: 0.16, ease: [0, 0, 0.2, 1] } as const;
 
-    const blink = async () => {
-      await Promise.all([animate(eyeL, { d: EYE_L_SHUT }, CLOSE), animate(eyeR, { d: EYE_R_SHUT }, CLOSE)]);
-      await wait(40);
-      await Promise.all([animate(eyeL, { d: EYE_L_OPEN }, OPEN), animate(eyeR, { d: EYE_R_OPEN }, OPEN)]);
-    };
-    const glance = (dx: number, dy = 0) => animate(face, { x: dx, y: dy }, { type: "spring", duration: 0.45, bounce: 0.2 });
-    const wink = async () => {
-      animate(face, { rotate: 5, x: 2, y: -1 }, { type: "spring", duration: 0.5, bounce: 0.25 });
-      animate(smile, { scaleX: 1.1, scaleY: 1.18 }, { type: "spring", duration: 0.45, bounce: 0.3 });
-      await animate(eyeR, { d: EYE_R_SHUT }, { duration: 0.09, ease: [0.4, 0, 1, 1] });
-      await wait(320);
-      animate(smile, { scaleX: 1, scaleY: 1 }, { type: "spring", duration: 0.5, bounce: 0.2 });
-      animate(face, { rotate: 0, x: 0, y: 0 }, { type: "spring", duration: 0.6, bounce: 0.2 });
-      await animate(eyeR, { d: EYE_R_OPEN }, { duration: 0.18, ease: [0, 0, 0.2, 1] });
-    };
+    const glance = (dx: number, dy = 0) => animate(face, { x: dx, y: dy }, { type: "spring", duration: 0.9, bounce: 0 });
 
     (async () => {
-      await wait(1100); // after the entrance
+      await wait(1400); // after the entrance
       while (alive) {
-        await blink();
-        await wait(700);
+        await glance(3.5, -1);
+        await wait(1500);
         if (!alive) break;
-        await wink();
-        await wait(1000);
-        await glance(4, -1);
-        await wait(650);
         await glance(0);
-        await wait(450);
-        await blink();
-        await wait(140);
-        await blink();
-        await wait(800);
-        await glance(-4, 0.5);
-        await wait(700);
+        await wait(1200);
+        await glance(-3.5, 0.5);
+        await wait(1500);
         await glance(0);
-        await wait(1100);
+        await wait(1200);
       }
     })();
     return () => {

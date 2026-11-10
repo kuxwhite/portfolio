@@ -25,7 +25,7 @@ const STEPS: Step<Phase>[] = [
   { phase: "loading", ms: 900 },
   { phase: "fadeOut", ms: 300 }, // fade through: the payment screen goes out first…
   { phase: "success", ms: 1700 }, // …then the result comes in, parts one after another
-  { phase: "hold", ms: 3800 }, // the mascot blinks, winks and looks around
+  { phase: "hold", ms: 2800 }, // the mascot breathes and looks around
   { phase: "toActions", ms: 1600 }, // down to "Чек / Повторить / Закрыть"
   { phase: "pressClose", ms: 420 },
   { phase: "closeOut", ms: 300 }, // fade through back to the bank home

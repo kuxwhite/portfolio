@@ -95,6 +95,7 @@ export function Pressable({
   hideImage = false,
   pressScale = 0.96,
   darken = false,
+  overlay,
 }: {
   src: string;
   style: CSSProperties;
@@ -107,6 +108,8 @@ export function Pressable({
   /** Small icon buttons need a deeper press to read at mockup scale. */
   pressScale?: number;
   darken?: boolean;
+  /** Drawn above the cut image (e.g. a highlight sweep). */
+  overlay?: React.ReactNode;
 }) {
   if (!visible) return null;
   return (
@@ -130,6 +133,7 @@ export function Pressable({
           animate={{ opacity: hideImage ? 0 : 1 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
         />
+        {overlay}
       </motion.div>
     </>
   );
@@ -195,6 +199,49 @@ export function StatusBand({ src, visible }: { src: string; visible: boolean }) 
       initial={false}
       animate={{ opacity: visible ? 1 : 0 }}
       transition={{ duration: 0.6, ease: [0.2, 0, 0, 1] }}
+    />
+  );
+}
+
+/**
+ * Highlight sweep across an enabled primary button (as in Yandex Pay): a soft light band
+ * passes left to right, then rests, while the button is ready to be pressed.
+ */
+export function Shine({ on }: { on: boolean }) {
+  return (
+    <AnimatePresence>
+      {on && (
+        <motion.span
+          key="shine"
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.15 } }}
+        >
+          <motion.span
+            className="absolute inset-y-0 w-[45%]"
+            style={{ background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 100%)" }}
+            initial={{ x: "-110%" }}
+            animate={{ x: "330%" }}
+            transition={{ duration: 1.1, ease: [0.45, 0, 0.55, 1], repeat: Infinity, repeatDelay: 0.6 }}
+          />
+        </motion.span>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/** A horizontal band of a 402×874 frame (by y range), so parts of one screen can enter separately. */
+export function FrameBand({ src, from, to, alt = "" }: { src: string; from: number; to: number; alt?: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      draggable={false}
+      className="absolute inset-0 block h-full w-full max-w-none"
+      style={{ clipPath: `inset(${(from / 874) * 100}% 0 ${100 - (to / 874) * 100}% 0)` }}
     />
   );
 }

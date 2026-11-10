@@ -1,0 +1,102 @@
+/*
+ * Portfolio design tokens.
+ * Source: Figma collections "Portfolio / Typography", "Portfolio / Colors",
+ * "Portfolio / Dimensions" and text styles "Portfolio/*".
+ * Names follow the variables' WEB code syntax.
+ * Desktop mode lives in :root, Mobile mode overrides below 768px.
+ */
+:root {
+  /* Portfolio / Colors · palette */
+  --portfolio-palette-white: #ffffff;
+  --portfolio-palette-neutral-50: #f7f7f7;
+  --portfolio-palette-neutral-100: #efefef;
+  --portfolio-palette-neutral-150: #e6e6e6;
+  --portfolio-palette-neutral-300: #aeaeae;
+  --portfolio-palette-neutral-400: #9e9e9e;
+  --portfolio-palette-neutral-500: #818181;
+  --portfolio-palette-neutral-600: #707070;
+  --portfolio-palette-neutral-950: #131313;
+  --portfolio-palette-green-500: #34c759;
+  --portfolio-palette-blue-500: #0088ff;
+
+  /* Portfolio / Colors · semantic */
+  --portfolio-text-primary: var(--portfolio-palette-neutral-950);
+  --portfolio-text-secondary: var(--portfolio-palette-neutral-600);
+  --portfolio-text-tertiary: var(--portfolio-palette-neutral-500);
+  --portfolio-text-muted: var(--portfolio-palette-neutral-400);
+  --portfolio-text-subtle: var(--portfolio-palette-neutral-300);
+  --portfolio-text-inverse: var(--portfolio-palette-white);
+  --portfolio-text-accent: var(--portfolio-palette-green-500);
+  --portfolio-icon-primary: var(--portfolio-palette-neutral-950);
+  --portfolio-bg-page: var(--portfolio-palette-white);
+  --portfolio-bg-card: var(--portfolio-palette-white);
+  --portfolio-bg-section: var(--portfolio-palette-neutral-50);
+  --portfolio-bg-subtle: var(--portfolio-palette-neutral-100);
+  --portfolio-border-subtle: var(--portfolio-palette-neutral-100);
+  --portfolio-pagination-track: var(--portfolio-palette-neutral-150);
+  --portfolio-pagination-dot: var(--portfolio-palette-neutral-300);
+  --portfolio-pagination-dot-active: var(--portfolio-palette-neutral-950);
+
+  /* Portfolio / Colors · button */
+  --portfolio-button-primary-bg-default: var(--portfolio-palette-blue-500);
+  --portfolio-button-primary-bg-hover: #269aff;
+  --portfolio-button-primary-bg-pressed: #0078e0;
+  --portfolio-button-primary-bg-disabled: #b8dcff;
+  --portfolio-button-primary-fg: var(--portfolio-palette-white);
+  --portfolio-button-primary-fg-disabled: var(--portfolio-palette-white);
+  --portfolio-button-secondary-bg-default: var(--portfolio-palette-neutral-50);
+  --portfolio-button-secondary-bg-hover: #fbfbfb;
+  --portfolio-button-secondary-bg-pressed: #ebebeb;
+  --portfolio-button-secondary-bg-disabled: var(--portfolio-palette-neutral-50);
+  --portfolio-button-secondary-fg: var(--portfolio-palette-neutral-950);
+  --portfolio-button-secondary-fg-disabled: #c7c7cc;
+
+  /* Portfolio / Typography (Desktop) */
+  --portfolio-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+  --portfolio-font-weight-regular: 400;
+  --portfolio-font-weight-medium: 500;
+  --portfolio-font-weight-semibold: 600;
+  --portfolio-font-size-display: 40px;
+  --portfolio-font-size-heading: 32px;
+  --portfolio-font-size-body-l: 24px;
+  --portfolio-font-size-body-m: 20px;
+  --portfolio-font-size-label: 16px;
+  --portfolio-font-size-caption: 14px;
+
+  /* Portfolio / Dimensions (Desktop) */
+  --portfolio-radius-full: 1000px;
+  --portfolio-radius-card: 32px;
+  --portfolio-button-padding-y: 12px;
+  --portfolio-button-padding-x: 20px;
+  --portfolio-button-padding-x-icon-side: 16px;
+  --portfolio-button-padding-icon: 12px;
+  --portfolio-button-gap: 8px;
+  --portfolio-section-padding-x: 396px;
+  --portfolio-section-padding-y: 100px;
+  --portfolio-section-gap: 48px;
+  --portfolio-hero-padding-top: 44px;
+  --portfolio-hero-padding-bottom: 44px;
+  --portfolio-content-max-width: 648px;
+  --portfolio-icon-size-md: 24px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    /* Portfolio / Typography (Mobile) */
+    --portfolio-font-size-display: 28px;
+    --portfolio-font-size-heading: 24px;
+    --portfolio-font-size-body-l: 18px;
+    --portfolio-font-size-body-m: 16px;
+    --portfolio-font-size-label: 14px;
+    --portfolio-font-size-caption: 14px;
+
+    /* Portfolio / Dimensions (Mobile) */
+    --portfolio-radius-card: 24px;
+    --portfolio-section-padding-x: 20px;
+    --portfolio-section-padding-y: 56px;
+    --portfolio-section-gap: 32px;
+    --portfolio-hero-padding-top: 64px;
+    --portfolio-hero-padding-bottom: 32px;
+    --portfolio-content-max-width: 350px;
+  }
+}

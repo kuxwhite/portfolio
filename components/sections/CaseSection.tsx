@@ -10,14 +10,13 @@ import { links } from "@/lib/site";
 import { ScenarioCard, PhoneSlot } from "@/components/scenario/ScenarioCard";
 import { PhoneFrame, Screen } from "@/components/scenario/PhoneFrame";
 import { TransferAnimation, TRANSFER_MS } from "@/components/scenario/TransferAnimation";
-import { QrAnimation, QR_MS } from "@/components/scenario/QrAnimation";
 import { asset } from "@/lib/asset";
 import type { Content } from "@/lib/content";
 
 const SLIDES = 3;
-const LOAN_MS = 6000;
+const STATIC_MS = 6000; // static cards (Кредит, QR while it is being redrawn)
 /** Playback length of each slide; the pagination pill fills over it, then the carousel advances. */
-const DURATIONS = [TRANSFER_MS, LOAN_MS, QR_MS];
+const DURATIONS = [TRANSFER_MS, STATIC_MS, STATIC_MS];
 
 export function CaseSection({ t }: { t: Content["case"] }) {
   const { trackRef, active, scrollTo } = useCarousel(SLIDES);
@@ -92,7 +91,11 @@ export function CaseSection({ t }: { t: Content["case"] }) {
           <ScenarioCard
             caption={t.qr}
           >
-            <QrAnimation clock={clock} active={active === 2 && playing} />
+            <PhoneSlot>
+              <PhoneFrame>
+                <Screen src={asset("screens/qr-01.webp")} alt="Главная платежей" />
+              </PhoneFrame>
+            </PhoneSlot>
           </ScenarioCard>
         </div>
 

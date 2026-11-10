@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { preload } from "react-dom";
 import { content, type Lang } from "@/lib/content";
-// Inter is the real fallback where SF Pro is not installed (Windows, Android, Linux).
-import "@fontsource-variable/inter/wght.css";
 import "@/app/globals.css";
 
 export const viewport: Viewport = {
@@ -19,6 +18,7 @@ export function metadataFor(lang: Lang): Metadata {
 }
 
 export function RootDocument({ lang, children }: { lang: Lang; children: React.ReactNode }) {
+  preload("/fonts/SF-Pro-Display-Medium.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return (
     <html lang={lang}>
       <body>{children}</body>

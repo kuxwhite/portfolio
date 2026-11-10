@@ -10,14 +10,13 @@ import { links } from "@/lib/site";
 import { ScenarioCard, PhoneSlot } from "@/components/scenario/ScenarioCard";
 import { PhoneFrame, Screen } from "@/components/scenario/PhoneFrame";
 import { TransferAnimation, TRANSFER_MS } from "@/components/scenario/TransferAnimation";
-import { QrAnimation, QR_MS } from "@/components/scenario/QrAnimation";
 import { asset } from "@/lib/asset";
 import type { Content } from "@/lib/content";
 
 const SLIDES = 3;
-const LOAN_MS = 6000;
+const STATIC_MS = 6000; // static cards (Кредит, QR while it is being redrawn)
 /** Playback length of each slide; the pagination pill fills over it, then the carousel advances. */
-const DURATIONS = [TRANSFER_MS, LOAN_MS, QR_MS];
+const DURATIONS = [TRANSFER_MS, STATIC_MS, STATIC_MS];
 
 export function CaseSection({ t }: { t: Content["case"] }) {
   const { trackRef, active, scrollTo } = useCarousel(SLIDES);
@@ -74,12 +73,16 @@ export function CaseSection({ t }: { t: Content["case"] }) {
           className="bleed-x flex snap-x snap-mandatory items-start gap-8 overflow-x-auto max-md:gap-3"
         >
           <ScenarioCard
+            current={active === 0}
+            onSelect={() => scrollTo(0)}
             caption={t.transfer}
           >
             <TransferAnimation clock={clock} active={active === 0 && playing} />
           </ScenarioCard>
 
           <ScenarioCard
+            current={active === 1}
+            onSelect={() => scrollTo(1)}
             caption={t.loan}
           >
             <PhoneSlot>
@@ -90,9 +93,15 @@ export function CaseSection({ t }: { t: Content["case"] }) {
           </ScenarioCard>
 
           <ScenarioCard
+            current={active === 2}
+            onSelect={() => scrollTo(2)}
             caption={t.qr}
           >
-            <QrAnimation clock={clock} active={active === 2 && playing} />
+            <PhoneSlot>
+              <PhoneFrame>
+                <Screen src={asset("screens/qr-01.webp")} alt="Главная платежей" />
+              </PhoneFrame>
+            </PhoneSlot>
           </ScenarioCard>
         </div>
 

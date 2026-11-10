@@ -4,24 +4,24 @@ import { motion, type MotionValue } from "motion/react";
 import { asset } from "@/lib/asset";
 import { PhoneFrame } from "./PhoneFrame";
 import { PhoneSlot } from "./ScenarioCard";
-import { CAMERA, FADE, Frame, LIFT, Loader, Pressable, ScreenCanvas, rect, totalMs, usePhase, type Step } from "./anim";
+import { CAMERA, FADE, Frame, LIFT, Loader, Pressable, SHEET, ScreenCanvas, SheetBody, StatusBand, rect, totalMs, usePhase, type Step } from "./anim";
 
 type Phase =
   | "home" | "pressTile" | "expand" | "scan"
   | "sheet" | "lift" | "pressPay" | "loading" | "success" | "toTop" | "hold";
 
 const STEPS: Step<Phase>[] = [
-  { phase: "home", ms: 1500 },
-  { phase: "pressTile", ms: 260 },
-  { phase: "expand", ms: 950 }, // QR tile opens into the full-screen scanner
-  { phase: "scan", ms: 1600 },
-  { phase: "sheet", ms: 900 }, // payment confirmation rises over the camera
-  { phase: "lift", ms: 1300 },
-  { phase: "pressPay", ms: 260 },
-  { phase: "loading", ms: 1600 },
-  { phase: "success", ms: 800 },
-  { phase: "toTop", ms: 1300 },
-  { phase: "hold", ms: 2200 },
+  { phase: "home", ms: 1600 },
+  { phase: "pressTile", ms: 320 },
+  { phase: "expand", ms: 1100 }, // QR tile opens into the full-screen scanner
+  { phase: "scan", ms: 1700 },
+  { phase: "sheet", ms: 1500 }, // payment confirmation rises over the camera
+  { phase: "lift", ms: 1600 },
+  { phase: "pressPay", ms: 300 },
+  { phase: "loading", ms: 1100 },
+  { phase: "success", ms: 900 },
+  { phase: "toTop", ms: 1600 },
+  { phase: "hold", ms: 2400 },
 ];
 export const QR_MS = totalMs(STEPS);
 
@@ -76,9 +76,9 @@ export function QrAnimation({ clock, active }: { clock: MotionValue<number>; act
               className="absolute inset-0 z-20"
               initial={false}
               animate={{ y: sheet ? "0%" : "102%" }}
-              transition={{ type: "spring", duration: 0.8, bounce: 0 }}
+              transition={SHEET}
             >
-              <Frame src={asset("screens/qr-03.webp")} visible alt="Подтверждение оплаты" />
+              <SheetBody src={asset("screens/qr-03.webp")} alt="Подтверждение оплаты" />
               <Pressable
                 src={asset("parts/btn-pay.webp")}
                 style={PAY}
@@ -90,8 +90,16 @@ export function QrAnimation({ clock, active }: { clock: MotionValue<number>; act
                 <span className="absolute inset-0 bg-[#22df6b]" />
                 <Loader show={phase === "loading"} />
               </Pressable>
-              <Frame src={asset("screens/qr-06.webp")} visible={at("success")} alt="Оплачено" />
+              <motion.div
+                className="absolute inset-0"
+                initial={false}
+                animate={{ opacity: at("success") ? 1 : 0 }}
+                transition={FADE}
+              >
+                <SheetBody src={asset("screens/qr-06.webp")} alt="Оплачено" />
+              </motion.div>
             </motion.div>
+            <StatusBand src={asset("screens/qr-03.webp")} visible={sheet} />
           </ScreenCanvas>
         </PhoneFrame>
       </PhoneSlot>

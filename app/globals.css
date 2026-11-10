@@ -1,9 +1,11 @@
 @import "tailwindcss";
+@import "./styles/fonts.css";
 @import "./styles/tokens.css";
 
 /* Tailwind theme mapped onto Portfolio tokens only */
 @theme inline {
   --font-sans: var(--portfolio-font-family);
+  --font-rounded: var(--portfolio-font-family-rounded);
 
   --color-fg-primary: var(--portfolio-text-primary);
   --color-fg-secondary: var(--portfolio-text-secondary);

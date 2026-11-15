@@ -24,31 +24,82 @@
   --color-pagination-dot: var(--portfolio-pagination-dot);
   --color-pagination-dot-active: var(--portfolio-pagination-dot-active);
 
-  /* Portfolio/* text styles */
-  --text-display: var(--portfolio-font-size-display);
-  --text-display--line-height: normal;
-  --text-display--letter-spacing: -0.005em;
-  --text-display--font-weight: var(--portfolio-font-weight-semibold);
-  --text-heading: var(--portfolio-font-size-heading);
-  --text-heading--line-height: normal;
-  --text-heading--letter-spacing: -0.005em;
-  --text-heading--font-weight: var(--portfolio-font-weight-medium);
-  --text-body-l: var(--portfolio-font-size-body-l);
-  --text-body-l--line-height: normal;
-  --text-body-l--font-weight: var(--portfolio-font-weight-medium);
-  --text-body-m: var(--portfolio-font-size-body-m);
-  --text-body-m--line-height: normal;
-  --text-body-m--letter-spacing: -0.003em;
-  --text-body-m--font-weight: var(--portfolio-font-weight-medium);
-  --text-label: var(--portfolio-font-size-label);
-  --text-label--line-height: 20px;
-  --text-label--font-weight: var(--portfolio-font-weight-medium);
-  --text-caption: var(--portfolio-font-size-caption);
-  --text-caption--line-height: 20px;
-  --text-caption--font-weight: var(--portfolio-font-weight-regular);
-
   --radius-card: var(--portfolio-radius-card);
   --radius-full: var(--portfolio-radius-full);
+  --radius-visual: var(--radius-visual);
+  --radius-brand: var(--radius-brand);
+  --radius-logo: var(--radius-logo);
+  --radius-logo-s: var(--radius-logo-s);
+}
+
+/*
+ * Portfolio/* text styles (Figma). Sizes, weights, families and mono leading come from the
+ * Typography collection, so the Mobile mode applies below 768px through the tokens.
+ */
+@utility type-display {
+  font-family: var(--portfolio-font-family);
+  font-weight: var(--portfolio-font-weight-semibold);
+  font-size: var(--portfolio-font-size-display);
+  line-height: normal;
+  letter-spacing: -0.005em;
+}
+@utility type-heading {
+  font-family: var(--portfolio-font-family);
+  font-weight: var(--portfolio-font-weight-medium);
+  font-size: var(--portfolio-font-size-heading);
+  line-height: normal;
+  letter-spacing: -0.005em;
+}
+@utility type-body-l {
+  font-family: var(--portfolio-font-family);
+  font-weight: var(--portfolio-font-weight-medium);
+  font-size: var(--portfolio-font-size-body-l);
+  line-height: 32px;
+}
+@utility type-body-m {
+  font-family: var(--portfolio-font-family);
+  font-weight: var(--portfolio-font-weight-medium);
+  font-size: var(--portfolio-font-size-body-m);
+  line-height: 24px;
+  letter-spacing: -0.003em;
+}
+@utility type-link {
+  font-family: var(--portfolio-font-family);
+  font-weight: var(--portfolio-font-weight-regular);
+  font-size: var(--portfolio-font-size-body-l);
+  line-height: normal;
+}
+@utility type-label {
+  font-family: var(--portfolio-font-family);
+  font-weight: var(--portfolio-font-weight-medium);
+  font-size: var(--portfolio-font-size-label);
+  line-height: 20px;
+}
+@utility type-caption {
+  font-family: var(--portfolio-font-family);
+  font-weight: var(--portfolio-font-weight-regular);
+  font-size: var(--portfolio-font-size-caption);
+  line-height: 20px;
+}
+@utility type-overline {
+  font-family: var(--font-mono);
+  font-weight: var(--portfolio-font-weight-medium);
+  font-size: var(--text-overline);
+  line-height: var(--leading-mono);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+@utility type-mono-s {
+  font-family: var(--font-mono);
+  font-weight: var(--portfolio-font-weight-medium);
+  font-size: var(--text-mono-s);
+  line-height: var(--leading-mono);
+}
+@utility type-mono-m {
+  font-family: var(--font-mono);
+  font-weight: var(--portfolio-font-weight-medium);
+  font-size: var(--text-overline);
+  line-height: var(--leading-mono);
 }
 
 html {
@@ -160,4 +211,21 @@ html.lenis body {
   from {
     opacity: 0;
   }
+}
+
+/* Case strip previews keep their Figma sizes on desktop and scale down on phones. */
+:root {
+  --case-scale: 1;
+}
+@media (max-width: 767px) {
+  :root {
+    --case-scale: 0.7;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

@@ -1,51 +1,32 @@
-"use client";
-
-import { Pagination } from "@/components/ui/Pagination";
-import { useCarousel } from "@/components/ui/useCarousel";
-import { asset } from "@/lib/asset";
 import type { Content } from "@/lib/content";
+import { VisualTile, type VisualMedia } from "@/components/sections/VisualTile";
 
-const SHOTS = 3;
-const card = "relative shrink-0 snap-start overflow-hidden rounded-card bg-bg-section h-[434px] max-md:h-[360px]";
+/*
+ * Masonry from Figma "Gallery" (1373:61280): three 440px columns, tile heights in px.
+ * Tiles keep these proportions as the columns resize; on phones the columns stack into one.
+ * Add `media` to a tile to show an image or video.
+ */
+const COLUMNS: { h: number; media?: VisualMedia }[][] = [
+  [{ h: 487 }, { h: 229 }, { h: 440 }, { h: 440 }],
+  [{ h: 184 }, { h: 652 }, { h: 463 }, { h: 732 }],
+  [{ h: 788 }, { h: 440 }, { h: 671 }],
+];
+const COLUMN_W = 440;
 
-/* eslint-disable @next/next/no-img-element */
 export function Visuals({ t }: { t: Content["visuals"] }) {
-  const { trackRef, active, scrollTo } = useCarousel(SHOTS);
   return (
-    <section aria-labelledby="visuals-title" className="py-(--portfolio-section-padding-y)">
-      <div className="content flex flex-col gap-(--portfolio-section-gap)">
-        <h2 id="visuals-title" className="text-heading text-fg-primary">
-          {t.title}
-        </h2>
-
-        <div ref={trackRef} className="bleed-x flex snap-x snap-mandatory gap-4 overflow-x-auto max-md:gap-3">
-          {/* Phone with success character */}
-          <div className={`${card} w-[648px] max-md:w-[538px]`}>
-            <img
-              src={asset("img/visual-phone.webp")}
-              alt={t.alts[0]}
-              className="absolute left-1/2 top-[37px] h-auto w-[40.85%] max-w-none -translate-x-1/2"
-            />
+    <section aria-labelledby="visuals-title" className="flex flex-col items-center gap-(--portfolio-section-gap) px-(--page-padding-x) py-(--portfolio-section-gap)">
+      <h2 id="visuals-title" className="type-overline text-center text-fg-secondary">
+        {t.title} <span className="text-fg-subtle">{t.note}</span>
+      </h2>
+      <div className="flex w-full items-start gap-(--space-16) max-md:flex-col">
+        {COLUMNS.map((col, c) => (
+          <div key={c} className="flex w-full min-w-0 flex-1 flex-col gap-(--space-16)">
+            {col.map((tile, i) => (
+              <VisualTile key={i} ratio={[COLUMN_W, tile.h]} media={tile.media} />
+            ))}
           </div>
-          {/* Deposit card thumbnail */}
-          <div className={`${card} w-[250px] max-md:w-[207px]`}>
-            <img
-              src={asset("img/visual-deposit.webp")}
-              alt={t.alts[1]}
-              className="absolute left-0 top-1/2 h-auto w-full max-w-none -translate-y-[36.4%]"
-            />
-          </div>
-          {/* Debit card */}
-          <div className={`${card} w-[788px] max-md:w-[654px]`}>
-            <img
-              src={asset("img/visual-card.webp")}
-              alt={t.alts[2]}
-              className="absolute left-1/2 top-1/2 h-auto w-[46.45%] max-w-none -translate-x-1/2 -translate-y-[45.3%]"
-            />
-          </div>
-        </div>
-
-        <Pagination count={SHOTS} active={active} onSelect={scrollTo} label={t.label} />
+        ))}
       </div>
     </section>
   );

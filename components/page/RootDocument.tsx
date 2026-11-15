@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { preload } from "react-dom";
 import { content, type Lang } from "@/lib/content";
+import "@fontsource/geist-mono/500.css";
 import "@/app/globals.css";
 
 export const viewport: Viewport = {

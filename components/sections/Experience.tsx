@@ -3,95 +3,88 @@
 import { useId, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
 import { asset } from "@/lib/asset";
 import type { Content } from "@/lib/content";
 
 type Item = Content["experience"]["items"][number];
+type Part = Item["projects"][number][number];
+
+const EASE = [0.32, 0.72, 0, 1] as const;
+
+// Company mark backgrounds: neutral-950 token; Intelinvest uses its brand blue (no Portfolio token).
+const LOGO_BG: Record<Item["logoBg"], string> = {
+  neutral: "bg-(--portfolio-palette-neutral-950)",
+  intelinvest: "bg-[#5e8ff2]",
+};
 
 const Logo = ({ name }: { name: string }) => (
   // eslint-disable-next-line @next/next/no-img-element
-  <img src={asset(`logos/${name}.svg`)} alt="" aria-hidden className="inline-block size-5 shrink-0" />
+  <img src={asset(`logos/${name}.svg`)} alt="" aria-hidden width={20} height={20} className="block size-(--space-20) shrink-0" />
 );
 
-export function Experience({ t }: { t: Content["experience"] }) {
-  const [open, setOpen] = useState<Record<number, boolean>>({ 0: true });
-  return (
-    <section id="experience" aria-labelledby="experience-title" className="scroll-mt-6 bg-bg-section py-(--portfolio-section-padding-y)">
-      <div className="content flex flex-col gap-16">
-        <h2 id="experience-title" className="text-heading text-fg-primary">
-          {t.title}
-        </h2>
-        <ul className="flex flex-col gap-11">
-          {t.items.map((item, i) => (
-            <ExperienceItem
-              key={item.company}
-              item={item}
-              labels={t}
-              expanded={!!open[i]}
-              onToggle={() => setOpen((o) => ({ ...o, [i]: !o[i] }))}
-            />
-          ))}
-        </ul>
-      </div>
-    </section>
+function ProjectPart({ part, i }: { part: Part; i: number }) {
+  if (typeof part === "string") return <>{part.split(" ").map((w, k) => <span key={`${i}-${k}`}>{w}</span>)}</>;
+  const inner = (
+    <>
+      <Logo name={part.logo} />
+      {part.label && <span>{part.label}</span>}
+    </>
+  );
+  return part.chip ? (
+    // The chip overhangs the 20px text line, as in Figma, instead of making the row taller.
+    <span className="-my-(--space-4) inline-flex items-center gap-(--space-4) rounded-logo border border-(--portfolio-button-secondary-bg-pressed) p-(--space-2)">{inner}</span>
+  ) : (
+    <span className="inline-flex items-center gap-(--space-4)">{inner}</span>
   );
 }
 
-function ExperienceItem({
-  item,
-  labels,
-  expanded,
-  onToggle,
-}: {
-  item: Item;
-  labels: { expand: string; collapse: string };
-  expanded: boolean;
-  onToggle: () => void;
-}) {
+function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
+  const [open, setOpen] = useState(item.defaultOpen);
   const reduce = useReducedMotion();
   const panelId = useId();
-  const hasProjects = item.projects.length > 0;
 
   return (
-    <li className="flex items-start gap-4">
-      <div className="shrink-0 rounded-[16px] border border-[color-mix(in_srgb,var(--portfolio-palette-neutral-150)_24%,transparent)] bg-bg-card p-1">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={asset(`logos/${item.logo}.svg`)} alt={item.company} className="size-10" />
-      </div>
-
+    <li className="flex items-start gap-(--space-16) rounded-card border border-border-subtle p-(--space-24)">
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex flex-col gap-4">
-          <p className="text-label text-fg-muted">{item.years}</p>
-          <h3 className="text-body-m text-fg-primary">{item.company}</h3>
-          <p className="text-label text-fg-primary">{item.description}</p>
+        <div className="flex flex-col gap-(--space-8)">
+          <p className="type-mono-s flex items-center gap-(--space-4) text-fg-muted">
+            <span>{item.start}</span>
+            <span aria-hidden>-</span>
+            {item.end ? (
+              <span>{item.end}</span>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={asset("icons/sparkles.svg")} alt={t.present} width={16} height={16} className="block size-(--space-16)" />
+            )}
+          </p>
+          <div className="flex items-center gap-(--space-8)">
+            <span className={`flex rounded-logo p-(--space-2) ${LOGO_BG[item.logoBg]}`}>
+              <Logo name={item.logo} />
+            </span>
+            <h3 className="type-body-m text-fg-primary">{item.company}</h3>
+          </div>
+          <p className="type-label pl-(--space-32) text-fg-tertiary">{item.description}</p>
         </div>
 
         <AnimatePresence initial={false}>
-          {expanded && hasProjects && (
+          {open && item.projects.length > 0 && (
             <motion.div
               id={panelId}
               key="projects"
-              initial={reduce ? false : { height: 0, opacity: 0 }}
+              initial={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
-              exit={reduce ? { height: 0, opacity: 0, transition: { duration: 0 } } : { height: 0, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+              exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+              transition={{ duration: reduce ? 0.2 : 0.4, ease: EASE }}
               className="overflow-hidden"
             >
-              <ol className="flex flex-col gap-4 pt-6">
+              <ol className="flex flex-col gap-(--space-8) pl-(--space-32) pt-(--space-20)">
                 {item.projects.map((p, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-bg-subtle text-label text-fg-muted">
-                      {idx + 1}
-                    </span>
-                    <p className="flex flex-1 flex-wrap items-center gap-x-1 text-label text-fg-secondary">
-                      {p.map((part, j) =>
-                        typeof part === "string" ? (
-                          part.split(" ").map((w, k) => <span key={`${j}-${k}`}>{w}</span>)
-                        ) : (
-                          <Logo key={j} name={part.logo} />
-                        ),
-                      )}
+                  <li key={idx} className="flex items-start gap-(--space-8)">
+                    <span className="type-mono-m shrink-0 text-fg-subtle">{idx + 1}</span>
+                    <p className="type-label flex flex-1 flex-wrap items-center gap-(--space-4) text-fg-secondary">
+                      {p.map((part, j) => (
+                        <ProjectPart key={j} part={part} i={j} />
+                      ))}
                     </p>
                   </li>
                 ))}
@@ -104,21 +97,38 @@ function ExperienceItem({
       <Button
         variant="secondary"
         content="icon"
+        size="sm"
         strong
-        aria-expanded={expanded}
-        aria-controls={hasProjects ? panelId : undefined}
-        aria-label={`${expanded ? labels.collapse : labels.expand} ${item.company}`}
-        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-label={`${open ? t.collapse : t.expand} ${item.company}`}
+        onClick={() => setOpen((o) => !o)}
         icon={
           <motion.span
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={reduce ? { duration: 0 } : { duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
             className="flex"
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.3, ease: EASE }}
           >
-            <Icon name="chevron-down" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={asset("icons/chevron-down-20.svg")} alt="" aria-hidden width={20} height={20} className="block size-(--space-20)" />
           </motion.span>
         }
       />
     </li>
+  );
+}
+
+export function Experience({ t }: { t: Content["experience"] }) {
+  return (
+    <section id="experience" aria-labelledby="experience-title" className="flex scroll-mt-(--space-24) flex-col items-center gap-(--portfolio-section-gap) py-(--portfolio-section-gap)">
+      <h2 id="experience-title" className="content type-overline text-center text-fg-secondary">
+        {t.overline}
+      </h2>
+      <ul className="content flex flex-col gap-(--space-16)">
+        {t.items.map((item) => (
+          <ExperienceCard key={item.company} item={item} t={t} />
+        ))}
+      </ul>
+    </section>
   );
 }

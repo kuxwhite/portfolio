@@ -1,31 +1,59 @@
 export type Lang = "ru" | "en";
 
-type Caption = { lead: string; rest: string };
-type ProjectPart = string | { logo: string };
+type ProjectPart = string | { logo: string; label?: string; chip?: boolean };
+
+export type CaseCard = {
+  image: string;
+  caption: string;
+  /** Preview size in the Figma strip, px (desktop). */
+  w: number;
+  h: number;
+  /** Preview fill token class; none = no fill. */
+  fill: "subtle" | "page" | "section" | "none";
+  captionTone: "muted" | "primary";
+};
 
 export type Content = {
   meta: { title: string; description: string };
-  menu: { label: string; experience: string; cv: string; telegram: string };
-  hero: { location: string; name: [string, string]; pitch: string; facts: string; avatarAlt: string };
-  case: {
+  header: { name: string; switchLabel: string };
+  hero: { pitch: [string, string]; facts: string; doodleLabel: string };
+  cases: {
+    overline: string;
     titleLead: string;
-    titleRest: string;
-    openCase: string;
-    carouselLabel: string;
-    transfer: Caption;
-    loan: Caption;
-    qr: Caption;
-    loanAlt: string;
+    brand: string;
+    subtitle: string;
+    tags: string;
+    cta: string;
+    stripLabel: string;
+    cards: CaseCard[];
   };
   experience: {
-    title: string;
+    overline: string;
     expand: string;
     collapse: string;
-    items: { logo: string; years: string; company: string; description: string; projects: ProjectPart[][] }[];
+    present: string;
+    items: {
+      logo: string;
+      logoBg: "neutral" | "intelinvest";
+      start: string;
+      end?: string;
+      company: string;
+      description: string;
+      projects: ProjectPart[][];
+      defaultOpen: boolean;
+    }[];
   };
-  visuals: { title: string; label: string; alts: [string, string, string] };
-  contact: { title: string; text: string };
+  visuals: { title: string; note: string };
 };
+
+const cards = (captions: string[]): CaseCard[] => [
+  { image: "cases/face-id.webp", caption: captions[0], w: 424, h: 500, fill: "subtle", captionTone: "muted" },
+  { image: "cases/debit-card.webp", caption: captions[1], w: 432, h: 300, fill: "page", captionTone: "muted" },
+  { image: "cases/home.webp", caption: captions[2], w: 347, h: 400, fill: "subtle", captionTone: "muted" },
+  { image: "cases/atms.webp", caption: captions[3], w: 200, h: 200, fill: "subtle", captionTone: "muted" },
+  { image: "cases/card-management.webp", caption: captions[4], w: 400, h: 500, fill: "section", captionTone: "primary" },
+  { image: "cases/history.webp", caption: captions[5], w: 404, h: 404, fill: "none", captionTone: "primary" },
+];
 
 export const content: Record<Lang, Content> = {
   ru: {
@@ -34,54 +62,50 @@ export const content: Record<Lang, Content> = {
       description:
         "Помогаю финтех, AI, web3 командам быстро проверять идеи через концепции и выпускать понятные продукты.",
     },
-    menu: { label: "Навигация", experience: "Опыт", cv: "CV", telegram: "Telegram" },
+    header: { name: "Кирилл Новиков", switchLabel: "Язык" },
     hero: {
-      location: "Пермь, Россия",
-      name: ["Кирилл Новиков,", "Senior Product Designer"],
-      pitch:
-        "Помогаю финтех, AI, web3 командам быстро проверять идеи через концепции и выпускать понятные продукты, в которых сложные сценарии остаются простыми для пользователя.",
-      facts: "6+ лет · Module agency · ex-Intelinvest",
-      avatarAlt: "Кирилл Новиков",
+      pitch: [
+        "Помогаю финтех, AI, web3 командам быстро проверять идеи через концепции и выпускать понятные продукты,",
+        "в которых сложные сценарии остаются простыми",
+      ],
+      facts: "6+ лет · Senior Product Designer",
+      doodleLabel: "Нарисованный персонаж отдыхает лёжа",
     },
-    case: {
-      titleLead: "Редизайн мобильного банка Round: ",
-      titleRest: "вернулся к агентской версии и переработал ключевые сценарии.",
-      openCase: "Открыть кейс",
-      carouselLabel: "Сценарии кейса",
-      transfer: {
-        lead: "Перевод в одно касание.",
-        rest: "Клавиатура открывается сразу, а сумма видна прямо на кнопке. Вместо трёх действий осталось одно.",
-      },
-      loan: {
-        lead: "Любой платёж по кредиту в одном поле.",
-        rest: "Обычный, досрочный и полный платёж вводятся одинаково, а экономия и новый срок видны ещё до оплаты.",
-      },
-      qr: {
-        lead: "Оплата по QR в один тап.",
-        rest: "Камера встроена прямо в экран платежей, а после сканирования сразу видны магазин, сумма и условия.",
-      },
-      loanAlt: "Экран кредита",
+    cases: {
+      overline: "Кейсы",
+      titleLead: "Редизайн мобильного банка",
+      brand: "Moud",
+      subtitle: "Вернулся к агентской версии и переработал ключевые\u00a0сценарии",
+      tags: "Финтех · B2C · Мобайл",
+      cta: "Смотреть кейс",
+      stripLabel: "Экраны кейса",
+      cards: cards(["Face ID", "Дебетовая карта", "Главный экран", "Банкоматы", "Управление картой", "История"]),
     },
     experience: {
-      title: "Мой опыт",
+      overline: "Опыт",
       expand: "Развернуть",
       collapse: "Свернуть",
+      present: "по настоящее время",
       items: [
         {
-          logo: "module",
-          years: "2022 — настоящее время",
+          logo: "module-20",
+          logoBg: "neutral",
+          start: "2022",
           company: "Module agency",
           description:
             "Проектирую финтех- и AI-продукты для банков и e-commerce: платежи, кредитование, рассрочка, B2B-сервисы",
           projects: [
-            ["Редизайн мобильного банка", { logo: "round" }, "Round, сайт и оформление кредита наличными"],
-            ["A2C сервис для мерчантов в", { logo: "uzum" }, "Uzum Bank"],
-            ["Рассрочка BNPL в", { logo: "aliexpress" }, "Aliexpress"],
+            ["Редизайн мобильного банка", { logo: "round-20", label: "Round", chip: true }, "сайт и оформление кредита наличными"],
+            ["A2C сервис для мерчантов в", { logo: "uzum", label: "Uzum Bank" }],
+            ["Рассрочка BNPL в", { logo: "aliexpress-20", label: "Aliexpress", chip: true }],
           ],
+          defaultOpen: true,
         },
         {
-          logo: "intelinvest",
-          years: "2021 — 2022",
+          logo: "intelinvest-20",
+          logoBg: "intelinvest",
+          start: "2021",
+          end: "2022",
           company: "Intelinvest",
           description: "Крупнейший в СНГ сервис учёта инвестиций, больше 300 тысяч пользователей",
           projects: [
@@ -89,72 +113,61 @@ export const content: Record<Lang, Content> = {
             ["Выручка x1.5 в чёрную пятницу к 2021 году"],
             ["Фильтры, сортировка и табличный вид для публичных портфелей"],
           ],
+          defaultOpen: false,
         },
       ],
     },
-    visuals: {
-      title: "Визуал",
-      label: "Визуал",
-      alts: ["Экран успешной операции с маскотом", "Карточка вклада", "Дебетовая карта"],
-    },
-    contact: {
-      title: "Давайте поработаем",
-      text: "Открыт к предложениям на позицию Senior Product Designer. Быстрее всего отвечаю в Telegram.",
-    },
+    visuals: { title: "Визуал", note: "(анимация в процессе)" },
   },
   en: {
     meta: {
       title: "Kirill Novikov — Senior Product Designer",
       description: "I help fintech, AI and web3 teams test ideas quickly through concepts and ship clear products.",
     },
-    menu: { label: "Navigation", experience: "Experience", cv: "CV", telegram: "Telegram" },
+    header: { name: "Kirill Novikov", switchLabel: "Language" },
     hero: {
-      location: "Perm, Russia",
-      name: ["Kirill Novikov,", "Senior Product Designer"],
-      pitch:
-        "I help fintech, AI and web3 teams test ideas quickly through concepts and ship clear products where complex flows stay simple for the user.",
-      facts: "6+ years · Module agency · ex-Intelinvest",
-      avatarAlt: "Kirill Novikov",
+      pitch: [
+        "I help fintech, AI and web3 teams test ideas quickly through concepts and ship clear products,",
+        "where complex flows stay simple",
+      ],
+      facts: "6+ years · Senior Product Designer",
+      doodleLabel: "A hand-drawn character lying down and resting",
     },
-    case: {
-      titleLead: "Round mobile bank redesign: ",
-      titleRest: "went back to the agency version and reworked the key flows.",
-      openCase: "Open case study",
-      carouselLabel: "Case study flows",
-      transfer: {
-        lead: "One-tap transfer.",
-        rest: "The keypad opens right away and the amount is shown on the button. Three actions became one.",
-      },
-      loan: {
-        lead: "Any loan payment in a single field.",
-        rest: "Regular, early and full repayments are entered the same way, and the savings and new term are visible before paying.",
-      },
-      qr: {
-        lead: "QR payment in one tap.",
-        rest: "The camera is built right into the payments screen, and after scanning you instantly see the store, amount and terms.",
-      },
-      loanAlt: "Loan screen",
+    cases: {
+      overline: "Cases",
+      titleLead: "Mobile bank redesign",
+      brand: "Moud",
+      subtitle: "Went back to the agency version and reworked the key\u00a0flows",
+      tags: "Fintech · B2C · Mobile",
+      cta: "View case",
+      stripLabel: "Case screens",
+      cards: cards(["Face ID", "Debit card", "Home screen", "ATMs", "Card management", "History"]),
     },
     experience: {
-      title: "Experience",
+      overline: "Experience",
       expand: "Expand",
       collapse: "Collapse",
+      present: "present",
       items: [
         {
-          logo: "module",
-          years: "2022 — present",
+          logo: "module-20",
+          logoBg: "neutral",
+          start: "2022",
           company: "Module agency",
           description:
             "I design fintech and AI products for banks and e-commerce: payments, lending, installments, B2B services",
           projects: [
-            ["Redesign of the", { logo: "round" }, "Round mobile bank, website and cash loan flow"],
-            ["A2C service for merchants at", { logo: "uzum" }, "Uzum Bank"],
-            ["BNPL installments at", { logo: "aliexpress" }, "Aliexpress"],
+            ["Redesign of the", { logo: "round-20", label: "Round", chip: true }, "mobile bank, website and cash loan flow"],
+            ["A2C service for merchants at", { logo: "uzum", label: "Uzum Bank" }],
+            ["BNPL installments at", { logo: "aliexpress-20", label: "Aliexpress", chip: true }],
           ],
+          defaultOpen: true,
         },
         {
-          logo: "intelinvest",
-          years: "2021 — 2022",
+          logo: "intelinvest-20",
+          logoBg: "intelinvest",
+          start: "2021",
+          end: "2022",
           company: "Intelinvest",
           description: "The largest investment tracking service in the CIS, with over 300,000 users",
           projects: [
@@ -162,17 +175,10 @@ export const content: Record<Lang, Content> = {
             ["Revenue ×1.5 on Black Friday compared with 2021"],
             ["Filters, sorting and a table view for public portfolios"],
           ],
+          defaultOpen: false,
         },
       ],
     },
-    visuals: {
-      title: "Visuals",
-      label: "Visuals",
-      alts: ["Success screen with the mascot", "Deposit card", "Debit card"],
-    },
-    contact: {
-      title: "Let’s work together",
-      text: "Open to Senior Product Designer roles. Telegram is the fastest way to reach me.",
-    },
+    visuals: { title: "Visuals", note: "(animation in progress)" },
   },
 };

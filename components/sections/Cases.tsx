@@ -4,6 +4,7 @@ import { links } from "@/lib/site";
 import type { CaseCard, Content } from "@/lib/content";
 import { FlipCard } from "@/components/sections/cases/FlipCard";
 import { MotionPreview } from "@/components/sections/cases/MotionPreview";
+import { ArtboardPreview } from "@/components/sections/cases/ArtboardPreview";
 import { CaseStrip } from "@/components/sections/cases/CaseStrip";
 
 const FILL: Record<CaseCard["fill"], string> = {
@@ -38,11 +39,20 @@ function Card({ card, flipLabel }: { card: CaseCard; flipLabel: string }) {
   return (
     <figure role="listitem" className="flex shrink-0 snap-start flex-col gap-[calc(var(--space-16)*var(--case-scale))]">
       <div
-        // Motion previews draw (and clip) their own card; the rest are clipped here.
-        className={kind === "auth" || kind === "spending" ? "relative" : `relative overflow-hidden rounded-visual ${FILL[card.fill]}`}
-        style={{ width: `calc(${card.w}px * var(--case-scale))`, height: `calc(${card.h}px * var(--case-scale))` }}
+        // Motion previews draw (and clip) their own card; the rest are clipped here. clip-path + isolate
+        // make Safari clip the scaled artboard too, and the card fill sits on this same element, so
+        // the anti-aliased rounded edge never shows a light rim.
+        className={kind === "auth" || kind === "spending" ? "relative" : `relative isolate overflow-hidden rounded-visual ${FILL[card.fill]}`}
+        style={{
+          width: `calc(${card.w}px * var(--case-scale))`,
+          height: `calc(${card.h}px * var(--case-scale))`,
+          ...(kind === "auth" || kind === "spending" ? {} : { clipPath: "inset(0 round var(--radius-visual))" }),
+        }}
       >
-        {kind === "image" && (
+        {kind === "image" && card.screen && (
+          <ArtboardPreview w={card.w} h={card.h} image={card.image} alt={card.caption} screen={card.screen} />
+        )}
+        {kind === "image" && !card.screen && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={asset(card.image)} alt={card.caption} loading="lazy" draggable={false} className="block size-full object-cover" />
         )}

@@ -3,6 +3,9 @@ export type Lang = "ru" | "en";
 /** lead: the word kept on one line with the logo (Figma "Project Category"). */
 type ProjectPart = string | { logo: string; label?: string; chip?: boolean; lead?: string };
 
+/** Screen frame of a static preview, in Figma px relative to the card: position, size, radius, fill. */
+export type CaseScreen = { x: number; y: number; w: number; h: number; r: number; fill: string };
+
 export type CaseCard = {
   /**
    * Static screenshot, or a live preview built in code: "card" the flipping debit card,
@@ -10,6 +13,8 @@ export type CaseCard = {
    */
   kind?: "image" | "card" | "auth" | "spending";
   image: string;
+  /** Screen frame inside the Figma preview (image cards): the card clips it like Figma does. */
+  screen?: CaseScreen;
   caption: string;
   /** Preview size in the Figma strip, px (desktop). */
   w: number;
@@ -56,9 +61,24 @@ export type Content = {
 const cards = (captions: string[]): CaseCard[] => [
   { kind: "auth", image: "", caption: captions[0], w: 424, h: 500, fill: "subtle", captionTone: "muted" },
   { kind: "card", image: "", caption: captions[1], w: 432, h: 300, fill: "page", captionTone: "muted" },
-  { image: "cases/home.webp", caption: captions[2], w: 347, h: 400, fill: "subtle", captionTone: "muted" },
-  { image: "cases/atms.webp", caption: captions[3], w: 200, h: 200, fill: "subtle", captionTone: "muted" },
-  { image: "cases/card-management.webp", caption: captions[4], w: 400, h: 500, fill: "section", captionTone: "muted" },
+  // Figma 1366:57582 / 57583: 441.56 × 960 screen at (24, 24), larger than the card and clipped by it.
+  {
+    image: "cases/home.webp",
+    screen: { x: 24, y: 24, w: 441.556, h: 960, r: 44, fill: "var(--portfolio-bg-section)" },
+    caption: captions[2], w: 347, h: 400, fill: "subtle", captionTone: "muted",
+  },
+  // Figma 1366:57697 / 57698: 200 × 200 map content, radius 34.29.
+  {
+    image: "cases/atms.webp",
+    screen: { x: 0, y: 0, w: 200, h: 200, r: 34.286, fill: "var(--portfolio-bg-section)" },
+    caption: captions[3], w: 200, h: 200, fill: "subtle", captionTone: "muted",
+  },
+  // Figma 1366:57707 / 57708: 300 × 652.24 screen at (50, 50), runs past the bottom edge.
+  {
+    image: "cases/card-management.webp",
+    screen: { x: 50, y: 50, w: 300, h: 652.24, r: 46.269, fill: "var(--portfolio-bg-section)" },
+    caption: captions[4], w: 400, h: 500, fill: "section", captionTone: "muted",
+  },
   { kind: "spending", image: "", caption: captions[5], w: 404, h: 404, fill: "none", captionTone: "muted" },
 ];
 

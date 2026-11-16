@@ -70,7 +70,7 @@ export const content: Record<Lang, Content> = {
         "в которых сложные сценарии остаются простыми",
       ],
       facts: "6+ лет · Senior Product Designer",
-      doodleLabel: "Нарисованный персонаж отдыхает лёжа",
+      doodleLabel: "Иллюстрация: Кирилл лежит, закинув ногу на ногу. Наведите курсор или нажмите, чтобы он сел за ноутбук.",
     },
     cases: {
       overline: "Кейсы",
@@ -132,7 +132,7 @@ export const content: Record<Lang, Content> = {
         "where complex flows stay simple",
       ],
       facts: "6+ years · Senior Product Designer",
-      doodleLabel: "A hand-drawn character lying down and resting",
+      doodleLabel: "Illustration: Kirill is lying with his legs crossed. Hover or tap to make him sit down at the laptop.",
     },
     cases: {
       overline: "Cases",

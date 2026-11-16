@@ -3,9 +3,13 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "reac
 type Style = "primary" | "secondary";
 type Content = "text" | "text-icon" | "icon";
 
+type Size = "md" | "sm";
+
 type CommonProps = {
   variant?: Style;
   content?: Content;
+  /** sm: compact Figma instances (36px), padding from button-padding-icon / button-gap tokens. */
+  size?: Size;
   /** Icon buttons on tinted sections use the stronger secondary fill. */
   strong?: boolean;
   label?: ReactNode;
@@ -19,7 +23,7 @@ type LinkProps = CommonProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "content" | "className"> & { href: string };
 
 const base =
-  "inline-flex shrink-0 items-center justify-center rounded-full text-label whitespace-nowrap select-none " +
+  "inline-flex shrink-0 items-center justify-center rounded-full type-label whitespace-nowrap select-none " +
   "transition-[background-color,transform] duration-150 ease-out not-disabled:active:scale-[0.96] " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg-primary " +
   "disabled:pointer-events-none";
@@ -41,6 +45,13 @@ const strongSecondary =
   "bg-(--portfolio-button-secondary-bg-pressed) text-(--portfolio-button-secondary-fg) " +
   "hover:bg-(--portfolio-palette-neutral-150) active:bg-(--portfolio-palette-neutral-150) active:brightness-95";
 
+const sizesSm: Record<Content, string> = {
+  text: "h-9 gap-(--portfolio-button-gap) px-(--portfolio-button-padding-icon) py-(--portfolio-button-gap)",
+  "text-icon":
+    "h-9 gap-(--portfolio-button-gap) pl-(--portfolio-button-padding-icon) pr-(--portfolio-button-gap) py-(--portfolio-button-gap)",
+  icon: "size-9 p-(--portfolio-button-gap)",
+};
+
 const sizes: Record<Content, string> = {
   text: "h-11 gap-(--portfolio-button-gap) px-(--portfolio-button-padding-x) py-(--portfolio-button-padding-y)",
   "text-icon":
@@ -52,6 +63,7 @@ export function Button(props: ButtonProps | LinkProps) {
   const {
     variant = "primary",
     content = "text",
+    size = "md",
     strong = false,
     label,
     icon,
@@ -62,7 +74,7 @@ export function Button(props: ButtonProps | LinkProps) {
   const cls = [
     base,
     variant === "secondary" && strong ? strongSecondary : styles[variant],
-    sizes[content],
+    (size === "sm" ? sizesSm : sizes)[content],
     className,
   ].join(" ");
 

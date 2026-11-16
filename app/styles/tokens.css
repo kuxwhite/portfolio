@@ -2,7 +2,8 @@
  * Portfolio design tokens.
  * Source: Figma collections "Portfolio / Typography", "Portfolio / Colors",
  * "Portfolio / Dimensions" and text styles "Portfolio/*".
- * Names follow the variables' WEB code syntax.
+ * Names follow the variables' WEB code syntax (including the unprefixed --space-*, --radius-*,
+ * --page-padding-x, --font-mono, --text-overline, --text-mono-s, --leading-mono).
  * Desktop mode lives in :root, Mobile mode overrides below 768px.
  */
 :root {
@@ -63,6 +64,10 @@
   --portfolio-font-size-body-m: 20px;
   --portfolio-font-size-label: 16px;
   --portfolio-font-size-caption: 14px;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-overline: 16px;
+  --text-mono-s: 13px;
+  --leading-mono: 20px;
 
   /* Portfolio / Dimensions (Desktop) */
   --portfolio-radius-full: 1000px;
@@ -79,6 +84,19 @@
   --portfolio-hero-padding-bottom: 44px;
   --portfolio-content-max-width: 648px;
   --portfolio-icon-size-md: 24px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --page-padding-x: 44px;
+  --radius-visual: 44px;
+  --radius-brand: 12px;
+  --radius-logo: 8px;
+  --radius-logo-s: 6px;
 }
 
 @media (max-width: 767px) {
@@ -90,6 +108,9 @@
     --portfolio-font-size-body-m: 16px;
     --portfolio-font-size-label: 14px;
     --portfolio-font-size-caption: 14px;
+    --text-overline: 14px;
+    --text-mono-s: 12px;
+    --leading-mono: 18px;
 
     /* Portfolio / Dimensions (Mobile) */
     --portfolio-radius-card: 24px;
@@ -99,5 +120,7 @@
     --portfolio-hero-padding-top: 64px;
     --portfolio-hero-padding-bottom: 32px;
     --portfolio-content-max-width: 350px;
+    --page-padding-x: 20px;
+    --radius-visual: 28px;
   }
 }

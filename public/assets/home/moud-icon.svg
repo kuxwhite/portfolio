@@ -1,0 +1,37 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="icon">
+<g clip-path="url(#clip0_0_8)">
+<rect width="32" height="32" rx="6.62069" fill="#0A9044"/>
+<rect width="32" height="32" rx="6.62069" fill="url(#paint0_radial_0_8)"/>
+<rect width="32" height="32" rx="6.62069" fill="url(#paint1_radial_0_8)"/>
+<rect width="32" height="32" rx="6.62069" fill="url(#paint2_linear_0_8)"/>
+<g id="m &#194;&#183; &#208;&#190;&#209;&#129;&#208;&#189;&#208;&#190;&#208;&#178;&#208;&#176;">
+<use xlink:href="#stroke0_0_8" fill="#0D732D"/>
+<use xlink:href="#stroke0_0_8" fill="url(#paint3_linear_0_8)"/>
+</g>
+</g>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_8" cx="0" cy="0" r="1" gradientTransform="matrix(-83.1304 1.75238 -0.904763 -100.911 35.6273 2.74286)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#6AF8A7" stop-opacity="0.95"/>
+<stop offset="0.335185" stop-color="#2BAE64" stop-opacity="0.9"/>
+<stop offset="1" stop-color="#128C47" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="paint1_radial_0_8" cx="0" cy="0" r="1" gradientTransform="matrix(39.7516 -10.2095 -4.48161 -41.0256 -2.23603 42.2095)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#DFFF78" stop-opacity="0.85"/>
+<stop offset="1" stop-color="#DFFF77" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="paint2_linear_0_8" x1="30.4099" y1="30.9333" x2="21.1528" y2="17.7409" gradientUnits="userSpaceOnUse">
+<stop stop-color="white" stop-opacity="0.16"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="paint3_linear_0_8" x1="-3.68749" y1="5.3064" x2="50.7841" y2="35.726" gradientUnits="userSpaceOnUse">
+<stop stop-color="white" stop-opacity="0.24"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+<clipPath id="clip0_0_8">
+<rect width="32" height="32" rx="6.62069" fill="white"/>
+</clipPath>
+<path id="stroke0_0_8" d="M4.15991 17.0598H9.01314L9.98385 22.8838V32.0132H5.10426V22.1493L4.15991 17.0598ZM15.2308 16.64C16.595 16.64 17.7492 16.9287 18.6936 17.5056C19.6557 18.0829 20.3813 18.8961 20.8712 19.9456C21.3783 20.9776 21.632 22.2192 21.632 23.6709V32.0132H16.7524V24.4054C16.7524 23.1635 16.4813 22.228 15.9389 21.5984C15.3969 20.9512 14.6011 20.6277 13.5517 20.6277C12.8172 20.6277 12.179 20.8026 11.6366 21.1522C11.112 21.4847 10.7008 21.9654 10.4036 22.5951C10.1239 23.2073 9.98385 23.9418 9.98385 24.7988L8.43617 23.9856C8.62859 22.3941 9.03949 21.056 9.66916 19.9716C10.3163 18.8876 11.112 18.0655 12.0564 17.5056C13.0182 16.9287 14.0766 16.64 15.2308 16.64ZM26.8526 16.64C28.2168 16.64 29.3796 16.9287 30.3417 17.5056C31.3036 18.0829 32.0294 18.8961 32.5191 19.9456C33.0262 20.9776 33.2799 22.2192 33.2799 23.6709V32.0132H28.4003V24.4054C28.4003 23.1635 28.1292 22.228 27.5871 21.5984C27.0448 20.9512 26.249 20.6277 25.1999 20.6277C24.4651 20.6277 23.8268 20.8026 23.2845 21.1522C22.7599 21.4847 22.349 21.9654 22.0515 22.5951C21.7718 23.2073 21.632 23.9418 21.632 24.7988L20.084 23.9856C20.2765 22.3941 20.6874 21.056 21.317 19.9716C21.9467 18.8876 22.7425 18.0655 23.7043 17.5056C24.6664 16.9287 25.7156 16.64 26.8526 16.64Z"/>
+</defs>
+</svg>

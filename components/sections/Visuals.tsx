@@ -1,52 +1,60 @@
-"use client";
-
-import { Pagination } from "@/components/ui/Pagination";
-import { useCarousel } from "@/components/ui/useCarousel";
-import { asset } from "@/lib/asset";
 import type { Content } from "@/lib/content";
+import { Reveal } from "@/components/sections/Reveal";
+import { VisualTile, type VisualMedia } from "@/components/sections/VisualTile";
 
-const SHOTS = 3;
-const card = "relative shrink-0 snap-start overflow-hidden rounded-card bg-bg-section h-[434px] max-md:h-[360px]";
+/*
+ * Masonry from Figma: desktop "Gallery" 1373:61280 (three 440px columns) and
+ * mobile "Gallery" 1408:31103 (two 167px columns). Tiles are defined once (ratio from the
+ * desktop size, which the mobile tiles keep) and both layouts reference them by index,
+ * so `media` added here shows up in both.
+ */
+const TILES: { w: number; h: number; media?: VisualMedia }[] = [
+  { w: 440, h: 487 }, // 0
+  { w: 440, h: 229 }, // 1
+  { w: 440, h: 440 }, // 2
+  { w: 440, h: 440 }, // 3
+  { w: 440, h: 184 }, // 4
+  { w: 440, h: 652 }, // 5
+  { w: 440, h: 463 }, // 6
+  { w: 440, h: 732 }, // 7
+  { w: 440, h: 788 }, // 8
+  { w: 440, h: 440 }, // 9
+  { w: 440, h: 671 }, // 10
+];
+const DESKTOP = [
+  [0, 1, 2, 3],
+  [4, 5, 6, 7],
+  [8, 9, 10],
+];
+const MOBILE = [
+  [0, 1, 2, 3, 8, 10],
+  [4, 5, 6, 7, 9],
+];
 
-/* eslint-disable @next/next/no-img-element */
-export function Visuals({ t }: { t: Content["visuals"] }) {
-  const { trackRef, active, scrollTo } = useCarousel(SHOTS);
+function Columns({ layout, className }: { layout: number[][]; className: string }) {
   return (
-    <section aria-labelledby="visuals-title" className="py-(--portfolio-section-padding-y)">
-      <div className="content flex flex-col gap-(--portfolio-section-gap)">
-        <h2 id="visuals-title" className="text-heading text-fg-primary">
-          {t.title}
-        </h2>
-
-        <div ref={trackRef} className="bleed-x flex snap-x snap-mandatory gap-4 overflow-x-auto max-md:gap-3">
-          {/* Phone with success character */}
-          <div className={`${card} w-[648px] max-md:w-[538px]`}>
-            <img
-              src={asset("img/visual-phone.webp")}
-              alt={t.alts[0]}
-              className="absolute left-1/2 top-[37px] h-auto w-[40.85%] max-w-none -translate-x-1/2"
-            />
-          </div>
-          {/* Deposit card thumbnail */}
-          <div className={`${card} w-[250px] max-md:w-[207px]`}>
-            <img
-              src={asset("img/visual-deposit.webp")}
-              alt={t.alts[1]}
-              className="absolute left-0 top-1/2 h-auto w-full max-w-none -translate-y-[36.4%]"
-            />
-          </div>
-          {/* Debit card */}
-          <div className={`${card} w-[788px] max-md:w-[654px]`}>
-            <img
-              src={asset("img/visual-card.webp")}
-              alt={t.alts[2]}
-              className="absolute left-1/2 top-1/2 h-auto w-[46.45%] max-w-none -translate-x-1/2 -translate-y-[45.3%]"
-            />
-          </div>
+    <div className={`w-full items-start gap-(--space-16) ${className}`}>
+      {layout.map((col, c) => (
+        <div key={c} className="flex min-w-0 flex-1 flex-col gap-(--space-16)">
+          {col.map((i) => (
+            <Reveal key={i} column={c}>
+              <VisualTile ratio={[TILES[i].w, TILES[i].h]} media={TILES[i].media} />
+            </Reveal>
+          ))}
         </div>
+      ))}
+    </div>
+  );
+}
 
-        <Pagination count={SHOTS} active={active} onSelect={scrollTo} label={t.label} />
-      </div>
+export function Visuals({ t }: { t: Content["visuals"] }) {
+  return (
+    <section aria-labelledby="visuals-title" className="flex flex-col items-center gap-(--portfolio-section-gap) px-(--page-padding-x) py-(--portfolio-section-gap)">
+      <h2 id="visuals-title" className="type-overline text-center text-fg-secondary">
+        {t.title} <span className="text-fg-subtle">{t.note}</span>
+      </h2>
+      <Columns layout={DESKTOP} className="flex max-md:hidden" />
+      <Columns layout={MOBILE} className="hidden max-md:flex" />
     </section>
   );
 }

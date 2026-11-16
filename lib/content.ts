@@ -27,6 +27,7 @@ export type CaseCard = {
 export type Content = {
   meta: { title: string; description: string };
   header: { name: string; switchLabel: string };
+  menu: { label: string; experience: string; cv: string; telegram: string };
   hero: { pitch: string[]; facts: string; doodleLabel: string };
   cases: {
     overline: string;
@@ -90,6 +91,7 @@ export const content: Record<Lang, Content> = {
         "Помогаю финтех, AI, web3 командам быстро проверять идеи через концепции и выпускать понятные продукты.",
     },
     header: { name: "Кирилл Новиков", switchLabel: "Язык" },
+    menu: { label: "Меню", experience: "Опыт", cv: "CV", telegram: "Telegram" },
     hero: {
       pitch: [
         "Помогаю финтех, AI, web3 командам быстро проверять идеи через концепции и выпускать понятные продукты,",
@@ -153,6 +155,7 @@ export const content: Record<Lang, Content> = {
       description: "I help fintech, AI and web3 teams test ideas quickly through concepts and ship clear products.",
     },
     header: { name: "Kirill Novikov", switchLabel: "Language" },
+    menu: { label: "Menu", experience: "Experience", cv: "CV", telegram: "Telegram" },
     hero: {
       // One balanced paragraph: the forced RU-style break leaves EN lines ragged.
       pitch: ["I help fintech, AI and web3 teams test ideas quickly through concepts and ship clear products, where complex flows stay simple"],

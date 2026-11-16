@@ -12,6 +12,8 @@ type CommonProps = {
   size?: Size;
   /** Icon buttons on tinted sections use the stronger secondary fill. */
   strong?: boolean;
+  /** Secondary with its fill swapped for a 1px secondary-bg outline (Figma: CV in the floating menu). */
+  outline?: boolean;
   label?: ReactNode;
   icon?: ReactNode;
   className?: string;
@@ -45,6 +47,11 @@ const strongSecondary =
   "bg-(--portfolio-button-secondary-bg-pressed) text-(--portfolio-button-secondary-fg) " +
   "hover:bg-(--portfolio-palette-neutral-150) active:bg-(--portfolio-palette-neutral-150) active:brightness-95";
 
+// Outlined secondary: transparent until hover/press, then the usual secondary fills.
+const outlineSecondary =
+  "border border-(--portfolio-button-secondary-bg-default) text-(--portfolio-button-secondary-fg) " +
+  "hover:bg-(--portfolio-button-secondary-bg-hover) active:bg-(--portfolio-button-secondary-bg-pressed)";
+
 const sizesSm: Record<Content, string> = {
   text: "h-9 gap-(--portfolio-button-gap) px-(--portfolio-button-padding-icon) py-(--portfolio-button-gap)",
   "text-icon":
@@ -65,6 +72,7 @@ export function Button(props: ButtonProps | LinkProps) {
     content = "text",
     size = "md",
     strong = false,
+    outline = false,
     label,
     icon,
     className = "",
@@ -73,7 +81,7 @@ export function Button(props: ButtonProps | LinkProps) {
 
   const cls = [
     base,
-    variant === "secondary" && strong ? strongSecondary : styles[variant],
+    variant === "secondary" && outline ? outlineSecondary : variant === "secondary" && strong ? strongSecondary : styles[variant],
     (size === "sm" ? sizesSm : sizes)[content],
     className,
   ].join(" ");

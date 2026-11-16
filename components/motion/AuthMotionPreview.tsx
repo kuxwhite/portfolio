@@ -193,8 +193,9 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow" }: { timeli
       ref={tl.observe}
       role="img"
       aria-label={label}
-      className="relative h-[500px] w-[424px] overflow-hidden rounded-visual bg-bg-subtle"
-      style={{ fontFamily: "var(--portfolio-font-family-rounded)", color: C.primary }}
+      className="relative h-[500px] w-[424px] overflow-hidden bg-bg-subtle"
+      // Site radius after the strip scale (the preview is scaled by --case-scale).
+      style={{ borderRadius: "calc(var(--radius-visual) / var(--case-scale, 1))", fontFamily: "var(--portfolio-font-family-rounded)", color: C.primary }}
     >
       <div className="absolute top-[48px] left-[57px] h-[674px] w-[310px] overflow-hidden rounded-[47.812px]" style={{ background: C.surface }}>
         {/* 01 · Phone */}

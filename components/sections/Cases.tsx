@@ -3,7 +3,7 @@ import { asset } from "@/lib/asset";
 import { links } from "@/lib/site";
 import type { CaseCard, Content } from "@/lib/content";
 import { FlipCard } from "@/components/sections/cases/FlipCard";
-import { HistoryPreview } from "@/components/sections/cases/HistoryPreview";
+import { MotionPreview } from "@/components/sections/cases/MotionPreview";
 import { CaseStrip } from "@/components/sections/cases/CaseStrip";
 
 const FILL: Record<CaseCard["fill"], string> = {
@@ -38,7 +38,8 @@ function Card({ card, flipLabel }: { card: CaseCard; flipLabel: string }) {
   return (
     <figure role="listitem" className="flex shrink-0 snap-start flex-col gap-[calc(var(--space-16)*var(--case-scale))]">
       <div
-        className={`relative overflow-hidden rounded-visual ${FILL[card.fill]}`}
+        // Motion previews draw (and clip) their own card; the rest are clipped here.
+        className={kind === "auth" || kind === "spending" ? "relative" : `relative overflow-hidden rounded-visual ${FILL[card.fill]}`}
         style={{ width: `calc(${card.w}px * var(--case-scale))`, height: `calc(${card.h}px * var(--case-scale))` }}
       >
         {kind === "image" && (
@@ -46,7 +47,7 @@ function Card({ card, flipLabel }: { card: CaseCard; flipLabel: string }) {
           <img src={asset(card.image)} alt={card.caption} loading="lazy" draggable={false} className="block size-full object-cover" />
         )}
         {kind === "card" && <FlipCard label={card.caption} flipLabel={flipLabel} />}
-        {kind === "history" && <HistoryPreview label={card.caption} />}
+        {(kind === "auth" || kind === "spending") && <MotionPreview kind={kind} w={card.w} h={card.h} label={card.caption} />}
       </div>
       <figcaption className={`type-caption ${card.captionTone === "primary" ? "text-fg-primary" : "text-fg-muted"}`}>
         {card.caption}

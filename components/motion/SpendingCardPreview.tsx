@@ -145,8 +145,9 @@ export function SpendingCardPreview({ timeline, label = "Spending overview" }: {
       ref={tl.observe}
       role="img"
       aria-label={label}
-      className="relative size-[404px] overflow-hidden rounded-visual border border-bg-subtle bg-bg-page"
-      style={{ fontFamily: "var(--portfolio-font-family-rounded)", color: C.primary }}
+      className="relative size-[404px] overflow-hidden border border-bg-subtle bg-bg-page"
+      // Site radius after the strip scale (the preview is scaled by --case-scale).
+      style={{ borderRadius: "calc(var(--radius-visual) / var(--case-scale, 1))", fontFamily: "var(--portfolio-font-family-rounded)", color: C.primary }}
     >
       {/* State A · Overview */}
       <div className="absolute top-[calc(50%+0.2px)] left-1/2 w-[352px] -translate-1/2">

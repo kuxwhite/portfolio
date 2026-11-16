@@ -23,7 +23,9 @@ function BrandMark({ name }: { name: string }) {
   return (
     <span className="group/brand mx-(--space-4) inline-flex h-(--space-32) items-center gap-(--space-8) align-top">
       <span className="text-fg-muted transition-colors duration-300 ease-out group-hover/brand:text-fg-accent">{name}</span>
-      <span className="-rotate-2 overflow-hidden rounded-logo border-2 border-bg-page shadow-[0_4px_6px_rgba(0,0,0,0.12)] grayscale transition-[rotate,filter] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover/brand:rotate-0 group-hover/brand:grayscale-0">
+      {/* Figma: 32px icon (its own 6.62 rounding) with a 2px OUTSIDE white stroke → 36px, outer radius 10.
+          The stroke is a padded white backing, not a clipping border, so the tilted icon is never cut. */}
+      <span className="-my-(--space-2) -rotate-2 rounded-[calc(var(--radius-logo)+var(--space-2))] bg-bg-page p-(--space-2) shadow-[0_4px_6px_rgba(0,0,0,0.12)] grayscale transition-[rotate,filter] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover/brand:rotate-0 group-hover/brand:grayscale-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={asset("home/moud-icon.svg")} alt="" aria-hidden width={32} height={32} className="block size-(--space-32)" />
       </span>

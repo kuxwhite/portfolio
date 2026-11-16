@@ -98,11 +98,45 @@ function Glare({ x, y, strength, mirror }: { x: MotionValue<number>; y: MotionVa
   );
 }
 
+/*
+ * Volume: the faces sit THICKNESS apart in 3D and a few edge slices fill the gap, so a thin green
+ * edge shows when the card leans or turns (a real card is ~0.9% of its width thick → ~3px here).
+ */
+const THICKNESS = 3;
+const SLICES = 5;
+const EDGE = "linear-gradient(160deg, #3fcf78, #22a55a)"; // card edge, sampled from the Figma surface
+
+function EdgeSlices() {
+  return Array.from({ length: SLICES }, (_, i) => {
+    const z = -THICKNESS / 2 + (THICKNESS * (i + 0.5)) / SLICES;
+    return <div key={i} aria-hidden className="absolute inset-0" style={{ borderRadius: RADIUS, background: EDGE, transform: `translateZ(${z}px)` }} />;
+  });
+}
+
+/** Hover iridescence: a soft mint–lemon–sky band drifting across the gradient with the cursor. */
+function Sheen({ x, strength, mirror }: { x: MotionValue<number>; strength: MotionValue<number>; mirror?: boolean }) {
+  const pos = useTransform(x, (v) => `${(mirror ? 1 - v : v) * 100}% 50%`);
+  return (
+    <motion.div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 mix-blend-soft-light"
+      style={{
+        borderRadius: RADIUS,
+        backgroundImage:
+          "linear-gradient(115deg, transparent 20%, rgb(190 255 215 / 0.55) 38%, rgb(255 250 180 / 0.45) 50%, rgb(170 225 255 / 0.5) 62%, transparent 80%)",
+        backgroundSize: "260% 100%",
+        backgroundPosition: pos,
+        opacity: strength,
+      }}
+    />
+  );
+}
+
 function Face({ back, children }: { back?: boolean; children: ReactNode }) {
   return (
     <div
       className="absolute inset-0 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
-      style={{ transform: back ? "rotateY(180deg)" : undefined, ...rounded }}
+      style={{ transform: `${back ? "rotateY(180deg) " : ""}translateZ(${THICKNESS / 2}px)`, ...rounded }}
     >
       <Edge />
       <Svg name="surface" className="absolute inset-0 size-full" />
@@ -187,9 +221,11 @@ export function FlipCard({ label, flipLabel }: { label: string; flipLabel: strin
             className="absolute inset-0"
             style={reduce ? { transformStyle: "preserve-3d" } : { rotateY: angle, scale: lift, transformStyle: "preserve-3d" }}
           >
+            {!reduce && <EdgeSlices />}
             {/* Front: balance */}
             <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: frontOpacity } : undefined}>
               <Face>
+                <Sheen x={sx} strength={sa} />
                 <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: RADIUS }}>
                   <Svg name="m" className="absolute right-[-54.15px] bottom-[-0.17px] h-[164px] w-[310.649px]" />
                 </div>
@@ -209,6 +245,7 @@ export function FlipCard({ label, flipLabel }: { label: string; flipLabel: strin
             {/* Back: card details */}
             <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: fade } : undefined}>
               <Face back={!reduce}>
+                <Sheen x={sx} strength={sa} mirror={!reduce} />
                 <div className="absolute top-[16px] left-[16px] flex w-[282px] flex-col gap-[22px]">
                   <Detail label="Номер карты" value="2200 7012 4589 3688" labelWide />
                   <div className="flex items-center gap-(--space-24)">

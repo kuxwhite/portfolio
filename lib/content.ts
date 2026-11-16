@@ -55,8 +55,8 @@ const cards = (captions: string[]): CaseCard[] => [
   { kind: "card", image: "", caption: captions[1], w: 432, h: 300, fill: "page", captionTone: "muted" },
   { image: "cases/home.webp", caption: captions[2], w: 347, h: 400, fill: "subtle", captionTone: "muted" },
   { image: "cases/atms.webp", caption: captions[3], w: 200, h: 200, fill: "subtle", captionTone: "muted" },
-  { image: "cases/card-management.webp", caption: captions[4], w: 400, h: 500, fill: "section", captionTone: "primary" },
-  { kind: "history", image: "", caption: captions[5], w: 404, h: 404, fill: "none", captionTone: "primary" },
+  { image: "cases/card-management.webp", caption: captions[4], w: 400, h: 500, fill: "section", captionTone: "muted" },
+  { kind: "history", image: "", caption: captions[5], w: 404, h: 404, fill: "none", captionTone: "muted" },
 ];
 
 export const content: Record<Lang, Content> = {

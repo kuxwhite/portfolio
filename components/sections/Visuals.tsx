@@ -2,16 +2,47 @@ import type { Content } from "@/lib/content";
 import { VisualTile, type VisualMedia } from "@/components/sections/VisualTile";
 
 /*
- * Masonry from Figma "Gallery" (1373:61280): three 440px columns, tile heights in px.
- * Tiles keep these proportions as the columns resize; on phones the columns stack into one.
- * Add `media` to a tile to show an image or video.
+ * Masonry from Figma: desktop "Gallery" 1373:61280 (three 440px columns) and
+ * mobile "Gallery" 1408:31103 (two 167px columns). Tiles are defined once (ratio from the
+ * desktop size, which the mobile tiles keep) and both layouts reference them by index,
+ * so `media` added here shows up in both.
  */
-const COLUMNS: { h: number; media?: VisualMedia }[][] = [
-  [{ h: 487 }, { h: 229 }, { h: 440 }, { h: 440 }],
-  [{ h: 184 }, { h: 652 }, { h: 463 }, { h: 732 }],
-  [{ h: 788 }, { h: 440 }, { h: 671 }],
+const TILES: { w: number; h: number; media?: VisualMedia }[] = [
+  { w: 440, h: 487 }, // 0
+  { w: 440, h: 229 }, // 1
+  { w: 440, h: 440 }, // 2
+  { w: 440, h: 440 }, // 3
+  { w: 440, h: 184 }, // 4
+  { w: 440, h: 652 }, // 5
+  { w: 440, h: 463 }, // 6
+  { w: 440, h: 732 }, // 7
+  { w: 440, h: 788 }, // 8
+  { w: 440, h: 440 }, // 9
+  { w: 440, h: 671 }, // 10
 ];
-const COLUMN_W = 440;
+const DESKTOP = [
+  [0, 1, 2, 3],
+  [4, 5, 6, 7],
+  [8, 9, 10],
+];
+const MOBILE = [
+  [0, 1, 2, 3, 8, 10],
+  [4, 5, 6, 7, 9],
+];
+
+function Columns({ layout, className }: { layout: number[][]; className: string }) {
+  return (
+    <div className={`w-full items-start gap-(--space-16) ${className}`}>
+      {layout.map((col, c) => (
+        <div key={c} className="flex min-w-0 flex-1 flex-col gap-(--space-16)">
+          {col.map((i) => (
+            <VisualTile key={i} ratio={[TILES[i].w, TILES[i].h]} media={TILES[i].media} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function Visuals({ t }: { t: Content["visuals"] }) {
   return (
@@ -19,15 +50,8 @@ export function Visuals({ t }: { t: Content["visuals"] }) {
       <h2 id="visuals-title" className="type-overline text-center text-fg-secondary">
         {t.title} <span className="text-fg-subtle">{t.note}</span>
       </h2>
-      <div className="flex w-full items-start gap-(--space-16) max-md:flex-col">
-        {COLUMNS.map((col, c) => (
-          <div key={c} className="flex w-full min-w-0 flex-1 flex-col gap-(--space-16)">
-            {col.map((tile, i) => (
-              <VisualTile key={i} ratio={[COLUMN_W, tile.h]} media={tile.media} />
-            ))}
-          </div>
-        ))}
-      </div>
+      <Columns layout={DESKTOP} className="flex max-md:hidden" />
+      <Columns layout={MOBILE} className="hidden max-md:flex" />
     </section>
   );
 }

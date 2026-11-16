@@ -1,6 +1,7 @@
 export type Lang = "ru" | "en";
 
-type ProjectPart = string | { logo: string; label?: string; chip?: boolean };
+/** lead: the word kept on one line with the logo (Figma "Project Category"). */
+type ProjectPart = string | { logo: string; label?: string; chip?: boolean; lead?: string };
 
 export type CaseCard = {
   image: string;
@@ -95,9 +96,9 @@ export const content: Record<Lang, Content> = {
           description:
             "Проектирую финтех- и AI-продукты для банков и e-commerce: платежи, кредитование, рассрочка, B2B-сервисы",
           projects: [
-            ["Редизайн мобильного банка", { logo: "round-20", label: "Round", chip: true }, "сайт и оформление кредита наличными"],
+            ["Редизайн мобильного", { lead: "банка", logo: "round-20", label: "Round", chip: true }, "сайт и оформление кредита наличными"],
             ["A2C сервис для мерчантов в", { logo: "uzum", label: "Uzum Bank" }],
-            ["Рассрочка BNPL в", { logo: "aliexpress-20", label: "Aliexpress", chip: true }],
+            ["Рассрочка BNPL", { lead: "в", logo: "aliexpress-20", label: "Aliexpress", chip: true }],
           ],
           defaultOpen: true,
         },
@@ -159,7 +160,7 @@ export const content: Record<Lang, Content> = {
           projects: [
             ["Redesign of the", { logo: "round-20", label: "Round", chip: true }, "mobile bank, website and cash loan flow"],
             ["A2C service for merchants at", { logo: "uzum", label: "Uzum Bank" }],
-            ["BNPL installments at", { logo: "aliexpress-20", label: "Aliexpress", chip: true }],
+            ["BNPL installments", { lead: "at", logo: "aliexpress-20", label: "Aliexpress", chip: true }],
           ],
           defaultOpen: true,
         },

@@ -219,7 +219,7 @@ html.lenis body {
 }
 @media (max-width: 767px) {
   :root {
-    --case-scale: 0.7;
+    --case-scale: 0.72;
   }
 }
 

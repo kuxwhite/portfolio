@@ -25,7 +25,7 @@ function BrandMark({ name }: { name: string }) {
 
 function Card({ card }: { card: CaseCard }) {
   return (
-    <figure role="listitem" className="flex shrink-0 flex-col gap-(--space-16)">
+    <figure role="listitem" className="flex shrink-0 snap-start flex-col gap-[calc(var(--space-16)*var(--case-scale))]">
       <div
         className={`overflow-hidden rounded-visual ${FILL[card.fill]}`}
         style={{ width: `calc(${card.w}px * var(--case-scale))`, height: `calc(${card.h}px * var(--case-scale))` }}
@@ -57,7 +57,7 @@ export function Cases({ t }: { t: Content["cases"] }) {
       <div
         role="list"
         aria-label={t.stripLabel}
-        className="no-scrollbar flex w-full items-center gap-(--space-16) overflow-x-auto px-(--page-padding-x)"
+        className="no-scrollbar flex w-full items-center gap-(--space-16) overflow-x-auto overscroll-x-contain px-(--page-padding-x) scroll-px-(--page-padding-x) max-md:snap-x max-md:snap-mandatory"
       >
         {t.cards.map((card) => (
           <Card key={card.image} card={card} />

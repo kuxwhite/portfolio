@@ -30,11 +30,20 @@ function ProjectPart({ part, i }: { part: Part; i: number }) {
       {part.label && <span>{part.label}</span>}
     </>
   );
-  return part.chip ? (
+  const mark = part.chip ? (
     // The chip overhangs the 20px text line, as in Figma, instead of making the row taller.
     <span className="-my-(--space-4) inline-flex items-center gap-(--space-4) rounded-logo border border-(--portfolio-button-secondary-bg-pressed) p-(--space-2)">{inner}</span>
   ) : (
     <span className="inline-flex items-center gap-(--space-4)">{inner}</span>
+  );
+  // The lead word and the mark wrap together.
+  return part.lead ? (
+    <span className="inline-flex items-center gap-(--space-4) whitespace-nowrap">
+      <span>{part.lead}</span>
+      {mark}
+    </span>
+  ) : (
+    mark
   );
 }
 

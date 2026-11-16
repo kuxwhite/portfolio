@@ -9,7 +9,7 @@ export function Hero({ t }: { t: Content["hero"] }) {
       <div className="content flex flex-col gap-(--space-32) text-center">
         <h1 className="type-body-l text-fg-primary">
           {t.pitch[0]}
-          <br className="max-md:hidden" /> {t.pitch[1]}
+          <br /> {t.pitch[1]}
         </h1>
         <p className="type-overline text-fg-muted">{t.facts}</p>
       </div>

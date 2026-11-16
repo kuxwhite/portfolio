@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
-import { CX, GROUND, SIT_DX } from "./heroDoodleGeometry";
+import { asset } from "@/lib/asset";
+import { CX, GROUND, INK, PAPER, REST_URL, SIT_DX } from "./heroDoodleGeometry";
+import type { DoodleFrame, DoodlePose } from "./heroDoodleFrames";
 
 /*
  * Logic of hero-doodle.html, as is: lying ↔ sitting with anticipation, a swap and a springy settle;
@@ -20,8 +22,26 @@ const spring = (u: number) => Math.exp(-5.5 * u) * Math.cos(2 * Math.PI * 1.5 * 
 const scaleT = (sx: number, sy: number, base = "") =>
   `translate(${CX} ${GROUND}) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(${-CX} ${-GROUND}) ${base}`;
 
+type Rest = { foot: DoodleFrame[]; sitting: DoodlePose; head: DoodleFrame[]; blink: DoodleFrame[]; type: DoodleFrame[] };
+
+const SVG = "http://www.w3.org/2000/svg";
+function el(tag: string, attrs: Record<string, string | number>) {
+  const n = document.createElementNS(SVG, tag);
+  for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+  return n;
+}
+/** Same markup as the server-rendered frames in HeroDoodle.tsx: a paper mask under the inked path. */
+function frameNodes(kind: string, frames: DoodleFrame[]) {
+  return frames.map(({ mask: [x, y, width, height], d }) => {
+    const g = el("g", { "data-f": kind }) as SVGGElement;
+    g.style.display = "none";
+    g.append(el("rect", { x, y, width, height, fill: PAPER }), el("path", { d, fill: INK, "fill-rule": "evenodd" }));
+    return g;
+  });
+}
+
 function flip(list: FrameList, i: number) {
-  if (list.cur === i) return;
+  if (!list.nodes.length || list.cur === i) return;
   if (list.cur != null) list.nodes[list.cur].style.display = "none";
   else list.nodes.forEach((n) => (n.style.display = "none"));
   list.nodes[i].style.display = "";
@@ -40,8 +60,36 @@ export function useHeroDoodle(scene: RefObject<HTMLDivElement | null>) {
     const art = root.querySelector<SVGGElement>("[data-art]")!;
     const noise = root.querySelector<SVGFETurbulenceElement>("feTurbulence")!;
     const foot: FrameList = { nodes: q("[data-f=foot]"), cur: null };
-    const type: FrameList = { nodes: q("[data-f=type]"), cur: null };
-    const head: FrameList = { nodes: [...q<SVGGElement>("[data-f=head]"), ...q<SVGGElement>("[data-f=blink]")], cur: null }; // open eyes, then the blink twins
+    const type: FrameList = { nodes: [], cur: null };
+    const head: FrameList = { nodes: [], cur: null }; // open eyes, then the blink twins
+    // The rest of the drawing arrives from doodle-rest.json (preloaded with the page); until then the
+    // character holds still on its first frame and a hover/tap waits for it.
+    let ready = false;
+    const abort = new AbortController();
+    fetch(asset(REST_URL), { signal: abort.signal })
+      .then((r) => r.json() as Promise<Rest>)
+      .then((rest) => {
+        const more = frameNodes("foot", rest.foot);
+        foot.nodes[foot.nodes.length - 1].after(...more);
+        foot.nodes.push(...more);
+        sitting.append(
+          el("path", { d: rest.sitting.ground, stroke: INK, "stroke-width": 6.6, "stroke-linecap": "round", fill: "none" }),
+          ...rest.sitting.static.map((p) => el("path", { d: p.d, fill: p.fill === "ink" ? INK : PAPER, "fill-rule": "evenodd" })),
+        );
+        const headNodes = frameNodes("head", rest.head);
+        const blinkNodes = frameNodes("blink", rest.blink);
+        const typeNodes = frameNodes("type", rest.type);
+        sitting.append(...headNodes, ...blinkNodes, ...typeNodes);
+        // Same first frames as the old server markup, before the loop takes over.
+        headNodes[0].style.display = "";
+        typeNodes[0].style.display = "";
+        head.nodes = [...headNodes, ...blinkNodes];
+        type.nodes = typeNodes;
+        ready = true;
+        if (target !== pose && !trans) start(target);
+        wake();
+      })
+      .catch(() => {});
 
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const touch = matchMedia("(hover: none)").matches;
@@ -59,7 +107,7 @@ export function useHeroDoodle(scene: RefObject<HTMLDivElement | null>) {
     };
 
     function start(to: Pose) {
-      if (pose === to) return;
+      if (pose === to || !ready) return;
       if (reduce) {
         pose = to;
         show(to);
@@ -156,6 +204,7 @@ export function useHeroDoodle(scene: RefObject<HTMLDivElement | null>) {
 
     return () => {
       cancelAnimationFrame(raf);
+      abort.abort();
       io.disconnect();
       document.removeEventListener("visibilitychange", wake);
       root.removeEventListener("pointerenter", onEnter);

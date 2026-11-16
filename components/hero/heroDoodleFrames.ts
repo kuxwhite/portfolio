@@ -1,5 +1,5 @@
 /*
- * Hand-drawn frames of the hero character, extracted 1:1 from public/hero-doodle.html (paths are untouched).
+ * Hand-drawn frames of the hero character, extracted 1:1 from scripts/source/hero-doodle.html (paths are untouched).
  * Generated: do not edit by hand. Coordinates are in the original scene space (hero-doodle.html viewBox -60 160 1000 660).
  * - static: drawn once; fill "ink" is the line colour, "paper" knocks out the background.
  * - frames: flipbook frames; each one is a paper mask (x, y, w, h) under the inked path.

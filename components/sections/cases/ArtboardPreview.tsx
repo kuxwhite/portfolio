@@ -25,7 +25,7 @@ export function ArtboardPreview({ w, h, image, alt, screen }: { w: number; h: nu
           alt={alt}
           width={shownW}
           height={shownH}
-          loading="lazy"
+          fetchPriority="low"
           draggable={false}
           className="absolute top-0 left-0 block max-w-none"
           style={{ width: shownW, height: shownH }}

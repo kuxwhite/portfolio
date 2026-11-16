@@ -171,7 +171,7 @@ export function SpendingCardPreview({ timeline, label = "Spending overview" }: {
             {CHIPS_A.map((c, i) => (
               <div key={c.key} ref={bind(`chipA-${c.key}`, i === 0 ? T.chipLoans : T.chipsRestA[i - 1])} className={chip} style={{ background: c.bg }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={asset(`cases/history/icon-${c.key}.svg`)} alt="" width={17.512} height={17.512} className="block size-[17.512px]" />
+                <img src={asset(`cases/history/icon-${c.key}.svg`)} fetchPriority="low" alt="" width={17.512} height={17.512} className="block size-[17.512px]" />
                 <span className={`${chipText} ${text}`}>{c.name}</span>
                 <span className={`${chipText} ${text} font-medium`}>{c.amount}</span>
               </div>
@@ -197,7 +197,7 @@ export function SpendingCardPreview({ timeline, label = "Spending overview" }: {
           <div className="flex w-full shrink-0 items-start gap-[7.005px] px-[14.01px]">
             <div ref={bind("back", T.back)} className="flex size-[32px] shrink-0 items-center justify-center overflow-hidden rounded-[16px]" style={{ background: "#131313" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={asset("motion/spending/arrow-left.svg")} alt="" width={14.01} height={14.01} className="block size-[14.01px]" />
+              <img src={asset("motion/spending/arrow-left.svg")} fetchPriority="low" alt="" width={14.01} height={14.01} className="block size-[14.01px]" />
             </div>
             {[
               { key: "sber", name: "Sber", amount: "$265" },
@@ -205,7 +205,7 @@ export function SpendingCardPreview({ timeline, label = "Spending overview" }: {
             ].map((c, i) => (
               <div key={c.key} ref={bind(`chipB-${c.key}`, T.chipsB[i])} className={chip} style={{ background: C.neutral }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={asset(`motion/spending/dot-${c.key}.svg`)} alt="" width={8.756} height={8.756} className="block size-[8.756px]" />
+                <img src={asset(`motion/spending/dot-${c.key}.svg`)} fetchPriority="low" alt="" width={8.756} height={8.756} className="block size-[8.756px]" />
                 <span className={`${chipText} ${text}`}>{c.name}</span>
                 <span className={`${chipText} ${text} font-medium`}>{c.amount}</span>
               </div>

@@ -28,7 +28,7 @@ function BrandMark({ name }: { name: string }) {
           The stroke is a padded white backing, not a clipping border, so the tilted icon is never cut. */}
       <span className="-my-(--space-2) -rotate-2 rounded-[calc(var(--radius-logo)+var(--space-2))] bg-bg-page p-(--space-2) shadow-[0_4px_6px_rgba(0,0,0,0.12)] grayscale transition-[rotate,filter] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover/brand:rotate-0 group-hover/brand:grayscale-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={asset("home/moud-icon.svg")} alt="" aria-hidden width={32} height={32} className="block size-(--space-32)" />
+        <img src={asset("home/moud-icon.svg")} fetchPriority="low" alt="" aria-hidden width={32} height={32} className="block size-(--space-32)" />
       </span>
     </span>
   );
@@ -54,7 +54,7 @@ function Card({ card, flipLabel }: { card: CaseCard; flipLabel: string }) {
         )}
         {kind === "image" && !card.screen && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={asset(card.image)} alt={card.caption} loading="lazy" draggable={false} className="block size-full object-cover" />
+          <img src={asset(card.image)} alt={card.caption} fetchPriority="low" draggable={false} className="block size-full object-cover" />
         )}
         {kind === "card" && <FlipCard label={card.caption} flipLabel={flipLabel} />}
         {(kind === "auth" || kind === "spending") && <MotionPreview kind={kind} w={card.w} h={card.h} label={card.caption} />}

@@ -163,7 +163,7 @@ const content = "flex flex-col items-start gap-[24.677px] pt-[169.657px]";
 const pad = "w-full px-[12.339px]";
 const img = (src: string, w: number, h: number, style?: CSSProperties) => (
   // eslint-disable-next-line @next/next/no-img-element
-  <img src={asset(`motion/auth/${src}`)} alt="" width={w} height={h} draggable={false} className="block max-w-none" style={{ width: w, height: h, ...style }} />
+  <img src={asset(`motion/auth/${src}`)} fetchPriority="low" alt="" width={w} height={h} draggable={false} className="block max-w-none" style={{ width: w, height: h, ...style }} />
 );
 
 type Bind = ReturnType<typeof useTracks>;

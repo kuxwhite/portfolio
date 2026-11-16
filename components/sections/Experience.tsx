@@ -19,7 +19,7 @@ const LOGO_BG: Record<Item["logoBg"], string> = {
 
 const Logo = ({ name }: { name: string }) => (
   // eslint-disable-next-line @next/next/no-img-element
-  <img src={asset(`logos/${name}.svg`)} alt="" aria-hidden width={20} height={20} className="block size-(--space-20) shrink-0" />
+  <img src={asset(`logos/${name}.svg`)} fetchPriority="low" alt="" aria-hidden width={20} height={20} className="block size-(--space-20) shrink-0" />
 );
 
 function ProjectPart({ part, i }: { part: Part; i: number }) {
@@ -70,7 +70,7 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
               <span>{item.end}</span>
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={asset("icons/sparkles.svg")} alt={t.present} width={16} height={16} className="block size-(--space-16)" />
+              <img src={asset("icons/sparkles.svg")} fetchPriority="low" alt={t.present} width={16} height={16} className="block size-(--space-16)" />
             )}
           </p>
           <div className="flex items-center gap-(--space-8)">
@@ -130,7 +130,7 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
             transition={reduce ? { duration: 0 } : { duration: 0.3, ease: EASE }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={asset("icons/chevron-down-20.svg")} alt="" aria-hidden width={20} height={20} className="block size-(--space-20)" />
+            <img src={asset("icons/chevron-down-20.svg")} fetchPriority="low" alt="" aria-hidden width={20} height={20} className="block size-(--space-20)" />
           </motion.span>
         }
       />

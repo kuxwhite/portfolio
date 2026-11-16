@@ -13,3 +13,9 @@ export const SIT_DX = -680;
 /** Squash and stretch origin: on the ground under the body. */
 export const GROUND = 757;
 export const CX = 420;
+/** Line colour: pastel blue from the Figma hero (1398:61452); no Portfolio token yet. */
+export const INK = "#4F88FF";
+/** Background knock-out under each frame. */
+export const PAPER = "var(--portfolio-bg-page)";
+/** Everything the first paint doesn't need (other foot frames, the sitting pose): see scripts/gen-hero-doodle-rest.mjs. */
+export const REST_URL = "hero/doodle-rest.json";

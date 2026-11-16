@@ -10,7 +10,7 @@ export function VisualTile({ ratio, media }: { ratio: [number, number]; media?: 
     <div className="relative w-full overflow-hidden rounded-visual bg-bg-subtle" style={{ aspectRatio: `${ratio[0]} / ${ratio[1]}` }}>
       {media?.kind === "image" && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={asset(media.src)} alt={media.alt} loading="lazy" className="absolute inset-0 block size-full object-cover" />
+        <img src={asset(media.src)} alt={media.alt} fetchPriority="low" className="absolute inset-0 block size-full object-cover" />
       )}
       {media?.kind === "video" && (
         <video

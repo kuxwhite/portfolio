@@ -1,38 +1,23 @@
 import { useId } from "react";
-import {
-  BLINK_FRAMES,
-  FOOT_FRAMES,
-  HEAD_FRAMES,
-  LYING,
-  SITTING,
-  SIT_DX,
-  TYPE_FRAMES,
-  VIEW_BOX,
-  type DoodleFrame,
-  type DoodlePose,
-} from "./heroDoodleFrames";
+import { preload } from "react-dom";
+import { asset } from "@/lib/asset";
+import { FOOT_FRAMES, LYING, SIT_DX, VIEW_BOX, type DoodlePose } from "./heroDoodleFrames";
 import { DoodleScene } from "./DoodleScene";
-import { SCENE_WIDTH } from "./heroDoodleGeometry";
+import { INK, PAPER, REST_URL, SCENE_WIDTH } from "./heroDoodleGeometry";
 
 /*
- * Hand-drawn hero character, ported from public/hero-doodle.html: the same inline SVG, frames and
+ * Hand-drawn hero character, ported from scripts/source/hero-doodle.html: the same inline SVG, frames and
  * "boil" filter (feTurbulence + feDisplacementMap). Lying → sits at the laptop on hover (mouse),
  * on tap (touch) or Enter / Space (keyboard). prefers-reduced-motion: no flipbooks, no boil,
  * the pose swaps without the squash.
  * Scene: the lying pose is 124 px tall (≈295 px wide); narrower columns scale it down.
+ *
+ * Loading: the HTML carries only what the first paint shows (the lying pose and its first foot frame).
+ * The rest of the drawing (~217 KB: other foot frames, the sitting pose) is preloaded from the start
+ * of the page load and mounted by the hook; until it arrives the character simply holds still.
  */
-const INK = "#4F88FF"; // pastel line colour from the Figma hero (1398:61452); no Portfolio token yet
-const PAPER = "var(--portfolio-bg-page)";
 const fill = (f: "ink" | "paper") => (f === "ink" ? INK : PAPER);
-
-function Frames({ kind, frames, hidden = false }: { kind: string; frames: DoodleFrame[]; hidden?: boolean }) {
-  return frames.map(({ mask: [x, y, width, height], d }, i) => (
-    <g key={i} data-f={kind} style={hidden || i > 0 ? { display: "none" } : undefined}>
-      <rect x={x} y={y} width={width} height={height} fill={PAPER} />
-      <path d={d} fill={INK} fillRule="evenodd" />
-    </g>
-  ));
-}
+const [FIRST_FOOT] = FOOT_FRAMES;
 
 function Pose({ pose }: { pose: DoodlePose }) {
   return (
@@ -45,7 +30,7 @@ function Pose({ pose }: { pose: DoodlePose }) {
   );
 }
 
-// Server-rendered: the frames stay in the HTML and never ship as JS; the client hook flips them in the DOM.
+// Server-rendered first paint; the frames never ship as JS. The hook adds the rest and flips frames in the DOM.
 function Art({ uid }: { uid: string }) {
   return (
     <svg viewBox={VIEW_BOX} aria-hidden className="block h-auto w-full overflow-visible">
@@ -58,14 +43,13 @@ function Art({ uid }: { uid: string }) {
       <g data-art filter={`url(#${uid}-boil)`}>
         <g data-pose="lie">
           <Pose pose={LYING} />
-          <Frames kind="foot" frames={FOOT_FRAMES} />
+          <g data-f="foot">
+            <rect x={FIRST_FOOT.mask[0]} y={FIRST_FOOT.mask[1]} width={FIRST_FOOT.mask[2]} height={FIRST_FOOT.mask[3]} fill={PAPER} />
+            <path d={FIRST_FOOT.d} fill={INK} fillRule="evenodd" />
+          </g>
         </g>
-        <g data-pose="sit" transform={`translate(${SIT_DX} 0)`} style={{ display: "none" }}>
-          <Pose pose={SITTING} />
-          <Frames kind="head" frames={HEAD_FRAMES} />
-          <Frames kind="blink" frames={BLINK_FRAMES} hidden />
-          <Frames kind="type" frames={TYPE_FRAMES} />
-        </g>
+        {/* Filled by the hook from doodle-rest.json. */}
+        <g data-pose="sit" transform={`translate(${SIT_DX} 0)`} style={{ display: "none" }} />
       </g>
     </svg>
   );
@@ -73,6 +57,8 @@ function Art({ uid }: { uid: string }) {
 
 export function HeroDoodle({ label }: { label: string }) {
   const uid = useId().replace(/:/g, "");
+  // Requested from the <head> together with the page, not on scroll or hover.
+  preload(asset(REST_URL), { as: "fetch", crossOrigin: "anonymous" });
   return (
     <DoodleScene label={label} width={SCENE_WIDTH}>
       <Art uid={uid} />

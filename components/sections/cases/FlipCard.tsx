@@ -38,7 +38,7 @@ const rounded: CSSProperties = { fontFamily: "var(--portfolio-font-family-rounde
 
 const Svg = ({ name, className, style }: { name: string; className?: string; style?: CSSProperties }) => (
   // eslint-disable-next-line @next/next/no-img-element
-  <img src={asset(`cases/card/${name}.svg`)} alt="" aria-hidden draggable={false} className={`block max-w-none ${className ?? ""}`} style={style} />
+  <img src={asset(`cases/card/${name}.svg`)} fetchPriority="low" alt="" aria-hidden draggable={false} className={`block max-w-none ${className ?? ""}`} style={style} />
 );
 
 /** Edge with its drop shadows; Figma draws it 1px lower than the card and outset by the blur. */

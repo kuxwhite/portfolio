@@ -231,10 +231,10 @@ export function FlipCard({ label, flipLabel }: { label: string; flipLabel: strin
                 </div>
                 <Svg name="rim" className="absolute inset-0 size-full" />
                 <div className="absolute top-[16px] left-[16px] flex flex-col gap-(--space-8) font-medium" style={{ textShadow }}>
-                  <p className="text-[14px] leading-[20px] tracking-[0.14px] opacity-70">Дебетовая</p>
+                  <p className="text-[14px] leading-[20px] tracking-[0.14px] opacity-70">Debit</p>
                   <p className="whitespace-nowrap">
-                    <span className="text-[32px] leading-[40px] tracking-[-0.48px]">132 400</span>
-                    <span className="text-[24px] leading-[28px] tracking-[-0.12px] text-white/70">,41 ₽</span>
+                    <span className="text-[32px] leading-[40px] tracking-[-0.48px]">$12,500</span>
+                    <span className="text-[24px] leading-[28px] tracking-[-0.12px] text-white/70">.00</span>
                   </p>
                 </div>
                 <BottomRow open={false} />
@@ -247,10 +247,10 @@ export function FlipCard({ label, flipLabel }: { label: string; flipLabel: strin
               <Face back={!reduce}>
                 <Sheen x={sx} strength={sa} mirror={!reduce} />
                 <div className="absolute top-[16px] left-[16px] flex w-[282px] flex-col gap-[22px]">
-                  <Detail label="Номер карты" value="2200 7012 4589 3688" labelWide />
+                  <Detail label="Card number" value="2200 1234 5678 3688" labelWide />
                   <div className="flex items-center gap-(--space-24)">
-                    <Detail label="Действует до" value="08/30" />
-                    <Detail label="CVV" value="417" labelWide />
+                    <Detail label="Expires" value="12/30" />
+                    <Detail label="CVV" value="123" labelWide />
                   </div>
                 </div>
                 <Svg name="rim" className="absolute inset-0 size-full" />

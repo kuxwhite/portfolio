@@ -1,4 +1,5 @@
 import type { Content } from "@/lib/content";
+import { Reveal } from "@/components/sections/Reveal";
 import { VisualTile, type VisualMedia } from "@/components/sections/VisualTile";
 
 /*
@@ -36,7 +37,9 @@ function Columns({ layout, className }: { layout: number[][]; className: string 
       {layout.map((col, c) => (
         <div key={c} className="flex min-w-0 flex-1 flex-col gap-(--space-16)">
           {col.map((i) => (
-            <VisualTile key={i} ratio={[TILES[i].w, TILES[i].h]} media={TILES[i].media} />
+            <Reveal key={i} column={c}>
+              <VisualTile ratio={[TILES[i].w, TILES[i].h]} media={TILES[i].media} />
+            </Reveal>
           ))}
         </div>
       ))}

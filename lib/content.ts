@@ -4,6 +4,8 @@ export type Lang = "ru" | "en";
 type ProjectPart = string | { logo: string; label?: string; chip?: boolean; lead?: string };
 
 export type CaseCard = {
+  /** Static screenshot, or a live preview built in code ("tilt": the debit card, "history": spending chart). */
+  kind?: "image" | "tilt" | "history";
   image: string;
   caption: string;
   /** Preview size in the Figma strip, px (desktop). */
@@ -17,7 +19,7 @@ export type CaseCard = {
 export type Content = {
   meta: { title: string; description: string };
   header: { name: string; switchLabel: string };
-  hero: { pitch: [string, string]; facts: string; doodleLabel: string };
+  hero: { pitch: string[]; facts: string; doodleLabel: string };
   cases: {
     overline: string;
     titleLead: string;
@@ -49,11 +51,11 @@ export type Content = {
 
 const cards = (captions: string[]): CaseCard[] => [
   { image: "cases/face-id.webp", caption: captions[0], w: 424, h: 500, fill: "subtle", captionTone: "muted" },
-  { image: "cases/debit-card.webp", caption: captions[1], w: 432, h: 300, fill: "page", captionTone: "muted" },
+  { kind: "tilt", image: "cases/debit-card-card.webp", caption: captions[1], w: 432, h: 300, fill: "page", captionTone: "muted" },
   { image: "cases/home.webp", caption: captions[2], w: 347, h: 400, fill: "subtle", captionTone: "muted" },
   { image: "cases/atms.webp", caption: captions[3], w: 200, h: 200, fill: "subtle", captionTone: "muted" },
   { image: "cases/card-management.webp", caption: captions[4], w: 400, h: 500, fill: "section", captionTone: "primary" },
-  { image: "cases/history.webp", caption: captions[5], w: 404, h: 404, fill: "none", captionTone: "primary" },
+  { kind: "history", image: "", caption: captions[5], w: 404, h: 404, fill: "none", captionTone: "primary" },
 ];
 
 export const content: Record<Lang, Content> = {
@@ -127,10 +129,8 @@ export const content: Record<Lang, Content> = {
     },
     header: { name: "Kirill Novikov", switchLabel: "Language" },
     hero: {
-      pitch: [
-        "I help fintech, AI and web3 teams test ideas quickly through concepts and ship clear products,",
-        "where complex flows stay simple",
-      ],
+      // One balanced paragraph: the forced RU-style break leaves EN lines ragged.
+      pitch: ["I help fintech, AI and web3 teams test ideas quickly through concepts and ship clear products, where complex flows stay simple"],
       facts: "6+ years · Senior Product Designer",
       doodleLabel: "Illustration: Kirill is lying with his legs crossed. Hover or tap to make him sit down at the laptop.",
     },

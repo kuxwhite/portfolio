@@ -9,9 +9,13 @@ export function Hero({ t }: { t: Content["hero"] }) {
         <HeroDoodle label={t.doodleLabel} />
       </div>
       <div className="content flex flex-col gap-(--space-32) text-center">
-        <h1 className="type-body-l text-fg-primary">
-          {t.pitch[0]}
-          <br /> {t.pitch[1]}
+        <h1 className="type-body-l text-balance text-fg-primary">
+          {t.pitch.map((line, i) => (
+            <span key={i}>
+              {i > 0 && <br />}
+              {line}
+            </span>
+          ))}
         </h1>
         <p className="type-overline text-fg-muted">{t.facts}</p>
       </div>

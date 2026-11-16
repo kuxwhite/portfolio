@@ -53,7 +53,14 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
   const panelId = useId();
 
   return (
-    <li className="flex items-start gap-(--space-16) rounded-card border border-border-subtle p-(--space-24)">
+    // The whole card toggles (the button stays for keyboard and screen readers); hovering it lights up the button.
+    <li
+      className="group/exp flex cursor-pointer items-start gap-(--space-16) rounded-card border border-border-subtle p-(--space-24)"
+      onClick={() => {
+        if (window.getSelection()?.toString()) return; // selecting text isn't a click
+        setOpen((o) => !o);
+      }}
+    >
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex flex-col gap-(--space-8)">
           <p className="type-mono-s flex items-center gap-(--space-4) text-fg-muted">
@@ -111,7 +118,11 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
         aria-expanded={open}
         aria-controls={panelId}
         aria-label={`${open ? t.collapse : t.expand} ${item.company}`}
-        onClick={() => setOpen((o) => !o)}
+        className="group-hover/exp:bg-(--portfolio-palette-neutral-150)"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
         icon={
           <motion.span
             className="flex"

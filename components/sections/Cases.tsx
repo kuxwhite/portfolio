@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/Button";
 import { asset } from "@/lib/asset";
 import { links } from "@/lib/site";
 import type { CaseCard, Content } from "@/lib/content";
+import { TiltCard } from "@/components/sections/cases/TiltCard";
+import { HistoryPreview } from "@/components/sections/cases/HistoryPreview";
+import { CaseStrip } from "@/components/sections/cases/CaseStrip";
 
 const FILL: Record<CaseCard["fill"], string> = {
   subtle: "bg-bg-subtle",
@@ -10,12 +13,17 @@ const FILL: Record<CaseCard["fill"], string> = {
   none: "",
 };
 
-/** "Moud" brand mark from the case title (Figma "Brand Mark"). */
+/*
+ * "Moud" brand mark from the case title (Figma component "Brand Mark" 1373:61397, Hover=Off/On):
+ * muted name and a tilted grey icon; on hover the name turns accent and the icon straightens up in colour.
+ * Figma greys the icon with the Luminosity blend; here it's grayscale(), which looks the same on the
+ * white page and can be animated.
+ */
 function BrandMark({ name }: { name: string }) {
   return (
-    <span className="-my-(--space-8) mx-(--space-4) inline-flex items-center gap-(--space-8) rounded-brand border border-border-subtle p-(--space-4) align-middle">
-      <span className="text-fg-muted">{name}</span>
-      <span className="-rotate-2 overflow-hidden rounded-logo border-2 border-bg-page shadow-[0_4px_6px_rgba(0,0,0,0.12)] mix-blend-luminosity">
+    <span className="group/brand mx-(--space-4) inline-flex h-(--space-32) items-center gap-(--space-8) align-top">
+      <span className="text-fg-muted transition-colors duration-300 ease-out group-hover/brand:text-fg-accent">{name}</span>
+      <span className="-rotate-2 overflow-hidden rounded-logo border-2 border-bg-page shadow-[0_4px_6px_rgba(0,0,0,0.12)] grayscale transition-[rotate,filter] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover/brand:rotate-0 group-hover/brand:grayscale-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={asset("home/moud-icon.svg")} alt="" aria-hidden width={32} height={32} className="block size-(--space-32)" />
       </span>
@@ -24,14 +32,19 @@ function BrandMark({ name }: { name: string }) {
 }
 
 function Card({ card }: { card: CaseCard }) {
+  const kind = card.kind ?? "image";
   return (
     <figure role="listitem" className="flex shrink-0 snap-start flex-col gap-[calc(var(--space-16)*var(--case-scale))]">
       <div
-        className={`overflow-hidden rounded-visual ${FILL[card.fill]}`}
+        className={`relative overflow-hidden rounded-visual ${FILL[card.fill]}`}
         style={{ width: `calc(${card.w}px * var(--case-scale))`, height: `calc(${card.h}px * var(--case-scale))` }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={asset(card.image)} alt={card.caption} loading="lazy" draggable={false} className="block size-full object-cover" />
+        {kind === "image" && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={asset(card.image)} alt={card.caption} loading="lazy" draggable={false} className="block size-full object-cover" />
+        )}
+        {kind === "tilt" && <TiltCard src={card.image} alt={card.caption} />}
+        {kind === "history" && <HistoryPreview label={card.caption} />}
       </div>
       <figcaption className={`type-caption ${card.captionTone === "primary" ? "text-fg-primary" : "text-fg-muted"}`}>
         {card.caption}
@@ -54,15 +67,11 @@ export function Cases({ t }: { t: Content["cases"] }) {
         <p className="type-overline text-fg-muted">{t.tags}</p>
       </div>
 
-      <div
-        role="list"
-        aria-label={t.stripLabel}
-        className="no-scrollbar flex w-full items-center gap-(--space-16) overflow-x-auto overscroll-x-contain px-(--page-padding-x) scroll-px-(--page-padding-x) max-md:snap-x max-md:snap-mandatory"
-      >
+      <CaseStrip label={t.stripLabel}>
         {t.cards.map((card) => (
-          <Card key={card.image} card={card} />
+          <Card key={card.caption} card={card} />
         ))}
-      </div>
+      </CaseStrip>
 
       <Button href={links.caseMoud} variant="secondary" size="sm" label={t.cta} />
     </section>

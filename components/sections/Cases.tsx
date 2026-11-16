@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { asset } from "@/lib/asset";
 import { links } from "@/lib/site";
 import type { CaseCard, Content } from "@/lib/content";
-import { TiltCard } from "@/components/sections/cases/TiltCard";
+import { FlipCard } from "@/components/sections/cases/FlipCard";
 import { HistoryPreview } from "@/components/sections/cases/HistoryPreview";
 import { CaseStrip } from "@/components/sections/cases/CaseStrip";
 
@@ -31,7 +31,7 @@ function BrandMark({ name }: { name: string }) {
   );
 }
 
-function Card({ card }: { card: CaseCard }) {
+function Card({ card, flipLabel }: { card: CaseCard; flipLabel: string }) {
   const kind = card.kind ?? "image";
   return (
     <figure role="listitem" className="flex shrink-0 snap-start flex-col gap-[calc(var(--space-16)*var(--case-scale))]">
@@ -43,7 +43,7 @@ function Card({ card }: { card: CaseCard }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={asset(card.image)} alt={card.caption} loading="lazy" draggable={false} className="block size-full object-cover" />
         )}
-        {kind === "tilt" && <TiltCard src={card.image} alt={card.caption} />}
+        {kind === "card" && <FlipCard label={card.caption} flipLabel={flipLabel} />}
         {kind === "history" && <HistoryPreview label={card.caption} />}
       </div>
       <figcaption className={`type-caption ${card.captionTone === "primary" ? "text-fg-primary" : "text-fg-muted"}`}>
@@ -69,7 +69,7 @@ export function Cases({ t }: { t: Content["cases"] }) {
 
       <CaseStrip label={t.stripLabel}>
         {t.cards.map((card) => (
-          <Card key={card.caption} card={card} />
+          <Card key={card.caption} card={card} flipLabel={t.cardFlip} />
         ))}
       </CaseStrip>
 

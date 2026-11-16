@@ -34,7 +34,7 @@ def j(x): return json.dumps(x,ensure_ascii=False)
 with open(out,'w') as f:
     f.write('''/*
  * Hand-drawn frames of the hero character, extracted 1:1 from public/hero-doodle.html (paths are untouched).
- * Generated: do not edit by hand. Coordinates are in the scene viewBox (-60 160 1000 660).
+ * Generated: do not edit by hand. Coordinates are in the original scene space (hero-doodle.html viewBox -60 160 1000 660).
  * - static: drawn once; fill "ink" is the line colour, "paper" knocks out the background.
  * - frames: flipbook frames; each one is a paper mask (x, y, w, h) under the inked path.
  */

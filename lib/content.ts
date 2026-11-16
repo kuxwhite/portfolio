@@ -4,8 +4,8 @@ export type Lang = "ru" | "en";
 type ProjectPart = string | { logo: string; label?: string; chip?: boolean; lead?: string };
 
 export type CaseCard = {
-  /** Static screenshot, or a live preview built in code ("tilt": the debit card, "history": spending chart). */
-  kind?: "image" | "tilt" | "history";
+  /** Static screenshot, or a live preview built in code ("card": the flipping debit card, "history": spending chart). */
+  kind?: "image" | "card" | "history";
   image: string;
   caption: string;
   /** Preview size in the Figma strip, px (desktop). */
@@ -28,6 +28,7 @@ export type Content = {
     tags: string;
     cta: string;
     stripLabel: string;
+    cardFlip: string;
     cards: CaseCard[];
   };
   experience: {
@@ -51,7 +52,7 @@ export type Content = {
 
 const cards = (captions: string[]): CaseCard[] => [
   { image: "cases/face-id.webp", caption: captions[0], w: 424, h: 500, fill: "subtle", captionTone: "muted" },
-  { kind: "tilt", image: "cases/debit-card-card.webp", caption: captions[1], w: 432, h: 300, fill: "page", captionTone: "muted" },
+  { kind: "card", image: "", caption: captions[1], w: 432, h: 300, fill: "page", captionTone: "muted" },
   { image: "cases/home.webp", caption: captions[2], w: 347, h: 400, fill: "subtle", captionTone: "muted" },
   { image: "cases/atms.webp", caption: captions[3], w: 200, h: 200, fill: "subtle", captionTone: "muted" },
   { image: "cases/card-management.webp", caption: captions[4], w: 400, h: 500, fill: "section", captionTone: "primary" },
@@ -82,6 +83,7 @@ export const content: Record<Lang, Content> = {
       tags: "Финтех · B2C · Мобайл",
       cta: "Смотреть кейс",
       stripLabel: "Экраны кейса",
+      cardFlip: "Нажмите, чтобы перевернуть и увидеть реквизиты",
       cards: cards(["Face ID", "Дебетовая карта", "Главный экран", "Банкоматы", "Управление картой", "История"]),
     },
     experience: {
@@ -142,6 +144,7 @@ export const content: Record<Lang, Content> = {
       tags: "Fintech · B2C · Mobile",
       cta: "View case",
       stripLabel: "Case screens",
+      cardFlip: "Click to flip it and see the card details",
       cards: cards(["Face ID", "Debit card", "Home screen", "ATMs", "Card management", "History"]),
     },
     experience: {

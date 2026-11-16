@@ -12,16 +12,16 @@ import {
   type DoodlePose,
 } from "./heroDoodleFrames";
 import { DoodleScene } from "./DoodleScene";
+import { SCENE_WIDTH } from "./heroDoodleGeometry";
 
 /*
  * Hand-drawn hero character, ported from public/hero-doodle.html: the same inline SVG, frames and
  * "boil" filter (feTurbulence + feDisplacementMap). Lying → sits at the laptop on hover (mouse),
  * on tap (touch) or Enter / Space (keyboard). prefers-reduced-motion: no flipbooks, no boil,
  * the pose swaps without the squash.
- * Scene: 306 px wide, the column width on narrow screens (but no more than 306).
+ * Scene: the lying pose is 124 px tall (≈295 px wide); narrower columns scale it down.
  */
-const SCENE_WIDTH = 306; // px, from hero-doodle.html (.scene max-width)
-const INK = "#1F64F2"; // line colour of the drawing (hero-doodle.html --ink); no Portfolio token yet
+const INK = "#4F88FF"; // pastel line colour from the Figma hero (1398:61452); no Portfolio token yet
 const PAPER = "var(--portfolio-bg-page)";
 const fill = (f: "ink" | "paper") => (f === "ink" ? INK : PAPER);
 

@@ -2,7 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { asset } from "@/lib/asset";
-import { E, track, useTimeline, useTracks, type Props, type Timeline } from "@/lib/motion/timeline";
+import { E, track, useTimeline, useTracks, type Ease, type Props, type Timeline, type Track } from "@/lib/motion/timeline";
 
 /*
  * Sign-in flow of the Moud case (Figma "Auth · Motion v5 · phone matched to SMS", 1420:33175;
@@ -27,7 +27,6 @@ const C = {
 };
 
 // --- reusable keyframe shapes (values verbatim from Figma) ---
-const screenOut = (a: number, b: number): Props => ({ opacity: track([0, a, b, 1], [1, 1, 0, 0], [E, E, L]) });
 const screenInOut = (t: readonly number[]): Props => ({ opacity: track([0, ...t, 1], [0, 0, 1, 1, 0, 0], [E, E, E, E, L]) });
 const contentInOut = (t: readonly number[]): Props => ({ x: track([0, ...t, 1], [16, 16, 0, 0, -12, -12], [L, E, E, E, L]) });
 /** Rise: opacity over 0.14 s, translateY 7 → 0 over 0.18 s. */
@@ -44,6 +43,25 @@ const touch = (t: readonly [number, number, number]): Props => ({
   opacity: track([0, t[0], t[1], t[2], 1], [0, 0, 1, 0, 0], [E, E, E, L]),
   scale: track([0, t[0], t[2], 1], [0.7, 0.7, 1.35, 1.35], [L, E, L]),
 });
+/*
+ * Loop seam (spec suggestion, approved): at 11.76 s Face ID crossfades back to the phone screen with
+ * the screen-change pattern (0.24 s, E). Screen 01's own keyframes are reset to their first values at
+ * 11.64 s, while it's invisible, so it comes back in its initial state.
+ */
+const SEAM = 0.98; // 11.76 s
+const RESET = 0.97; // 11.64 s
+function resetBeforeSeam(t: Track): Track {
+  const n = t.times.length - 1;
+  const ease = Array.isArray(t.ease) ? (t.ease as readonly Ease[]).slice(0, n - 1) : Array(n - 1).fill(t.ease);
+  return {
+    times: [...t.times.slice(0, n), RESET, RESET + 0.0001, 1],
+    values: [...t.values.slice(0, n), t.values[n], t.values[0], t.values[0]],
+    ease: [...ease, L, L, L],
+  };
+}
+const resetProps = (p: Props): Props =>
+  Object.fromEntries(Object.entries(p).map(([k, v]) => [k, typeof v === "object" ? resetBeforeSeam(v as Track) : v])) as Props;
+
 const breathe = (t: readonly number[], v: readonly number[]) => track([0, ...t, 1], [1, 1, ...v, 1], [L, IO, IO, IO, IO]);
 
 const PHONE_DIGITS = [
@@ -75,34 +93,34 @@ const CONFIRM_DOTS: { y: number[]; bg: number }[] = [
 ];
 
 const T = {
-  s1: screenOut(0.1875, 0.2075),
-  s1Content: { x: track([0, 0.1875, 0.2075, 1], [0, 0, -12, -12], [E, E, L]) },
+  s1: { opacity: track([0, 0.1875, 0.2075, SEAM, 1], [1, 1, 0, 0, 1], [E, E, L, E]) },
+  s1Content: { x: track([0, 0.1875, 0.2075, SEAM - 0.0001, SEAM, 1], [0, 0, -12, -12, 16, 0], [E, E, L, L, E]) },
   s2: screenInOut([0.1875, 0.2075, 0.3458, 0.3658]),
   s2Content: contentInOut([0.1875, 0.2075, 0.3458, 0.3658]),
   s3: screenInOut([0.3458, 0.3658, 0.4875, 0.5075]),
   s3Content: contentInOut([0.3458, 0.3658, 0.4875, 0.5075]),
   s4: screenInOut([0.4875, 0.5075, 0.6792, 0.6992]),
   s4Content: contentInOut([0.4875, 0.5075, 0.6792, 0.6992]),
-  s5: { opacity: track([0, 0.6792, 0.6992, 1], [0, 0, 1, 1], [E, E, L]) },
-  s5Content: { y: track([0, 0.6792, 0.7025, 1], [12, 12, 0, 0], [L, E, L]) },
+  s5: { opacity: track([0, 0.6792, 0.6992, SEAM, 1], [0, 0, 1, 1, 0], [E, E, L, E]) },
+  s5Content: { y: track([0, 0.6792, 0.7025, 1], [12, 12, 0, 0], [L, E, L]), x: track([0, SEAM, 1], [0, 0, -12], [L, E]) },
   s5Image: { y: track([0, 0.6792, 0.7025, 1], [16, 16, 0, 0], [L, E, L]) },
 
-  phoneField: fieldFocus(0.0483, 0.06),
-  placeholder: { opacity: track([0, 0.065, 0.0717, 1], [1, 1, 0, 0], [E, E, L]) },
+  phoneField: resetProps(fieldFocus(0.0483, 0.06)),
+  placeholder: resetProps({ opacity: track([0, 0.065, 0.0717, 1], [1, 1, 0, 0], [E, E, L]) }),
   cursor: {
     opacity: track([0, 0.0542, 0.1567, 0.1625, 1], [0, 1, 1, 0, 0], [E, E, E, L]),
     // HOLD: the cursor jumps after each typed chunk.
-    x: track(
+    x: resetBeforeSeam(track(
       [0, 0.0707, 0.0708, 0.0782, 0.0783, 0.0857, 0.0858, 0.0932, 0.0933, 0.1007, 0.1008, 0.1082, 0.1083, 0.1157, 0.1158, 0.1232, 0.1233, 0.1307, 0.1308, 0.1382, 0.1383, 1],
       [-102, -102, -89.297, -89.297, -81.127, -81.127, -66.169, -66.169, -58.166, -58.166, -49.996, -49.996, -36.884, -36.884, -29.482, -29.482, -15.537, -15.537, -8.136, -8.136, 0, 0],
       L,
-    ),
+    )),
   },
   signIn: {
     scale: track([0, 0.1625, 0.1717, 0.1833, 1], [1, 1, 0.975, 1, 1], [L, E, E, L]),
     background: track([0, 0.1625, 0.1725, 0.1833, 1], ["#22DF6B", "#22DF6B", "#6DE79C", "#22DF6B", "#22DF6B"], [E, E, E, L]),
   },
-  keyboard: { y: track([0, 0.05, 0.0767, 1], [237.5, 237.5, 0, 0], [L, E, L]) },
+  keyboard: resetProps({ y: track([0, 0.05, 0.0767, 1], [237.5, 237.5, 0, 0], [L, E, L]) }),
   smsCell: fieldFocus(0.3033, 0.3167),
   confirmTitle: { opacity: track([0, 0.5933, 0.605, 1], [1, 1, 0, 0], [E, E, L]) },
   correct: {
@@ -209,7 +227,7 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow" }: { timeli
                 </p>
                 <div className={`relative h-[18.508px] w-[103.542px] whitespace-pre ${body}`}>
                   {PHONE_DIGITS.map((d, i) => (
-                    <span key={i} ref={bind(`phone-${i}`, rise(d.t))} className="absolute top-[0.75px] block" style={{ left: d.x }}>
+                    <span key={i} ref={bind(`phone-${i}`, resetProps(rise(d.t)))} className="absolute top-[0.75px] block" style={{ left: d.x }}>
                       {d.s}
                     </span>
                   ))}

@@ -199,7 +199,7 @@ export function FlipCard({ label, flipLabel, previewScale }: { label: string; fl
         aria-pressed={flipped}
         aria-label={`${label}. ${flipLabel}`}
         className="relative shrink-0 cursor-pointer rounded-[24px] outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg-primary"
-        style={{ width: W, height: H, scale: `calc(${previewScale} * var(--case-scale))` }}
+        style={{ width: W, height: H, transform: `scale(var(--case-scale)) scale(${previewScale})` }}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         onClick={(e) => {

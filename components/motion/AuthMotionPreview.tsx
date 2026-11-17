@@ -219,7 +219,7 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "
       <div
         className="absolute w-[310px] origin-top-left overflow-hidden"
         style={inNavigation
-          ? { left: 51, top: 52, height: 700 / phoneScale, borderRadius: 59 / phoneScale, boxShadow: "0 0 0 3.86px rgb(19 19 19 / 0.08)", scale: phoneScale, background: C.surface }
+          ? { left: 51, top: 52, height: 700 / phoneScale, borderRadius: 59 / phoneScale, boxShadow: "0 0 0 3.86px rgb(19 19 19 / 0.08)", transform: `scale(${phoneScale})`, background: C.surface }
           : { left: 57, top: 48, height: 674, borderRadius: 47.812, background: C.surface }}
       >
         {/* 01 · Phone */}

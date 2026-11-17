@@ -205,12 +205,11 @@ html::-webkit-scrollbar {
 /* Three preview columns on desktop. On phones the same composition scrolls by column. */
 .case-strip {
   width: min(calc(100% - 2 * var(--page-padding-x)), 1304px);
-  container-type: inline-size;
 }
 
 .case-navigation {
-  --case-scale: tan(atan2(100cqw, 1304px));
-  --case-gap: calc(16px * var(--case-scale));
+  --case-scale: 1;
+  --case-gap: min(16px, 1.12vw);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
@@ -230,7 +229,7 @@ html::-webkit-scrollbar {
   inset: 0 auto auto 0;
   width: 424px;
   height: 483px;
-  scale: var(--case-scale);
+  transform: scale(var(--case-scale));
   transform-origin: top left;
 }
 
@@ -269,9 +268,10 @@ html::-webkit-scrollbar {
   }
 
   .case-navigation {
-    --case-scale: min(0.742268, tan(atan2(100cqw - 2 * var(--page-padding-x), 424px)));
+    --case-scale: 0.742268;
+    --case-gap: 12px;
     width: max-content;
-    grid-template-columns: repeat(3, calc(424px * var(--case-scale)));
+    grid-template-columns: repeat(3, min(314.72px, calc(100vw - var(--page-padding-x) - var(--page-padding-x))));
     padding-inline: var(--page-padding-x);
   }
 

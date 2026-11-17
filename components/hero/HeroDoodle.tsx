@@ -1,9 +1,7 @@
 import { useId } from "react";
-import { preload } from "react-dom";
-import { asset } from "@/lib/asset";
 import { FOOT_FRAMES, LYING, SIT_DX, VIEW_BOX, type DoodlePose } from "./heroDoodleFrames";
 import { DoodleScene } from "./DoodleScene";
-import { INK, PAPER, REST_URL, SCENE_WIDTH } from "./heroDoodleGeometry";
+import { INK, PAPER, SCENE_WIDTH } from "./heroDoodleGeometry";
 
 /*
  * Hand-drawn hero character, ported from scripts/source/hero-doodle.html: the same inline SVG, frames and
@@ -13,8 +11,7 @@ import { INK, PAPER, REST_URL, SCENE_WIDTH } from "./heroDoodleGeometry";
  * Scene: the lying pose is 124 px tall (≈295 px wide); narrower columns scale it down.
  *
  * Loading: the HTML carries only what the first paint shows (the lying pose and its first foot frame).
- * The rest of the drawing (~217 KB: other foot frames, the sitting pose) is preloaded from the start
- * of the page load and mounted by the hook; until it arrives the character simply holds still.
+ * The hook loads the remaining frames after the initial page load or when the visitor interacts.
  */
 const fill = (f: "ink" | "paper") => (f === "ink" ? INK : PAPER);
 const [FIRST_FOOT] = FOOT_FRAMES;
@@ -57,8 +54,6 @@ function Art({ uid }: { uid: string }) {
 
 export function HeroDoodle({ label }: { label: string }) {
   const uid = useId().replace(/:/g, "");
-  // Requested from the <head> together with the page, not on scroll or hover.
-  preload(asset(REST_URL), { as: "fetch", crossOrigin: "anonymous" });
   return (
     <DoodleScene label={label} width={SCENE_WIDTH}>
       <Art uid={uid} />

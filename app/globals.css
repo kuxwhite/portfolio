@@ -164,8 +164,10 @@ html::-webkit-scrollbar {
 }
 
 /* Smooth Ru ⇄ En switch: cross-document view transition (Chrome, Safari 18.2+) */
-@view-transition {
-  navigation: auto;
+@media (min-width: 768px) {
+  @view-transition {
+    navigation: auto;
+  }
 }
 ::view-transition-old(root) {
   animation: 280ms cubic-bezier(0.2, 0, 0, 1) both vt-out;
@@ -201,6 +203,22 @@ html::-webkit-scrollbar {
   }
 }
 
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-language-transition="out"] body {
+    animation: 120ms cubic-bezier(0.2, 0, 0, 1) both vt-language-out;
+  }
+
+  html[data-language-transition="in"] body {
+    animation: 200ms cubic-bezier(0.2, 0, 0, 1) both vt-fade;
+  }
+}
+
+@keyframes vt-language-out {
+  to {
+    opacity: 0.65;
+  }
+}
 
 /* Three preview columns on desktop. On phones the same composition scrolls by column. */
 .case-strip {
@@ -257,6 +275,7 @@ html::-webkit-scrollbar {
     width: 100%;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
+    touch-action: pan-y pinch-zoom;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: var(--page-padding-x);
     cursor: grab;
@@ -276,7 +295,19 @@ html::-webkit-scrollbar {
   }
 
   .case-navigation > * {
+    scroll-snap-stop: always;
+  }
+
+  .case-auth {
     scroll-snap-align: start;
+  }
+
+  .case-middle {
+    scroll-snap-align: center;
+  }
+
+  .case-settings {
+    scroll-snap-align: end;
   }
 }
 

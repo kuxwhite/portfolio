@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { useDragScroll } from "@/components/ui/useDragScroll";
+import { useCaseSwipe } from "./useCaseSwipe";
 
 export function CaseStrip({ label, children }: { label: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const navigation = useRef<HTMLDivElement>(null);
   useDragScroll(ref);
+  useCaseSwipe(ref, navigation);
 
   useEffect(() => {
     const row = navigation.current;

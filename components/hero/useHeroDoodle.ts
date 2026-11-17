@@ -62,34 +62,43 @@ export function useHeroDoodle(scene: RefObject<HTMLDivElement | null>) {
     const foot: FrameList = { nodes: q("[data-f=foot]"), cur: null };
     const type: FrameList = { nodes: [], cur: null };
     const head: FrameList = { nodes: [], cur: null }; // open eyes, then the blink twins
-    // The rest of the drawing arrives from doodle-rest.json (preloaded with the page); until then the
-    // character holds still on its first frame and a hover/tap waits for it.
     let ready = false;
     const abort = new AbortController();
-    fetch(asset(REST_URL), { signal: abort.signal })
-      .then((r) => r.json() as Promise<Rest>)
-      .then((rest) => {
-        const more = frameNodes("foot", rest.foot);
-        foot.nodes[foot.nodes.length - 1].after(...more);
-        foot.nodes.push(...more);
-        sitting.append(
-          el("path", { d: rest.sitting.ground, stroke: INK, "stroke-width": 6.6, "stroke-linecap": "round", fill: "none" }),
-          ...rest.sitting.static.map((p) => el("path", { d: p.d, fill: p.fill === "ink" ? INK : PAPER, "fill-rule": "evenodd" })),
-        );
-        const headNodes = frameNodes("head", rest.head);
-        const blinkNodes = frameNodes("blink", rest.blink);
-        const typeNodes = frameNodes("type", rest.type);
-        sitting.append(...headNodes, ...blinkNodes, ...typeNodes);
-        // Same first frames as the old server markup, before the loop takes over.
-        headNodes[0].style.display = "";
-        typeNodes[0].style.display = "";
-        head.nodes = [...headNodes, ...blinkNodes];
-        type.nodes = typeNodes;
-        ready = true;
-        if (target !== pose && !trans) start(target);
-        wake();
-      })
-      .catch(() => {});
+    let loading = false;
+    const loadFrames = () => {
+      if (loading || ready) return;
+      loading = true;
+      fetch(asset(REST_URL), { signal: abort.signal, priority: "low" })
+        .then((r) => r.json() as Promise<Rest>)
+        .then((rest) => {
+          const more = frameNodes("foot", rest.foot);
+          foot.nodes[foot.nodes.length - 1].after(...more);
+          foot.nodes.push(...more);
+          sitting.append(
+            el("path", { d: rest.sitting.ground, stroke: INK, "stroke-width": 6.6, "stroke-linecap": "round", fill: "none" }),
+            ...rest.sitting.static.map((p) => el("path", { d: p.d, fill: p.fill === "ink" ? INK : PAPER, "fill-rule": "evenodd" })),
+          );
+          const headNodes = frameNodes("head", rest.head);
+          const blinkNodes = frameNodes("blink", rest.blink);
+          const typeNodes = frameNodes("type", rest.type);
+          sitting.append(...headNodes, ...blinkNodes, ...typeNodes);
+          // Same first frames as the old server markup, before the loop takes over.
+          headNodes[0].style.display = "";
+          typeNodes[0].style.display = "";
+          head.nodes = [...headNodes, ...blinkNodes];
+          type.nodes = typeNodes;
+          ready = true;
+          if (target !== pose && !trans) start(target);
+          wake();
+        })
+        .catch(() => { loading = false; });
+    };
+    let loadTimer: number | undefined;
+    const scheduleFrames = () => {
+      loadTimer = window.setTimeout(loadFrames, 800);
+    };
+    if (document.readyState === "complete") scheduleFrames();
+    else window.addEventListener("load", scheduleFrames, { once: true });
 
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const touch = matchMedia("(hover: none)").matches;
@@ -177,6 +186,7 @@ export function useHeroDoodle(scene: RefObject<HTMLDivElement | null>) {
     document.addEventListener("visibilitychange", wake);
 
     const go = (to: Pose) => {
+      if (to === "sit") loadFrames();
       target = to;
       root.setAttribute("aria-pressed", String(to === "sit"));
       if (!trans) start(to);
@@ -205,6 +215,8 @@ export function useHeroDoodle(scene: RefObject<HTMLDivElement | null>) {
     return () => {
       cancelAnimationFrame(raf);
       abort.abort();
+      window.clearTimeout(loadTimer);
+      window.removeEventListener("load", scheduleFrames);
       io.disconnect();
       document.removeEventListener("visibilitychange", wake);
       root.removeEventListener("pointerenter", onEnter);

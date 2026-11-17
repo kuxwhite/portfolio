@@ -15,7 +15,7 @@ function PreviewImage({ name, alt }: { name: keyof typeof artwork; alt: string }
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={asset(`cases/${file}.webp`)} width={width} height={height} alt={alt}
-      fetchPriority="low" draggable={false} className="block h-auto w-full" />
+      loading="lazy" fetchPriority="low" draggable={false} className="block h-auto w-full" />
   );
 }
 

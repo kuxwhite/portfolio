@@ -275,7 +275,6 @@ html::-webkit-scrollbar {
     width: 100%;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
-    touch-action: pan-y pinch-zoom;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: var(--page-padding-x);
     cursor: grab;

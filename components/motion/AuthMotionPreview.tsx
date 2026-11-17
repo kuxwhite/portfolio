@@ -201,21 +201,27 @@ const FACE_PARTS = {
 const STROKE = { stroke: "white", strokeWidth: 8.4828, strokeLinecap: "round", strokeLinejoin: "round", fill: "none" } as const;
 const PART_STYLE: CSSProperties = { transformBox: "fill-box", transformOrigin: "center" };
 
-export function AuthMotionPreview({ timeline, label = "Sign-in flow" }: { timeline?: Timeline; label?: string }) {
+export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "lab" }: { timeline?: Timeline; label?: string; layout?: "lab" | "navigation" }) {
   const own = useTimeline(D, { autoplay: !timeline });
   const tl = timeline ?? own;
   const bind = useTracks(tl);
+  const inNavigation = layout === "navigation";
+  const phoneScale = 321 / 310;
 
   return (
     <div
       ref={tl.observe}
       role="img"
       aria-label={label}
-      className="relative h-[500px] w-[424px] overflow-hidden bg-bg-subtle"
-      // Site radius after the strip scale (the preview is scaled by --case-scale).
-      style={{ borderRadius: "calc(var(--radius-visual) / var(--case-scale, 1))", fontFamily: "var(--portfolio-font-family-rounded)", color: C.primary }}
+      className={inNavigation ? "case-auth-artboard" : "relative h-[500px] w-[424px] overflow-hidden rounded-visual bg-bg-subtle"}
+      style={{ fontFamily: "var(--portfolio-font-family-rounded)", color: C.primary }}
     >
-      <div className="absolute top-[48px] left-[57px] h-[674px] w-[310px] overflow-hidden rounded-[47.812px]" style={{ background: C.surface }}>
+      <div
+        className="absolute w-[310px] origin-top-left overflow-hidden"
+        style={inNavigation
+          ? { left: 51, top: 52, height: 700 / phoneScale, borderRadius: 59 / phoneScale, boxShadow: "0 0 0 3.86px rgb(19 19 19 / 0.08)", scale: phoneScale, background: C.surface }
+          : { left: 57, top: 48, height: 674, borderRadius: 47.812, background: C.surface }}
+      >
         {/* 01 · Phone */}
         <Screen bind={bind} k="s1" props={T.s1}>
           <div ref={bind("s1-content", T.s1Content)} className={content}>
@@ -366,22 +372,22 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow" }: { timeli
 
         {/* Status bar · static (header below it is empty in Figma: the logo layer has no content) */}
         <div className="pointer-events-none absolute top-0 left-0">{img("status-bar.svg", 310.009, 47.812)}</div>
-      </div>
 
-      {/* Touch indicators (card coordinates) */}
-      {(
-        [
-          ["touchField", 268, 274],
-          ["touchSignIn", 200, 340],
-        ] as const
-      ).map(([k, x, y]) => (
-        <div
-          key={k}
-          ref={bind(k, T[k])}
-          className="pointer-events-none absolute size-[24px] rounded-full"
-          style={{ left: x, top: y, background: "rgb(20 20 20 / 0.12)", boxShadow: "inset 0 0 0 1px rgb(20 20 20 / 0.2)" }}
-        />
-      ))}
+        {/* Touch indicators in the phone coordinate space, so they scale with the controls. */}
+        {(
+          [
+            ["touchField", 211, 226],
+            ["touchSignIn", 143, 292],
+          ] as const
+        ).map(([k, x, y]) => (
+          <div
+            key={k}
+            ref={bind(k, T[k])}
+            className="pointer-events-none absolute size-[24px] rounded-full"
+            style={{ left: x, top: y, background: "rgb(20 20 20 / 0.12)", boxShadow: "inset 0 0 0 1px rgb(20 20 20 / 0.2)" }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

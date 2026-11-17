@@ -16,12 +16,11 @@ export function useDragScroll(ref: RefObject<HTMLElement | null>) {
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     let drag: { id: number; x: number; left: number; moved: boolean; lastX: number; lastT: number; v: number } | null = null;
     let raf = 0;
-    const snap = getComputedStyle(el).scrollSnapType;
 
     const stopGlide = () => cancelAnimationFrame(raf);
 
     const onDown = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      if (e.pointerType !== "mouse" || e.button !== 0 || el.scrollWidth <= el.clientWidth) return;
       stopGlide();
       drag = { id: e.pointerId, x: e.clientX, left: el.scrollLeft, moved: false, lastX: e.clientX, lastT: e.timeStamp, v: 0 };
     };
@@ -59,7 +58,7 @@ export function useDragScroll(ref: RefObject<HTMLElement | null>) {
         el.scrollLeft += speed * k;
         speed *= Math.pow(FRICTION, k);
         if (Math.abs(speed) > 0.3) raf = requestAnimationFrame(glide);
-        else el.style.scrollSnapType = snap;
+        else el.style.removeProperty("scroll-snap-type");
       };
       raf = requestAnimationFrame(glide);
     };

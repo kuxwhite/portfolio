@@ -201,13 +201,82 @@ html::-webkit-scrollbar {
   }
 }
 
-/* Case strip previews keep their Figma sizes on desktop and scale down on phones. */
-:root {
-  --case-scale: 1;
+
+/* Three preview columns on desktop. On phones the same composition scrolls by column. */
+.case-strip {
+  width: min(calc(100% - 2 * var(--page-padding-x)), 1304px);
+  container-type: inline-size;
 }
+
+.case-navigation {
+  --case-scale: tan(atan2(100cqw, 1304px));
+  --case-gap: calc(16px * var(--case-scale));
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--case-gap);
+}
+
+.case-auth {
+  position: relative;
+  aspect-ratio: 424 / 483;
+  overflow: hidden;
+  border-radius: calc(64px * var(--case-scale));
+  background: #f7f7f7;
+}
+
+.case-auth-artboard {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 424px;
+  height: 483px;
+  scale: var(--case-scale);
+  transform-origin: top left;
+}
+
+.case-middle {
+  display: grid;
+  grid-template-columns: 232fr 176fr;
+  gap: var(--case-gap);
+}
+
+.case-debit {
+  position: relative;
+  grid-column: 1 / -1;
+  aspect-ratio: 424 / 255;
+  border-radius: calc(44px * var(--case-scale));
+  background: white;
+  box-shadow: inset 0 0 0 calc(1px * var(--case-scale)) #efefef;
+}
+
+.case-settings {
+  aspect-ratio: 424 / 483;
+}
+
 @media (max-width: 767px) {
-  :root {
-    --case-scale: 0.72;
+  .case-strip {
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--page-padding-x);
+    cursor: grab;
+    user-select: none;
+  }
+
+  .case-strip[data-dragging] {
+    cursor: grabbing;
+  }
+
+  .case-navigation {
+    --case-scale: min(0.742268, tan(atan2(100cqw - 2 * var(--page-padding-x), 424px)));
+    width: max-content;
+    grid-template-columns: repeat(3, calc(424px * var(--case-scale)));
+    padding-inline: var(--page-padding-x);
+  }
+
+  .case-navigation > * {
+    scroll-snap-align: start;
   }
 }
 

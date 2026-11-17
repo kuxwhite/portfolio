@@ -3,34 +3,12 @@ export type Lang = "ru" | "en";
 /** lead: the word kept on one line with the logo (Figma "Project Category"). */
 type ProjectPart = string | { logo: string; label?: string; chip?: boolean; lead?: string };
 
-/** Screen frame of a static preview, in Figma px relative to the card: position, size, radius, fill. */
-export type CaseScreen = { x: number; y: number; w: number; h: number; r: number; fill: string };
-
-export type CaseCard = {
-  /**
-   * Static screenshot, or a live preview built in code: "card" the flipping debit card,
-   * "auth" the sign-in motion (Figma 1420:33175), "spending" the spending card motion (1435:32574).
-   */
-  kind?: "image" | "card" | "auth" | "spending";
-  image: string;
-  /** Screen frame inside the Figma preview (image cards): the card clips it like Figma does. */
-  screen?: CaseScreen;
-  caption: string;
-  /** Preview size in the Figma strip, px (desktop). */
-  w: number;
-  h: number;
-  /** Preview fill token class; none = no fill. */
-  fill: "subtle" | "page" | "section" | "none";
-  captionTone: "muted" | "primary";
-};
-
 export type Content = {
   meta: { title: string; description: string };
   header: { name: string; switchLabel: string };
   menu: { label: string; experience: string; cv: string; telegram: string };
   hero: { pitch: string[]; facts: string; doodleLabel: string };
   cases: {
-    overline: string;
     titleLead: string;
     brand: string;
     subtitle: string;
@@ -38,7 +16,7 @@ export type Content = {
     cta: string;
     stripLabel: string;
     cardFlip: string;
-    cards: CaseCard[];
+    previews: { auth: string; debit: string; overview: string; map: string; settings: string };
   };
   experience: {
     overline: string;
@@ -59,30 +37,6 @@ export type Content = {
   visuals: { title: string; note: string };
 };
 
-const cards = (captions: string[]): CaseCard[] => [
-  { kind: "auth", image: "", caption: captions[0], w: 424, h: 500, fill: "subtle", captionTone: "muted" },
-  { kind: "card", image: "", caption: captions[1], w: 432, h: 300, fill: "page", captionTone: "muted" },
-  // Figma 1366:57582 / 57583: 441.56 × 960 screen at (24, 24), larger than the card and clipped by it.
-  {
-    image: "cases/home.webp",
-    screen: { x: 24, y: 24, w: 441.556, h: 960, r: 44, fill: "var(--portfolio-bg-section)" },
-    caption: captions[2], w: 347, h: 400, fill: "subtle", captionTone: "muted",
-  },
-  // Figma 1366:57697 / 57698: 200 × 200 map content, radius 34.29.
-  {
-    image: "cases/atms.webp",
-    screen: { x: 0, y: 0, w: 200, h: 200, r: 34.286, fill: "var(--portfolio-bg-section)" },
-    caption: captions[3], w: 200, h: 200, fill: "subtle", captionTone: "muted",
-  },
-  // Figma 1366:57707 / 57708: 300 × 652.24 screen at (50, 50), runs past the bottom edge.
-  {
-    image: "cases/card-management.webp",
-    screen: { x: 50, y: 50, w: 300, h: 652.24, r: 46.269, fill: "var(--portfolio-bg-section)" },
-    caption: captions[4], w: 400, h: 500, fill: "section", captionTone: "muted",
-  },
-  { kind: "spending", image: "", caption: captions[5], w: 404, h: 404, fill: "none", captionTone: "muted" },
-];
-
 export const content: Record<Lang, Content> = {
   ru: {
     meta: {
@@ -101,7 +55,6 @@ export const content: Record<Lang, Content> = {
       doodleLabel: "Иллюстрация: Кирилл лежит, закинув ногу на ногу. Наведите курсор или нажмите, чтобы он сел за ноутбук.",
     },
     cases: {
-      overline: "Кейсы",
       titleLead: "Редизайн мобильного банка",
       brand: "Moud",
       subtitle: "Вернулся к агентской версии и переработал ключевые\u00a0сценарии",
@@ -109,7 +62,7 @@ export const content: Record<Lang, Content> = {
       cta: "Смотреть кейс",
       stripLabel: "Экраны кейса",
       cardFlip: "Нажмите, чтобы перевернуть и увидеть реквизиты",
-      cards: cards(["Face ID", "Дебетовая карта", "Главный экран", "Банкоматы", "Управление картой", "История"]),
+      previews: { auth: "Face ID", debit: "Дебетовая карта", overview: "Карты, счета и вклады", map: "Маршрут до банкомата", settings: "Настройки карты" },
     },
     experience: {
       overline: "Опыт",
@@ -163,7 +116,6 @@ export const content: Record<Lang, Content> = {
       doodleLabel: "Illustration: Kirill is lying with his legs crossed. Hover or tap to make him sit down at the laptop.",
     },
     cases: {
-      overline: "Cases",
       titleLead: "Mobile bank redesign",
       brand: "Moud",
       subtitle: "Went back to the agency version and reworked the key\u00a0flows",
@@ -171,7 +123,7 @@ export const content: Record<Lang, Content> = {
       cta: "View case",
       stripLabel: "Case screens",
       cardFlip: "Click to flip it and see the card details",
-      cards: cards(["Face ID", "Debit card", "Home screen", "ATMs", "Card management", "History"]),
+      previews: { auth: "Face ID", debit: "Debit card", overview: "Cards, accounts, and deposits", map: "Directions to an ATM", settings: "Card settings" },
     },
     experience: {
       overline: "Experience",

@@ -23,7 +23,7 @@ import { asset } from "@/lib/asset";
  * - Click / Enter / Space: flips to the details and back (always turning the same way).
  * - Reduced motion: no tilt or glare, the flip becomes a quick cross-fade.
  *
- * The card is a 322 × 210 canvas centred in the 432 × 300 preview and scaled with the strip.
+ * The card is a 322 × 210 canvas scaled to the preview and centered in its tile.
  */
 const W = 322;
 const H = 210;
@@ -145,7 +145,7 @@ function Face({ back, children }: { back?: boolean; children: ReactNode }) {
   );
 }
 
-export function FlipCard({ label, flipLabel }: { label: string; flipLabel: string }) {
+export function FlipCard({ label, flipLabel, previewScale }: { label: string; flipLabel: string; previewScale: number }) {
   const reduce = useReducedMotion();
   const area = useRef<HTMLDivElement>(null);
   const [flipped, setFlipped] = useState(false);
@@ -199,7 +199,7 @@ export function FlipCard({ label, flipLabel }: { label: string; flipLabel: strin
         aria-pressed={flipped}
         aria-label={`${label}. ${flipLabel}`}
         className="relative shrink-0 cursor-pointer rounded-[24px] outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg-primary"
-        style={{ width: W, height: H, scale: "var(--case-scale)" }}
+        style={{ width: W, height: H, scale: `calc(${previewScale} * var(--case-scale))` }}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         onClick={(e) => {
@@ -231,10 +231,10 @@ export function FlipCard({ label, flipLabel }: { label: string; flipLabel: strin
                 </div>
                 <Svg name="rim" className="absolute inset-0 size-full" />
                 <div className="absolute top-[16px] left-[16px] flex flex-col gap-(--space-8) font-medium" style={{ textShadow }}>
-                  <p className="text-[14px] leading-[20px] tracking-[0.14px] opacity-70">Debit</p>
+                  <p className="text-[14px] leading-[20px] tracking-[0.14px] opacity-70">Дебетовая</p>
                   <p className="whitespace-nowrap">
-                    <span className="text-[32px] leading-[40px] tracking-[-0.48px]">$12,500</span>
-                    <span className="text-[24px] leading-[28px] tracking-[-0.12px] text-white/70">.00</span>
+                    <span className="text-[32px] leading-[40px] tracking-[-0.48px]">132 400</span>
+                    <span className="text-[24px] leading-[28px] tracking-[-0.12px] text-white/70">,41 ₽</span>
                   </p>
                 </div>
                 <BottomRow open={false} />

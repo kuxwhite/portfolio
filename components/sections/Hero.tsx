@@ -9,7 +9,7 @@ export function Hero({ t }: { t: Content["hero"] }) {
         <HeroDoodle label={t.doodleLabel} />
       </div>
       <div className="content flex flex-col gap-(--space-32) text-center">
-        <h1 className="type-body-l text-balance text-fg-primary">
+        <h1 className="type-body-l max-md:leading-6 text-balance text-fg-primary">
           {t.pitch.map((line, i) => (
             <span key={i}>
               {i > 0 && <br />}

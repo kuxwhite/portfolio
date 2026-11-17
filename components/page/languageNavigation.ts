@@ -4,8 +4,6 @@ export const languageNavigation = String.raw`
   const key = "portfolio-language-navigation";
   const html = document.documentElement;
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-  const usesFallback = () => matchMedia("(max-width: 767px)").matches ||
-    !("PageSwapEvent" in window && "PageRevealEvent" in window);
 
   try {
     const pending = JSON.parse(sessionStorage.getItem(key) || "null");
@@ -29,14 +27,14 @@ export const languageNavigation = String.raw`
     document.head.append(hint);
   };
   document.addEventListener("pointerover", prefetch, { passive: true });
+  document.addEventListener("touchstart", prefetch, { passive: true });
   document.addEventListener("focusin", prefetch);
 
   let timer;
   document.addEventListener("click", (event) => {
     const link = languageLink(event);
     if (!link || event.defaultPrevented || event.button || event.metaKey || event.ctrlKey ||
-        event.altKey || event.shiftKey || event.detail === 0 || reducedMotion.matches ||
-        !usesFallback()) return;
+        event.altKey || event.shiftKey || reducedMotion.matches) return;
 
     event.preventDefault();
     if (timer !== undefined) return;
@@ -46,7 +44,7 @@ export const languageNavigation = String.raw`
         sessionStorage.setItem(key, JSON.stringify({ path: link.pathname, at: Date.now() }));
       } catch {}
       location.assign(link.href);
-    }, 120);
+    }, 160);
   });
 
   window.addEventListener("pageshow", (event) => {
@@ -55,7 +53,7 @@ export const languageNavigation = String.raw`
     timer = undefined;
   });
   document.addEventListener("animationend", (event) => {
-    if (event.target === document.body && event.animationName === "vt-fade") {
+    if (event.target === document.body && event.animationName === "vt-language-in") {
       delete html.dataset.languageTransition;
     }
   });

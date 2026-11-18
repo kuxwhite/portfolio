@@ -11,7 +11,7 @@ export function HomePage({ lang }: { lang: Lang }) {
   const t = content[lang];
   return (
     <>
-      <div className="relative">
+      <div className="language-page relative">
         <Header t={t.header} lang={lang} />
         {/* Room for the pinned menu (52px + its 24px offset), so the last section scrolls clear of it. */}
         <main className="pb-[calc(52px+var(--space-24))]">

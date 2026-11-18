@@ -163,26 +163,43 @@ html::-webkit-scrollbar {
   display: none;
 }
 
-/* The language switch animates consistently across browser and webview versions. */
-@media (prefers-reduced-motion: no-preference) {
-  html[data-language-transition="out"] body {
-    animation: 160ms cubic-bezier(0.2, 0, 0, 1) both vt-language-out;
+/* Use the original snapshot transition on desktop and the same effect on mobile content. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
   }
 
-  html[data-language-transition="in"] body {
-    animation: 240ms cubic-bezier(0.2, 0, 0, 1) both vt-language-in;
+  ::view-transition-old(root) {
+    animation: 280ms cubic-bezier(0.2, 0, 0, 1) both vt-language-out;
+  }
+
+  ::view-transition-new(root) {
+    animation: 420ms cubic-bezier(0.2, 0, 0, 1) 80ms both vt-language-in;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-language-transition="out"] .language-page {
+    animation: 280ms cubic-bezier(0.2, 0, 0, 1) both vt-language-out;
+  }
+
+  html[data-language-transition="in"] .language-page {
+    animation: 420ms cubic-bezier(0.2, 0, 0, 1) both vt-language-in;
   }
 }
 
 @keyframes vt-language-out {
   to {
-    opacity: 0.35;
+    opacity: 0;
+    filter: blur(4px);
   }
 }
 
 @keyframes vt-language-in {
   from {
-    opacity: 0.35;
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(12px);
   }
 }
 

@@ -4,6 +4,8 @@ export const languageNavigation = String.raw`
   const key = "portfolio-language-navigation";
   const html = document.documentElement;
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const nativeTransition = () => matchMedia("(min-width: 768px)").matches &&
+    "PageSwapEvent" in window && "PageRevealEvent" in window;
 
   try {
     const pending = JSON.parse(sessionStorage.getItem(key) || "null");
@@ -34,7 +36,7 @@ export const languageNavigation = String.raw`
   document.addEventListener("click", (event) => {
     const link = languageLink(event);
     if (!link || event.defaultPrevented || event.button || event.metaKey || event.ctrlKey ||
-        event.altKey || event.shiftKey || reducedMotion.matches) return;
+        event.altKey || event.shiftKey || reducedMotion.matches || nativeTransition()) return;
 
     event.preventDefault();
     if (timer !== undefined) return;
@@ -44,7 +46,7 @@ export const languageNavigation = String.raw`
         sessionStorage.setItem(key, JSON.stringify({ path: link.pathname, at: Date.now() }));
       } catch {}
       location.assign(link.href);
-    }, 160);
+    }, 280);
   });
 
   window.addEventListener("pageshow", (event) => {
@@ -53,7 +55,7 @@ export const languageNavigation = String.raw`
     timer = undefined;
   });
   document.addEventListener("animationend", (event) => {
-    if (event.target === document.body && event.animationName === "vt-language-in") {
+    if (event.animationName === "vt-language-in") {
       delete html.dataset.languageTransition;
     }
   });

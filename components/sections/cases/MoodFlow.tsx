@@ -59,11 +59,6 @@ function ScreenHeader({ premium, sticky, glass, frost, scroll, actionOpacity }: 
       </motion.div>
       <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px]"
         style={{ opacity: glass, background: "linear-gradient(to bottom, rgb(255 255 255 / 96%), rgb(255 255 255 / 92%) 62.79%, rgb(255 255 255 / 72%) 74.42%, rgb(255 255 255 / 38%) 84.88%, rgb(255 255 255 / 12%) 93.02%, transparent)" }} />
-      {/* Scale the existing status-bar canvas as a single unit. */}
-      <div className="absolute top-0 left-0 w-[310px] origin-top-left" style={{ transform: "scale(0.877419)" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" draggable={false} />
-      </div>
       <DesignArtwork name="sticky-back" width={30} height={30} className="absolute top-[47.02px] left-[10.49px]" />
       <motion.div aria-hidden className="absolute top-[61px] left-1/2 h-[3px] w-[28px] -translate-x-1/2" style={{ opacity: dotsOpacity }}>
         <motion.span className="absolute left-0 size-[3px] rounded-full bg-black/25" style={{ opacity: premium }} />
@@ -365,9 +360,6 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
               <AuthMotionPreview layout="flow" timeline={auth} />
             </motion.div>
             <motion.div className="pointer-events-none absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 0 : homeOpacity, x: reduce ? 0 : homePanelX }} aria-hidden={scene !== 2 || Boolean(reduce)}>
-              <div aria-hidden className="absolute top-0 left-0 w-[310px] origin-top-left scale-[0.877419]">
-                <Image src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" />
-              </div>
               <Dashboard slide={homeX} debitScale={homeScale} />
             </motion.div>
             <motion.div className="absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 1 : cardOpacity, x: reduce ? 0 : cardPanelX }} inert={!(reduce || showCard)} aria-hidden={!(reduce || showCard)}>
@@ -393,6 +385,9 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
               </motion.div>
               <ScreenHeader premium={premium} sticky={stickyOpacity} glass={glassOpacity} frost={frost} scroll={contentY} actionOpacity={actionOpacity} />
             </motion.div>
+            <div aria-hidden className="pointer-events-none absolute top-0 left-0 z-1 w-[310px] origin-top-left scale-[0.877419]">
+              <Image src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" draggable={false} />
+            </div>
           </motion.div>
         </div>
       </div>

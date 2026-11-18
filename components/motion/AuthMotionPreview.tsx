@@ -385,8 +385,8 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "
           )}
         </Screen>
 
-        {/* Status bar · static (header below it is empty in Figma: the logo layer has no content) */}
-        <div className="pointer-events-none absolute top-0 left-0">{img("status-bar.svg", 310.009, 47.812)}</div>
+        {/* The full flow keeps one status bar above its moving app screens. */}
+        {!inFlow && <div className="pointer-events-none absolute top-0 left-0">{img("status-bar.svg", 310.009, 47.812)}</div>}
 
       </div>
     </div>

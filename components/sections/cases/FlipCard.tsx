@@ -107,25 +107,30 @@ const THICKNESS = 3;
 const SLICES = 5;
 const EDGE = "linear-gradient(160deg, #3fcf78, #22a55a)"; // card edge, sampled from the Figma surface
 
-function EdgeSlices() {
+function EdgeSlices({ thickness }: { thickness: number }) {
   return Array.from({ length: SLICES }, (_, i) => {
-    const z = -THICKNESS / 2 + (THICKNESS * (i + 0.5)) / SLICES;
+    const z = -thickness / 2 + (thickness * (i + 0.5)) / SLICES;
     return <div key={i} aria-hidden className="absolute inset-0" style={{ borderRadius: RADIUS, background: EDGE, transform: `translateZ(${z}px)` }} />;
   });
 }
 
 /** Hover iridescence: a soft mint–lemon–sky band drifting across the gradient with the cursor. */
-function Sheen({ x, strength, mirror }: { x: MotionValue<number>; strength: MotionValue<number>; mirror?: boolean }) {
-  const pos = useTransform(x, (v) => `${(mirror ? 1 - v : v) * 100}% 50%`);
+function Sheen({ x, y, strength, mirror, scene }: { x: MotionValue<number>; y: MotionValue<number>; strength: MotionValue<number>; mirror?: boolean; scene?: boolean }) {
+  const pos = useTransform(() => {
+    const horizontal = (mirror ? 1 - x.get() : x.get()) * 100;
+    const vertical = scene ? 15 + y.get() * 70 : 50;
+    return horizontal + "% " + vertical + "%";
+  });
   return (
     <motion.div
       aria-hidden
       className="pointer-events-none absolute inset-0 mix-blend-soft-light"
       style={{
         borderRadius: RADIUS,
-        backgroundImage:
-          "linear-gradient(115deg, transparent 20%, rgb(190 255 215 / 0.55) 38%, rgb(255 250 180 / 0.45) 50%, rgb(170 225 255 / 0.5) 62%, transparent 80%)",
-        backgroundSize: "260% 100%",
+        backgroundImage: scene
+          ? "linear-gradient(118deg, transparent 12%, rgb(160 245 200 / 0.12) 27%, rgb(204 255 224 / 0.78) 43%, rgb(253 255 198 / 0.63) 50%, rgb(148 237 246 / 0.43) 63%, transparent 79%)"
+          : "linear-gradient(115deg, transparent 20%, rgb(190 255 215 / 0.55) 38%, rgb(255 250 180 / 0.45) 50%, rgb(170 225 255 / 0.5) 62%, transparent 80%)",
+        backgroundSize: scene ? "235% 175%" : "260% 100%",
         backgroundPosition: pos,
         opacity: strength,
       }}
@@ -133,11 +138,11 @@ function Sheen({ x, strength, mirror }: { x: MotionValue<number>; strength: Moti
   );
 }
 
-function Face({ back, children }: { back?: boolean; children: ReactNode }) {
+function Face({ back, thickness, children }: { back?: boolean; thickness: number; children: ReactNode }) {
   return (
     <div
       className="absolute inset-0 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
-      style={{ transform: `${back ? "rotateY(180deg) " : ""}translateZ(${THICKNESS / 2}px)`, ...rounded }}
+      style={{ transform: `${back ? "rotateY(180deg) " : ""}translateZ(${thickness / 2}px)`, ...rounded }}
     >
       <Edge />
       <Svg name="surface" className="absolute inset-0 size-full" />
@@ -167,6 +172,7 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
   const sy = useSpring(scene?.y ?? py, TILT_SPRING);
   const sa = useSpring(scene?.strength ?? active, TILT_SPRING);
   const maxTilt = scene?.maxTilt ?? MAX_TILT;
+  const thickness = scene ? 5 : THICKNESS;
   const tiltY = useTransform(() => (sx.get() - 0.5) * 2 * maxTilt * sa.get());
   const tiltX = useTransform(() => -(sy.get() - 0.5) * 2 * maxTilt * sa.get());
 
@@ -249,11 +255,11 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
             className="absolute inset-0"
             style={reduce ? { transformStyle: "preserve-3d" } : { rotateY: angle, scale: lift, transformStyle: "preserve-3d" }}
           >
-            {!reduce && <EdgeSlices />}
+            {!reduce && <EdgeSlices thickness={thickness} />}
             {/* Front: balance */}
             <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: frontOpacity } : scene ? { visibility: frontVisible } : undefined}>
-              <Face>
-                <Sheen x={sx} strength={sa} />
+              <Face thickness={thickness}>
+                <Sheen x={sx} y={sy} scene={Boolean(scene)} strength={sa} />
                 <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: RADIUS }}>
                   <Svg name="m" className="absolute right-[-54.15px] bottom-[-0.17px] h-[164px] w-[310.649px]" />
                 </div>
@@ -272,8 +278,8 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
 
             {/* Back: card details */}
             <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: fade } : scene ? { visibility: backVisible } : undefined}>
-              <Face back={!reduce}>
-                <Sheen x={sx} strength={sa} mirror={!reduce} />
+              <Face thickness={thickness} back={!reduce}>
+                <Sheen x={sx} y={sy} scene={Boolean(scene)} strength={sa} mirror={!reduce} />
                 <div className="absolute top-[16px] left-[16px] flex w-[282px] flex-col gap-[22px]">
                   <Detail label="Card number" value="2200 1234 5678 3688" labelWide />
                   <div className="flex items-center gap-(--space-24)">

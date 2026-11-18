@@ -8,7 +8,7 @@ import { asset } from "@/lib/asset";
 const WIDTH = 350;
 const HEIGHT = 436;
 const CARD_WIDTH = 217.871;
-const STOPS = [0, 0.13, 0.27, 0.4, 0.55, 0.68, 0.79, 0.89, 1];
+const STOPS = [0, 0.08, 0.17, 0.25, 0.34, 0.43, 0.53, 0.68, 0.79, 0.89, 1];
 
 function Artwork({ name, className }: { name: string; className?: string }) {
   return (
@@ -78,9 +78,9 @@ export function MoodCardLab() {
   const progress = useMotionValue(0);
   const angle = useMotionValue(0);
   const running = useRef<{ stop: () => void } | null>(null);
-  const lightX = useTransform(progress, STOPS, [0.5, 0.15, 0.92, 0.28, 0.5, 0.5, 0.65, 0.4, 0.5]);
-  const lightY = useTransform(progress, STOPS, [0.5, 0.2, 0.65, 0.28, 0.5, 0.5, 0.54, 0.43, 0.5]);
-  const strength = useTransform(progress, STOPS, [0, 0.88, 0.92, 0.56, 0.04, 0.26, 0.3, 0.18, 0]);
+  const lightX = useTransform(progress, STOPS, [0.5, 0.12, 0.22, 0.86, 0.9, 0.37, 0.5, 0.5, 0.65, 0.4, 0.5]);
+  const lightY = useTransform(progress, STOPS, [0.5, 0.36, 0.9, 0.78, 0.11, 0.18, 0.5, 0.5, 0.54, 0.43, 0.5]);
+  const strength = useTransform(progress, STOPS, [0, 0.84, 0.93, 0.88, 0.96, 0.7, 0.04, 0.26, 0.3, 0.18, 0]);
   const tapOpacity = useTransform(progress, [0, 0.54, 0.58, 0.62, 0.65, 1], [0, 0, 0.5, 0.16, 0, 0]);
   const tapScale = useTransform(progress, [0.54, 0.62], [0.65, 1.45]);
 
@@ -131,7 +131,7 @@ export function MoodCardLab() {
                 className="absolute top-[130px] left-[27.065px] h-[142.09px] w-[217.871px]"
                 onPointerDown={() => { running.current?.stop(); running.current = null; progress.set(0); }}
               >
-                <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_WIDTH / 322} scene={{ x: lightX, y: lightY, strength, angle, maxTilt: 28 }} />
+                <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_WIDTH / 322} scene={{ x: lightX, y: lightY, strength, angle, maxTilt: 13 }} />
               </div>
               <motion.span aria-hidden className="pointer-events-none absolute top-[239px] left-[72px] size-[23px] rounded-full border border-white bg-white/70" style={{ opacity: tapOpacity, scale: tapScale }} />
               <CardActions />

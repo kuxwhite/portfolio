@@ -5,6 +5,7 @@ import {
   animate,
   motion,
   useMotionTemplate,
+  useMotionValueEvent,
   useMotionValue,
   useReducedMotion,
   useSpring,
@@ -145,7 +146,14 @@ function Face({ back, children }: { back?: boolean; children: ReactNode }) {
   );
 }
 
-export function FlipCard({ label, flipLabel, previewScale }: { label: string; flipLabel: string; previewScale: number }) {
+type CardMotion = {
+  x: MotionValue<number>;
+  y: MotionValue<number>;
+  strength: MotionValue<number>;
+  angle: MotionValue<number>;
+};
+
+export function FlipCard({ label, flipLabel, previewScale, scene }: { label: string; flipLabel: string; previewScale: number; scene?: CardMotion }) {
   const reduce = useReducedMotion();
   const area = useRef<HTMLDivElement>(null);
   const [flipped, setFlipped] = useState(false);
@@ -154,20 +162,37 @@ export function FlipCard({ label, flipLabel, previewScale }: { label: string; fl
   const px = useMotionValue(0.5);
   const py = useMotionValue(0.5);
   const active = useMotionValue(0);
-  const sx = useSpring(px, TILT_SPRING);
-  const sy = useSpring(py, TILT_SPRING);
-  const sa = useSpring(active, TILT_SPRING);
+  const sx = useSpring(scene?.x ?? px, TILT_SPRING);
+  const sy = useSpring(scene?.y ?? py, TILT_SPRING);
+  const sa = useSpring(scene?.strength ?? active, TILT_SPRING);
   const tiltY = useTransform(() => (sx.get() - 0.5) * 2 * MAX_TILT * sa.get());
   const tiltX = useTransform(() => -(sy.get() - 0.5) * 2 * MAX_TILT * sa.get());
 
   // Flip: the angle keeps growing by 180°, so the card always turns the same way.
-  const angle = useMotionValue(0);
+  const localAngle = useMotionValue(0);
+  const manualTarget = useRef(0);
+  const angle = scene?.angle ?? localAngle;
+  useMotionValueEvent(angle, "change", (value) => {
+    if (scene && !angle.isAnimating()) setFlipped(Math.round(value / 180) % 2 === 1);
+  });
   const fade = useTransform(angle, (a) => (Math.round(a / 180) % 2 === 1 ? 1 : 0));
   // A small lift mid-turn (peaks at 90°) gives the flip some weight.
   const frontOpacity = useTransform(fade, (f) => 1 - f);
+  // The embedded card is inside a rotated and clipped phone. Explicitly select its visible
+  // face so WebKit cannot show a mirrored back face through the nested 3D layers.
+  const frontVisible = useTransform(fade, (f) => f === 0 ? "visible" : "hidden");
+  const backVisible = useTransform(fade, (f) => f === 1 ? "visible" : "hidden");
   const lift = useTransform(angle, (a) => 1 + 0.06 * Math.abs(Math.sin((a * Math.PI) / 180)));
 
   const flip = () => {
+    if (scene && !reduce) {
+      const base = angle.isAnimating() ? manualTarget.current : Math.round(angle.get() / 180) * 180;
+      const target = base + 180;
+      manualTarget.current = target;
+      setFlipped(target % 360 === 180);
+      animate(angle, target, FLIP);
+      return;
+    }
     const next = !flipped;
     setFlipped(next);
     if (reduce) {
@@ -178,7 +203,7 @@ export function FlipCard({ label, flipLabel, previewScale }: { label: string; fl
   };
 
   const onMove = (e: React.PointerEvent) => {
-    if (reduce || e.pointerType === "touch") return;
+    if (scene || reduce || e.pointerType === "touch") return;
     const r = area.current!.getBoundingClientRect();
     px.set(Math.min(1.1, Math.max(-0.1, (e.clientX - r.left) / r.width)));
     py.set(Math.min(1.1, Math.max(-0.1, (e.clientY - r.top) / r.height)));
@@ -199,7 +224,7 @@ export function FlipCard({ label, flipLabel, previewScale }: { label: string; fl
         aria-pressed={flipped}
         aria-label={`${label}. ${flipLabel}`}
         className="relative shrink-0 cursor-pointer rounded-[24px] outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg-primary"
-        style={{ width: W, height: H, transform: `scale(var(--case-scale)) scale(${previewScale})` }}
+        style={{ width: W, height: H, transform: `scale(var(--case-scale, 1)) scale(${previewScale})` }}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         onClick={(e) => {
@@ -223,7 +248,7 @@ export function FlipCard({ label, flipLabel, previewScale }: { label: string; fl
           >
             {!reduce && <EdgeSlices />}
             {/* Front: balance */}
-            <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: frontOpacity } : undefined}>
+            <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: frontOpacity } : scene ? { visibility: frontVisible } : undefined}>
               <Face>
                 <Sheen x={sx} strength={sa} />
                 <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: RADIUS }}>
@@ -243,7 +268,7 @@ export function FlipCard({ label, flipLabel, previewScale }: { label: string; fl
             </motion.div>
 
             {/* Back: card details */}
-            <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: fade } : undefined}>
+            <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: fade } : scene ? { visibility: backVisible } : undefined}>
               <Face back={!reduce}>
                 <Sheen x={sx} strength={sa} mirror={!reduce} />
                 <div className="absolute top-[16px] left-[16px] flex w-[282px] flex-col gap-[22px]">

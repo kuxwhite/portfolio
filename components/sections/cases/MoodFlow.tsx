@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { spring } from "motion";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform, type MotionValue } from "motion/react";
 import { AuthMotionPreview } from "@/components/motion/AuthMotionPreview";
 import { asset } from "@/lib/asset";
@@ -16,6 +17,7 @@ const CARD_SCALE = CARD_WIDTH / 322;
 const CARD_HEADER_HEIGHT = 578 * PHONE_SCALE;
 const SETTINGS_TOP = CARD_HEADER_HEIGHT + 69 * PHONE_SCALE;
 const SETTINGS_SCROLL = 536 * PHONE_SCALE;
+const CAROUSEL_TRAVEL = 237.49;
 const DURATION = 26;
 const STOPS = [0, 0.08, 0.17, 0.25, 0.34, 0.43, 0.53, 0.68, 0.79, 0.89, 1];
 
@@ -207,20 +209,37 @@ function CardSettings({ frozen, frost }: { frozen: boolean; frost: MotionValue<n
 }
 
 const screenLift = track([0, 9.3, 10.03, 10.55, 11.03, DURATION], [0, 0, -234, -234, 0, 0], [E, E, E, E, E]);
-const homeSlide = track([0, 11.7, 12.6, 13.5, DURATION], [0, 0, -85, 0, 0], [E, "easeInOut", "easeInOut", E]);
 // Match the velocity at release, carry the flick into a small overshoot, then settle on the Figma offset.
 const detailScroll = track(
   [0, 19.65, 19.74, 20.32, 20.52, 21.65, 22.5, DURATION],
   [0, 0, -45, -SETTINGS_SCROLL - 6.5, -SETTINGS_SCROLL, -SETTINGS_SCROLL, 0, 0],
   ["linear", [0.32, 0, 0.68, 0.41], [0.34, 0.56, 0.47, 1], "easeInOut", "linear", "easeInOut", "linear"],
 );
-const cardSlide = track([0, 23.02, 23.78, DURATION], [0, 0, -237.49, -237.49], [E, "easeInOut", E]);
-const activatePremium = track([0, 23.44, 23.66, DURATION], [0, 0, 1, 1], "easeInOut");
 const freezeCard = track([0, 21.23, 21.45, DURATION], [0, 0, 1, 1], "easeInOut");
-const contract = track([0, 13.63, 13.76, 13.92, DURATION], [1, 1, 0.97, 1, 1], [E, E, E, E]);
+const pressScale = (at: number) => track(
+  [0, at, at + 0.06, at + 0.10, at + 0.19, at + 0.25, DURATION],
+  [1, 1, 0.975, 0.975, 1.004, 1, 1],
+  ["linear", E, "linear", E, "easeInOut", "linear"],
+);
+const pickDebit = pressScale(13.63);
+const revealDebit = pressScale(17.18);
 
 const getNumber = (value: ReturnType<typeof track>, time: number) => Number(sample(value, time));
 const crossfade = (time: number, from: number, to: number) => Math.min(1, Math.max(0, (time - from) / (to - from)));
+const smoothFade = (time: number, from: number, to: number) => {
+  const progress = crossfade(time, from, to);
+  return progress * progress * (3 - 2 * progress);
+};
+
+// Sample the spring by timeline time so pause and backward scrubbing land on the same frame.
+const travelSpring = spring({
+  keyframes: [0, 1], stiffness: 145, damping: 18, mass: 0.9, velocity: 1.2,
+  restSpeed: 0.001, restDelta: 0.001,
+});
+function glide(time: number, from: number, to: number) {
+  const progress = crossfade(time, from, to);
+  return progress >= 1 ? 1 : travelSpring.next(progress * 760).value;
+}
 
 function PlaybackScrubber({ time, onSeek }: { time: MotionValue<number>; onSeek: (value: number) => void }) {
   const [position, setPosition] = useState(0);
@@ -248,16 +267,18 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
   const auth = { duration: 12, time: authTime, playing, pause, play: restart, restart, seek: (seconds: number) => authTime.set(seconds), observe };
   const showCard = scene >= 3;
   const frozen = scene >= 5;
-  const homeOpacity = useTransform(time, (s) => Math.min(crossfade(s, 10.54, 11.03), 1 - crossfade(s, 13.75, 14.03)));
-  const authOpacity = useTransform(time, (s) => 1 - crossfade(s, 10.54, 11.03) + crossfade(s, 25.25, 25.65));
-  const cardOpacity = useTransform(time, (s) => Math.min(crossfade(s, 13.75, 14.03), 1 - crossfade(s, 25.25, 25.65)));
+  const homeOpacity = useTransform(time, (s) => s < 25.25 ? smoothFade(s, 10.54, 11.03) : 0);
+  const authOpacity = useTransform(time, (s) => s < 11.03 || s >= 25.25 ? 1 : 0);
+  const cardOpacity = useTransform(time, (s) => Math.min(smoothFade(s, 13.75, 14.03), 1 - smoothFade(s, 25.25, 25.65)));
   const phoneLift = useTransform(time, (s) => getNumber(screenLift, s));
   const phoneShellY = useTransform(() => phoneLift.get() * scale);
-  const homeX = useTransform(time, (s) => getNumber(homeSlide, s));
-  const homeScale = useTransform(time, (s) => getNumber(contract, s));
+  const homeX = useTransform(time, (s) => -85 * (glide(s, 11.7, 12.46) - glide(s, 12.62, 13.38)));
+  const homeScale = useTransform(time, (s) => getNumber(pickDebit, s));
+  const debitScale = useTransform(time, (s) => getNumber(revealDebit, s));
   const contentY = useTransform(time, (s) => getNumber(detailScroll, s));
-  const carouselX = useTransform(time, (s) => getNumber(cardSlide, s));
-  const premium = useTransform(time, (s) => getNumber(activatePremium, s));
+  const carouselProgress = useTransform(time, (s) => glide(s, 23.02, 23.78));
+  const carouselX = useTransform(carouselProgress, (position) => -CAROUSEL_TRAVEL * position);
+  const premium = useTransform(carouselProgress, (position) => smoothFade(position, 0.48, 0.995));
   const frost = useTransform(time, (s) => getNumber(freezeCard, s));
   const actionOpacity = useTransform(() => 1 - 0.67 * frost.get() * (1 - premium.get()));
   const stickyOpacity = useTransform(contentY, [-285, -250], [1, 0]);
@@ -265,18 +286,15 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
   const lightX = useTransform(progress, STOPS, [0.5, 0.12, 0.22, 0.86, 0.9, 0.37, 0.5, 0.5, 0.65, 0.4, 0.5]);
   const lightY = useTransform(progress, STOPS, [0.5, 0.36, 0.9, 0.78, 0.11, 0.18, 0.5, 0.5, 0.54, 0.43, 0.5]);
   const strength = useTransform(progress, STOPS, [0, 0.84, 0.93, 0.88, 0.96, 0.7, 0.04, 0.26, 0.3, 0.18, 0]);
-  const tapOpacity = useTransform(progress, [0, 0.54, 0.58, 0.62, 0.65, 1], [0, 0, 0.5, 0.16, 0, 0]);
-  const tapScale = useTransform(progress, [0.54, 0.62], [0.65, 1.45]);
   const manual = useRef(false);
   const synchronized = useCallback((seconds: number) => {
     authTime.set(seconds < 25.25 ? Math.min(seconds, 11.5) : 0);
     if (!manual.current) {
-      const easeTurn = (t: number) => t * t * (3 - 2 * t);
-      const forward = easeTurn(crossfade(seconds, 17.29, 18.02));
-      const back = easeTurn(crossfade(seconds, 18.69, 19.43));
+      const forward = glide(seconds, 17.29, 18.02);
+      const back = glide(seconds, 18.69, 19.43);
       angle.set(180 * (forward + back));
     }
-    const next = seconds < 10.29 || seconds >= 25.65 ? 0 : seconds < 10.54 ? 1 : seconds < 13.75 ? 2 : seconds < 20.25 ? 3 : seconds < 21.23 ? 4 : seconds < 23.6 ? 5 : 6;
+    const next = seconds < 10.54 || seconds >= 25.65 ? 0 : seconds < 13.75 ? 2 : seconds < 20.25 ? 3 : seconds < 21.23 ? 4 : seconds < 23.32 ? 5 : 6;
     if (next !== sceneRef.current) {
       sceneRef.current = next;
       setScene(next);
@@ -338,16 +356,19 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
         <div className="absolute top-0 left-0 origin-top-left" style={{ width: WIDTH, height: HEIGHT, transform: `scale(${scale})` }}>
           <motion.div className="absolute top-[39px] left-[39px] h-[591.36px] w-[272px] overflow-hidden rounded-[44px] bg-[#f7f7f7] text-[#131313]" style={{ y: reduce ? 0 : phoneLift, fontFamily: "var(--portfolio-font-family-rounded)" }} data-mood-phone>
             <motion.div className="absolute inset-0" style={{ opacity: reduce ? 0 : authOpacity }} aria-hidden={showCard || Boolean(reduce) || scene === 2}>
-              <AuthMotionPreview layout="flow" timeline={auth} facePressed={scene === 1} />
+              <AuthMotionPreview layout="flow" timeline={auth} />
             </motion.div>
-            <motion.div className="pointer-events-none absolute inset-0" style={{ opacity: reduce ? 0 : homeOpacity }} aria-hidden={scene !== 2 || Boolean(reduce)}>
+            <motion.div className="pointer-events-none absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 0 : homeOpacity }} aria-hidden={scene !== 2 || Boolean(reduce)}>
+              <div aria-hidden className="absolute top-0 left-0 w-[310px] origin-top-left scale-[0.877419]">
+                <Image src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" />
+              </div>
               <Dashboard slide={homeX} debitScale={homeScale} />
             </motion.div>
             <motion.div className="absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 1 : cardOpacity }} inert={!(reduce || showCard)} aria-hidden={!(reduce || showCard)}>
               <motion.div className="absolute inset-0" style={{ y: reduce ? 0 : contentY }}>
                 <motion.div className="absolute inset-0" style={{ x: reduce ? 0 : carouselX }}>
                   <PremiumCard />
-                  <div className="absolute top-[130px] left-[27.065px] h-[142.09px] w-[217.871px]" inert={!reduce && (scene === 4 || scene === 6)} onClickCapture={takeOverCard} onKeyDownCapture={(event) => { if (event.key === "Enter" || event.key === " ") takeOverCard(); }}>
+                  <motion.div className="absolute top-[130px] left-[27.065px] h-[142.09px] w-[217.871px]" style={{ scale: reduce ? 1 : debitScale }} inert={!reduce && (scene === 4 || scene === 6)} onClickCapture={takeOverCard} onKeyDownCapture={(event) => { if (event.key === "Enter" || event.key === " ") takeOverCard(); }}>
                     <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_SCALE} scene={{ x: lightX, y: lightY, strength, angle, maxTilt: 13 }}
                       frontArtwork={
                         <motion.div aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: frost }}>
@@ -357,8 +378,7 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
                         </motion.div>
                       }
                     />
-                  </div>
-                  <motion.span aria-hidden className="pointer-events-none absolute top-[243px] left-[58px] size-[23px] rounded-full border border-white bg-white/70" style={{ opacity: tapOpacity, scale: tapScale }} />
+                  </motion.div>
                   <div aria-hidden className="absolute top-[130px] left-[502px] h-[142px] w-[218px] rounded-[16px] bg-[#8e857c]" />
                 </motion.div>
                 <CardActions opacity={actionOpacity} />
@@ -367,7 +387,6 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
               </motion.div>
               <ScreenHeader premium={premium} sticky={stickyOpacity} frost={frost} scroll={contentY} actionOpacity={actionOpacity} />
             </motion.div>
-            {scene === 2 && <div aria-hidden className="pointer-events-none absolute top-0 left-0 w-[310px] origin-top-left scale-[0.877419]"><Image src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" /></div>}
           </motion.div>
         </div>
       </div>

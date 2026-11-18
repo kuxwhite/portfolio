@@ -7,7 +7,7 @@ import { E, track, useTimeline, useTracks, type Ease, type Props, type Timeline,
 /*
  * Sign-in flow of the Moud case (Figma "Auth · Motion v5 · phone matched to SMS", 1420:33175;
  * spec auth-motion.md). Loop 12 s: phone number → SMS code → create PIN → confirm PIN → Face ID.
- * Every keyframe is copied from get_motion_context. Layout is the 424 × 500 Figma canvas with the
+ * Layout is the 424 × 500 Figma canvas with the
  * 310 × 674 phone at (57, 48), cropped by the card; app UI metrics are Figma's own.
  * The iOS keyboards and status bar are exported from Figma (system components); the Jelly body is a
  * bitmap, its face stays vector because eyes, smile and the face group animate separately.
@@ -26,7 +26,7 @@ const C = {
   positive: "#10b24f",
 };
 
-// --- reusable keyframe shapes (values verbatim from Figma) ---
+// --- reusable keyframe shapes ---
 const screenInOut = (t: readonly number[]): Props => ({ opacity: track([0, ...t, 1], [0, 0, 1, 1, 0, 0], [E, E, E, E, L]) });
 const contentInOut = (t: readonly number[]): Props => ({ x: track([0, ...t, 1], [16, 16, 0, 0, -12, -12], [L, E, E, E, L]) });
 /** Rise: opacity over 0.14 s, translateY 7 → 0 over 0.18 s. */
@@ -39,10 +39,16 @@ const pinFill = (t0: number): Props => ({
   y: track([0, t0, t0 + 0.0075, t0 + 0.0208, 1], [0, 0, -3.5, 0, 0], [L, E, E, L]),
   background: track([0, t0, t0 + 0.0083, 1], ["#AEAEAE", "#AEAEAE", "#131313", "#131313"], [E, E, L]),
 });
-const touch = (t: readonly [number, number, number]): Props => ({
-  opacity: track([0, t[0], t[1], t[2], 1], [0, 0, 1, 0, 0], [E, E, E, L]),
-  scale: track([0, t[0], t[2], 1], [0.7, 0.7, 1.35, 1.35], [L, E, L]),
-});
+function buttonPress(start: number): Props {
+  const down = start + 0.06 / D;
+  const release = start + 0.09 / D;
+  const rebound = start + 0.19 / D;
+  const rest = start + 0.25 / D;
+  return {
+    scale: track([0, start, down, release, rebound, rest, 1], [1, 1, 0.975, 0.975, 1.004, 1, 1], [L, E, L, E, IO, L]),
+    background: track([0, start, down, release, rebound, 1], [C.green, C.green, "#6de79c", "#6de79c", C.green, C.green], [L, E, L, IO, L]),
+  };
+}
 /*
  * Loop seam (spec suggestion, approved): at 11.76 s Face ID crossfades back to the phone screen with
  * the screen-change pattern (0.24 s, E). Screen 01's own keyframes are reset to their first values at
@@ -105,7 +111,10 @@ const T = {
   s5Content: { y: track([0, 0.6792, 0.7025, 1], [12, 12, 0, 0], [L, E, L]), x: track([0, SEAM, 1], [0, 0, -12], [L, E]) },
   s5Image: { y: track([0, 0.6792, 0.7025, 1], [16, 16, 0, 0], [L, E, L]) },
 
-  phoneField: resetProps(fieldFocus(0.0483, 0.06)),
+  phoneField: resetProps({
+    ...fieldFocus(0.0483, 0.06),
+    background: track([0, 0.0433, 0.05, 0.055, 0.067, 1], [C.field, C.field, "#e4e4e4", "#e4e4e4", C.field, C.field], [L, E, L, IO, L]),
+  }),
   placeholder: resetProps({ opacity: track([0, 0.065, 0.0717, 1], [1, 1, 0, 0], [E, E, L]) }),
   cursor: {
     opacity: track([0, 0.0542, 0.1567, 0.1625, 1], [0, 1, 1, 0, 0], [E, E, E, L]),
@@ -116,10 +125,8 @@ const T = {
       L,
     )),
   },
-  signIn: {
-    scale: track([0, 0.1625, 0.1717, 0.1833, 1], [1, 1, 0.975, 1, 1], [L, E, E, L]),
-    background: track([0, 0.1625, 0.1725, 0.1833, 1], ["#22DF6B", "#22DF6B", "#6DE79C", "#22DF6B", "#22DF6B"], [E, E, E, L]),
-  },
+  signIn: buttonPress(0.1625),
+  faceConsent: buttonPress(10.28 / D),
   keyboard: resetProps({ y: track([0, 0.05, 0.0767, 1], [237.5, 237.5, 0, 0], [L, E, L]) }),
   smsCell: fieldFocus(0.3033, 0.3167),
   confirmTitle: { opacity: track([0, 0.5933, 0.605, 1], [1, 1, 0, 0], [E, E, L]) },
@@ -150,8 +157,6 @@ const T = {
   faceButton: { scale: breathe([0.6792, 0.7917, 0.8917, 0.9542], [1.025, 1, 1.015]) },
   faceIcon: { scale: breathe([0.6792, 0.8017, 0.9017, 0.9625], [1.015, 1, 1.009]) },
 
-  touchField: touch([0.0433, 0.05, 0.0667]),
-  touchSignIn: touch([0.1625, 0.1692, 0.1858]),
 } satisfies Record<string, Props>;
 
 // --- shared bits of the app UI ---
@@ -201,7 +206,7 @@ const FACE_PARTS = {
 const STROKE = { stroke: "white", strokeWidth: 8.4828, strokeLinecap: "round", strokeLinejoin: "round", fill: "none" } as const;
 const PART_STYLE: CSSProperties = { transformBox: "fill-box", transformOrigin: "center" };
 
-export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "lab", facePressed }: { timeline?: Timeline; label?: string; layout?: "lab" | "navigation" | "flow"; facePressed?: boolean }) {
+export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "lab" }: { timeline?: Timeline; label?: string; layout?: "lab" | "navigation" | "flow" }) {
   const own = useTimeline(D, { autoplay: !timeline });
   const tl = timeline ?? own;
   const bind = useTracks(tl);
@@ -374,7 +379,7 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "
           </div>
           {inFlow && (
             <div className="absolute left-[12.339px] top-[551px] flex flex-col gap-[6.169px]">
-              <div className={btn} style={{ background: facePressed ? "#6de79c" : C.green, transform: facePressed ? "scale(0.975)" : undefined, transition: "transform 140ms, background-color 140ms" }}>Turn on</div>
+              <div ref={bind("face-consent", T.faceConsent)} className={btn} style={{ background: C.green }}>Turn on</div>
               <div className={`${btn} bg-white`}>Not now</div>
             </div>
           )}
@@ -383,20 +388,6 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "
         {/* Status bar · static (header below it is empty in Figma: the logo layer has no content) */}
         <div className="pointer-events-none absolute top-0 left-0">{img("status-bar.svg", 310.009, 47.812)}</div>
 
-        {/* Touch indicators in the phone coordinate space, so they scale with the controls. */}
-        {(
-          [
-            ["touchField", 211, 226],
-            ["touchSignIn", 143, 292],
-          ] as const
-        ).map(([k, x, y]) => (
-          <div
-            key={k}
-            ref={bind(k, T[k])}
-            className="pointer-events-none absolute size-[24px] rounded-full"
-            style={{ left: x, top: y, background: "rgb(20 20 20 / 0.12)", boxShadow: "inset 0 0 0 1px rgb(20 20 20 / 0.2)" }}
-          />
-        ))}
       </div>
     </div>
   );

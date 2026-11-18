@@ -249,7 +249,7 @@ export function FlipCard({ label, flipLabel, previewScale, scene, frontArtwork }
         tabIndex={0}
         aria-pressed={flipped}
         aria-label={`${label}. ${flipLabel}`}
-        className="relative shrink-0 cursor-pointer rounded-[24px] outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg-primary"
+        className="relative shrink-0 cursor-pointer rounded-[24px] outline-none [-webkit-tap-highlight-color:transparent] motion-safe:transition-[scale] motion-safe:duration-100 motion-safe:active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg-primary"
         style={{ width: W, height: H, transform: `scale(var(--case-scale, 1)) scale(${previewScale})` }}
         onPointerMove={onMove}
         onPointerLeave={onLeave}

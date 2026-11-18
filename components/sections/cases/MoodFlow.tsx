@@ -6,11 +6,12 @@ import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTrans
 import { AuthMotionPreview } from "@/components/motion/AuthMotionPreview";
 import { asset } from "@/lib/asset";
 import { E, sample, track, useTimeline } from "@/lib/motion/timeline";
-import { FlipCard } from "./FlipCard";
+import { FlipCard, NumberChip } from "./FlipCard";
 
 const WIDTH = 350;
 const HEIGHT = 436;
 const CARD_WIDTH = 217.871;
+const CARD_SCALE = CARD_WIDTH / 322;
 const DURATION = 26;
 const STOPS = [0, 0.08, 0.17, 0.25, 0.34, 0.43, 0.53, 0.68, 0.79, 0.89, 1];
 
@@ -25,14 +26,30 @@ function DesignArtwork({ name, className, width, height, alt = "" }: { name: str
   return <Image src={asset(`motion/mood/${name}.webp`)} className={className} alt={alt} width={width} height={height} draggable={false} />;
 }
 
-function ScreenHeader({ premium, sticky, frozen }: { premium: boolean; sticky: MotionValue<number>; frozen: boolean }) {
+function ScreenHeader({ premium, sticky, frost, scroll, actionOpacity }: {
+  premium: MotionValue<number>;
+  sticky: MotionValue<number>;
+  frost: MotionValue<number>;
+  scroll: MotionValue<number>;
+  actionOpacity: MotionValue<number>;
+}) {
   const dotsOpacity = useTransform(sticky, (value) => 1 - value);
+  const activeDotX = useTransform(premium, [0, 1], [0, 6]);
+  const premiumDotOpacity = useTransform(premium, [0, 1], [1, 0]);
+  const activeMiniOpacity = useTransform(frost, [0, 1], [1, 0]);
   return (
     <>
-      <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px]"
-        style={{ opacity: sticky, backdropFilter: "blur(7px)", maskImage: "linear-gradient(#000 25%, #000b 65%, transparent)" }} />
-      <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px]"
-        style={{ opacity: sticky, backdropFilter: "blur(19px)", maskImage: "linear-gradient(#000, #0009 32%, transparent 75%)" }} />
+      {/* Render the layers that pass under the glass with the same scroll position.
+          This keeps the blur live inside the clipped phone in Chromium and WebKit. */}
+      <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px] overflow-hidden bg-[#f7f7f7]"
+        style={{ opacity: sticky, maskImage: "linear-gradient(#000 34%, #000e 63%, #0009 80%, transparent)" }}>
+        <div className="absolute inset-0 blur-[8px]">
+          <motion.div className="absolute inset-0" style={{ y: scroll }}>
+            <CardActions opacity={actionOpacity} />
+            <LinkedAccount />
+          </motion.div>
+        </div>
+      </motion.div>
       <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px]"
         style={{ opacity: sticky, background: "linear-gradient(to bottom, rgb(255 255 255 / 96%), rgb(255 255 255 / 92%) 62.79%, rgb(255 255 255 / 72%) 74.42%, rgb(255 255 255 / 38%) 84.88%, rgb(255 255 255 / 12%) 93.02%, transparent)" }} />
       {/* Scale the existing status-bar canvas as a single unit. */}
@@ -41,13 +58,21 @@ function ScreenHeader({ premium, sticky, frozen }: { premium: boolean; sticky: M
         <img src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" draggable={false} />
       </div>
       <DesignArtwork name="sticky-back" width={30} height={30} className="absolute top-[47.36px] left-[10.83px]" />
-      <motion.div aria-hidden className="absolute top-[61px] left-1/2 flex -translate-x-1/2 items-center gap-[3px]" style={{ opacity: dotsOpacity }}>
-        <span className={premium ? "size-[3px] rounded-full bg-black/25" : "h-[3px] w-[16px] rounded-full bg-[#131313]"} />
-        <span className={premium ? "h-[3px] w-[16px] rounded-full bg-[#131313]" : "size-[3px] rounded-full bg-black/25"} />
-        <span className="size-[3px] rounded-full bg-black/25" />
+      <motion.div aria-hidden className="absolute top-[61px] left-1/2 h-[3px] w-[28px] -translate-x-1/2" style={{ opacity: dotsOpacity }}>
+        <motion.span className="absolute left-0 size-[3px] rounded-full bg-black/25" style={{ opacity: premium }} />
+        <motion.span className="absolute left-[19px] size-[3px] rounded-full bg-black/25" style={{ opacity: premiumDotOpacity }} />
+        <span className="absolute right-0 size-[3px] rounded-full bg-black/25" />
+        <motion.span className="absolute left-0 h-full w-[16px] rounded-full bg-[#131313]" style={{ x: activeDotX }} />
       </motion.div>
       <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-[41.95px] h-[40.6px]" style={{ opacity: sticky }}>
-        <DesignArtwork name={frozen ? "card-mini" : "card-mini-active"} width={36} height={25} className="absolute top-[8px] left-1/2 -translate-x-1/2" />
+        <div className="absolute top-[8px] left-1/2 h-[25px] w-[36px] -translate-x-1/2">
+          <motion.div className="absolute inset-0" style={{ opacity: activeMiniOpacity }}>
+            <DesignArtwork name="card-mini-active" width={36} height={25} />
+          </motion.div>
+          <motion.div className="absolute inset-0" style={{ opacity: frost }}>
+            <DesignArtwork name="card-mini" width={36} height={25} />
+          </motion.div>
+        </div>
         <div className="absolute top-[7.8px] right-[13.5px] whitespace-nowrap text-right text-[10.83px] leading-[13.53px] font-medium">
           <p>$15,400.50</p>
           <p className="text-[8.12px] leading-[10.83px] font-normal text-[#707070]">Debit •• 3688</p>
@@ -59,7 +84,14 @@ function ScreenHeader({ premium, sticky, frozen }: { premium: boolean; sticky: M
 
 function PremiumCard() {
   return (
-    <DesignArtwork name="premium" width={248} height={172} className="pointer-events-none absolute top-[124px] left-[249.55px] max-w-none" />
+    <div aria-hidden className="pointer-events-none absolute top-[130px] left-[264.555px] text-white">
+      <DesignArtwork name="premium" width={248} height={172} className="absolute top-[-6px] left-[-15px] max-w-none" />
+      <div className="relative h-[210px] w-[322px] origin-top-left" style={{ transform: `scale(${CARD_SCALE})` }}>
+        <div className="absolute bottom-[16px] left-[16px]">
+          <NumberChip compact digits="3812" />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -69,19 +101,22 @@ const actions = [
   { label: "Pay", icon: "pay", fill: "bg-white" },
 ];
 
-function CardActions({ disabled }: { disabled: boolean }) {
+function CardActions({ opacity }: { opacity: MotionValue<number> }) {
   return (
-    <div aria-hidden className="absolute inset-x-[24px] top-[307px] flex" style={{ opacity: disabled ? 0.33 : 1 }}>
+    <motion.div aria-hidden className="absolute inset-x-[24px] top-[307px] flex" style={{ opacity }}>
       {actions.map(({ label, icon, fill }) => (
         <div key={icon} className="flex flex-1 flex-col items-center gap-[8px] text-[9.5px] leading-[13.5px]">
           <span className={`grid size-[38px] place-items-center rounded-full ${fill}`}><Artwork name={icon} /></span>
           <span>{label}</span>
         </div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
+function LinkedAccount() {
+  return <DesignArtwork name="linked-account" width={272} height={82} alt="Pay from •• 5690, $2,400.00" className="absolute inset-x-0 top-[391.55px]" />;
+}
 
 const accounts = [
   { name: "Debit", number: "3688", amount: "$15,400.50", artwork: "cases/card/surface.svg" },
@@ -130,7 +165,9 @@ const settings = [
   { label: "Terms & fees", icon: "fees" },
 ];
 
-function CardSettings({ frozen }: { frozen: boolean }) {
+function CardSettings({ frozen, frost }: { frozen: boolean; frost: MotionValue<number> }) {
+  const switchColor = useTransform(frost, [0, 1], ["#e3e3e3", "#11ca5f"]);
+  const thumbX = useTransform(frost, [0, 1], [0, 10]);
   return (
     <div className="absolute inset-x-0 top-[438.24px] min-h-[355px] rounded-t-[21px] bg-white px-[11px] pt-[14px]">
       <p className="text-[13px] font-medium">Card settings</p>
@@ -139,9 +176,9 @@ function CardSettings({ frozen }: { frozen: boolean }) {
           <DesignArtwork name={`setting-${icon}`} width={30} height={30} className="shrink-0" />
           <span className="flex-1">{label}{detail && <span className="block text-[9px] text-black/55">{i === 0 && frozen ? "On" : detail}</span>}</span>
           {i === 0 ? (
-            <span data-freeze-switch={frozen ? "on" : "off"} className="relative h-[19px] w-[36px] rounded-full transition-colors duration-150" style={{ background: frozen ? "#11ca5f" : "#e3e3e3" }}>
-              <span className="absolute top-[1px] left-[1px] h-[17px] w-[24px] rounded-full bg-white transition-transform duration-150" style={{ transform: frozen ? "translateX(10px)" : undefined }} />
-            </span>
+            <motion.span data-freeze-switch={frozen ? "on" : "off"} className="relative h-[19px] w-[36px] rounded-full" style={{ backgroundColor: switchColor }}>
+              <motion.span className="absolute top-[1px] left-[1px] h-[17px] w-[24px] rounded-full bg-white" style={{ x: thumbX }} />
+            </motion.span>
           ) : <DesignArtwork name="setting-chevron" width={16} height={16} />}
         </div>
       ))}
@@ -153,6 +190,8 @@ const screenLift = track([0, 9.3, 10.03, 10.55, 11.03, DURATION], [0, 0, -234, -
 const homeSlide = track([0, 11.7, 12.6, 13.5, DURATION], [0, 0, -85, 0, 0], [E, "easeInOut", "easeInOut", E]);
 const detailScroll = track([0, 19.65, 20.52, 21.65, 22.5, DURATION], [0, 0, -366.76, -366.76, 0, 0], [E, "easeInOut", E, "easeInOut", E]);
 const cardSlide = track([0, 23.02, 23.78, DURATION], [0, 0, -237.49, -237.49], [E, "easeInOut", E]);
+const activatePremium = track([0, 23.44, 23.66, DURATION], [0, 0, 1, 1], "easeInOut");
+const freezeCard = track([0, 21.23, 21.45, DURATION], [0, 0, 1, 1], "easeInOut");
 const contract = track([0, 13.63, 13.76, 13.92, DURATION], [1, 1, 0.97, 1, 1], [E, E, E, E]);
 
 const getNumber = (value: ReturnType<typeof track>, time: number) => Number(sample(value, time));
@@ -160,13 +199,13 @@ const crossfade = (time: number, from: number, to: number) => Math.min(1, Math.m
 
 function PlaybackScrubber({ time, onSeek }: { time: MotionValue<number>; onSeek: (value: number) => void }) {
   const [position, setPosition] = useState(0);
-  useMotionValueEvent(time, "change", (seconds) => setPosition(Math.round(seconds * 10) / 10));
+  useMotionValueEvent(time, "change", (seconds) => setPosition(Math.round(seconds * 50) / 50));
   const formatTime = (value: number) => `0:${String(Math.floor(value)).padStart(2, "0")}`;
   return (
     <label className="flex items-center gap-3">
-      <input type="range" min={0} max={DURATION} step={0.1} value={position}
+      <input type="range" min={0} max={DURATION} step={0.02} value={position}
         onChange={(event) => onSeek(event.currentTarget.valueAsNumber)} aria-label="Время анимации"
-        aria-valuetext={`${position.toFixed(1)} с из ${DURATION} с`} className="h-8 min-w-0 flex-1 cursor-pointer accent-[#131313]" />
+        aria-valuetext={`${position.toFixed(2)} с из ${DURATION} с`} className="h-8 min-w-0 flex-1 cursor-pointer accent-[#131313]" />
       <span className="text-xs text-fg-secondary tabular-nums">{formatTime(position)} / {formatTime(DURATION)}</span>
     </label>
   );
@@ -193,6 +232,9 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
   const homeScale = useTransform(time, (s) => getNumber(contract, s));
   const contentY = useTransform(time, (s) => getNumber(detailScroll, s));
   const carouselX = useTransform(time, (s) => getNumber(cardSlide, s));
+  const premium = useTransform(time, (s) => getNumber(activatePremium, s));
+  const frost = useTransform(time, (s) => getNumber(freezeCard, s));
+  const actionOpacity = useTransform(() => 1 - 0.67 * frost.get() * (1 - premium.get()));
   const stickyOpacity = useTransform(contentY, [-366.76, -285, -250], [1, 1, 0]);
   const progress = useTransform(time, [14.03, 19.65], [0, 1]);
   const lightX = useTransform(progress, STOPS, [0.5, 0.12, 0.22, 0.86, 0.9, 0.37, 0.5, 0.5, 0.65, 0.4, 0.5]);
@@ -281,23 +323,24 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
                 <motion.div className="absolute inset-0" style={{ x: reduce ? 0 : carouselX }}>
                   <PremiumCard />
                   <div className="absolute top-[130px] left-[27.065px] h-[142.09px] w-[217.871px]" inert={!reduce && (scene === 4 || scene === 6)} onClickCapture={takeOverCard} onKeyDownCapture={(event) => { if (event.key === "Enter" || event.key === " ") takeOverCard(); }}>
-                    <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_WIDTH / 322} scene={{ x: lightX, y: lightY, strength, angle, maxTilt: 13 }}
-                      frontArtwork={frozen && (
-                        <div aria-hidden className="pointer-events-none absolute inset-0">
+                    <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_SCALE} scene={{ x: lightX, y: lightY, strength, angle, maxTilt: 13 }}
+                      frontArtwork={
+                        <motion.div aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: frost }}>
                           <div className="absolute inset-0 bg-[#808080]/18 mix-blend-saturation" />
                           <DesignArtwork name="frost" width={322} height={210} className="absolute inset-0" />
                           <DesignArtwork name="frostBadge" width={56} height={56} className="absolute top-2 right-2" />
-                        </div>
-                      )}
+                        </motion.div>
+                      }
                     />
                   </div>
                   <motion.span aria-hidden className="pointer-events-none absolute top-[243px] left-[58px] size-[23px] rounded-full border border-white bg-white/70" style={{ opacity: tapOpacity, scale: tapScale }} />
                   <div aria-hidden className="absolute top-[130px] left-[502px] h-[142px] w-[218px] rounded-[16px] bg-[#8e857c]" />
                 </motion.div>
-                <CardActions disabled={frozen && scene !== 6} />
-                <CardSettings frozen={frozen} />
+                <CardActions opacity={actionOpacity} />
+                <LinkedAccount />
+                <CardSettings frozen={frozen} frost={frost} />
               </motion.div>
-              <ScreenHeader premium={scene === 6} sticky={stickyOpacity} frozen={frozen} />
+              <ScreenHeader premium={premium} sticky={stickyOpacity} frost={frost} scroll={contentY} actionOpacity={actionOpacity} />
             </motion.div>
             {scene === 2 && <div aria-hidden className="pointer-events-none absolute top-0 left-0 w-[310px] origin-top-left scale-[0.877419]"><Image src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" /></div>}
           </motion.div>

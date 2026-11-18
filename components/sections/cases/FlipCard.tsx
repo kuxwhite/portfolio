@@ -49,7 +49,7 @@ const Edge = () => (
   </div>
 );
 
-function NumberChip({ open, compact }: { open: boolean; compact?: boolean }) {
+export function NumberChip({ open, compact, digits = "3688" }: { open?: boolean; compact?: boolean; digits?: string }) {
   return (
     <span
       className={compact
@@ -61,7 +61,7 @@ function NumberChip({ open, compact }: { open: boolean; compact?: boolean }) {
       }}
     >
       <span className="text-[14px] font-medium leading-[20px] tracking-[0.14px] whitespace-nowrap tabular-nums" style={compact ? undefined : { textShadow }}>
-        •• 3688
+        •• {digits}
       </span>
       <Svg name={open ? "eye-slash" : "eye"} className={compact ? "size-[16px] shrink-0" : "size-[20px]"} />
     </span>
@@ -195,7 +195,7 @@ export function FlipCard({ label, flipLabel, previewScale, scene, frontArtwork }
 
   // Flip: the angle keeps growing by 180°, so the card always turns the same way.
   const localAngle = useMotionValue(0);
-  const manualTarget = useRef(0);
+  const manualTurn = useRef({ from: 0, to: 180 });
   const angle = scene?.angle ?? localAngle;
   useMotionValueEvent(angle, "change", (value) => {
     if (scene && !angle.isAnimating()) setFlipped(Math.round(value / 180) % 2 === 1);
@@ -211,9 +211,10 @@ export function FlipCard({ label, flipLabel, previewScale, scene, frontArtwork }
 
   const flip = () => {
     if (scene && !reduce) {
-      const base = angle.isAnimating() ? manualTarget.current : Math.round(angle.get() / 180) * 180;
-      const target = base + 180;
-      manualTarget.current = target;
+      const previous = manualTurn.current;
+      const from = angle.isAnimating() ? previous.to : Math.round(angle.get() / 180) * 180;
+      const target = angle.isAnimating() ? previous.from : from + 180;
+      manualTurn.current = { from, to: target };
       setFlipped(target % 360 === 180);
       animate(angle, target, FLIP);
       return;

@@ -10,8 +10,12 @@ import { FlipCard, NumberChip } from "./FlipCard";
 
 const WIDTH = 350;
 const HEIGHT = 436;
+const PHONE_SCALE = 272 / 402;
 const CARD_WIDTH = 217.871;
 const CARD_SCALE = CARD_WIDTH / 322;
+const CARD_HEADER_HEIGHT = 578 * PHONE_SCALE;
+const SETTINGS_TOP = CARD_HEADER_HEIGHT + 69 * PHONE_SCALE;
+const SETTINGS_SCROLL = 536 * PHONE_SCALE;
 const DURATION = 26;
 const STOPS = [0, 0.08, 0.17, 0.25, 0.34, 0.43, 0.53, 0.68, 0.79, 0.89, 1];
 
@@ -57,7 +61,7 @@ function ScreenHeader({ premium, sticky, frost, scroll, actionOpacity }: {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" draggable={false} />
       </div>
-      <DesignArtwork name="sticky-back" width={30} height={30} className="absolute top-[47.36px] left-[10.83px]" />
+      <DesignArtwork name="sticky-back" width={30} height={30} className="absolute top-[47.02px] left-[10.49px]" />
       <motion.div aria-hidden className="absolute top-[61px] left-1/2 h-[3px] w-[28px] -translate-x-1/2" style={{ opacity: dotsOpacity }}>
         <motion.span className="absolute left-0 size-[3px] rounded-full bg-black/25" style={{ opacity: premium }} />
         <motion.span className="absolute left-[19px] size-[3px] rounded-full bg-black/25" style={{ opacity: premiumDotOpacity }} />
@@ -65,7 +69,7 @@ function ScreenHeader({ premium, sticky, frost, scroll, actionOpacity }: {
         <motion.span className="absolute left-0 h-full w-[16px] rounded-full bg-[#131313]" style={{ x: activeDotX }} />
       </motion.div>
       <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-[41.95px] h-[40.6px]" style={{ opacity: sticky }}>
-        <div className="absolute top-[8px] left-1/2 h-[25px] w-[36px] -translate-x-1/2">
+        <div className="absolute top-[8.7px] left-1/2 h-[25px] w-[36px] -translate-x-1/2">
           <motion.div className="absolute inset-0" style={{ opacity: activeMiniOpacity }}>
             <DesignArtwork name="card-mini-active" width={36} height={25} />
           </motion.div>
@@ -73,7 +77,7 @@ function ScreenHeader({ premium, sticky, frost, scroll, actionOpacity }: {
             <DesignArtwork name="card-mini" width={36} height={25} />
           </motion.div>
         </div>
-        <div className="absolute top-[7.8px] right-[13.5px] whitespace-nowrap text-right text-[10.83px] leading-[13.53px] font-medium">
+        <div className="absolute top-[8.12px] right-[13.53px] whitespace-nowrap text-right text-[10.83px] leading-[13.53px] font-medium">
           <p>$15,400.50</p>
           <p className="text-[8.12px] leading-[10.83px] font-normal text-[#707070]">Debit •• 3688</p>
         </div>
@@ -115,7 +119,11 @@ function CardActions({ opacity }: { opacity: MotionValue<number> }) {
 }
 
 function LinkedAccount() {
-  return <DesignArtwork name="linked-account" width={272} height={82} alt="Pay from •• 5690, $2,400.00" className="absolute inset-x-0 top-[391.55px]" />;
+  return (
+    <div className="absolute inset-x-0" style={{ top: CARD_HEADER_HEIGHT }}>
+      <DesignArtwork name="linked-account" width={272} height={82} alt="Pay from •• 5690, $2,400.00" />
+    </div>
+  );
 }
 
 const accounts = [
@@ -157,38 +165,55 @@ function Dashboard({ slide, debitScale }: { slide: MotionValue<number>; debitSca
 }
 
 const settings = [
-  { label: "Freeze card", detail: "Off", icon: "freeze" },
-  { label: "Change PIN", icon: "pin" },
-  { label: "Reissue card", icon: "reissue" },
-  { label: "Card statement", icon: "statement" },
-  { label: "Rename", detail: "Debit", icon: "rename" },
-  { label: "Terms & fees", icon: "fees" },
+  { label: "Freeze card", detail: "Off", icon: "freeze", top: 0 },
+  { label: "Change PIN", icon: "pin", top: 60 },
+  { label: "Reissue card", icon: "reissue", top: 120 },
+  { label: "Card statement", icon: "statement", top: 180 },
+  { label: "Rename", detail: "Debit", icon: "rename", top: 256 },
+  { label: "Terms & fees", icon: "fees", top: 316 },
+  { label: "Block card", icon: "block", top: 392 },
 ];
 
 function CardSettings({ frozen, frost }: { frozen: boolean; frost: MotionValue<number> }) {
   const switchColor = useTransform(frost, [0, 1], ["#e3e3e3", "#11ca5f"]);
-  const thumbX = useTransform(frost, [0, 1], [0, 10]);
+  const thumbX = useTransform(frost, [0, 1], [0, 14]);
   return (
-    <div className="absolute inset-x-0 top-[438.24px] min-h-[355px] rounded-t-[21px] bg-white px-[11px] pt-[14px]">
-      <p className="text-[13px] font-medium">Card settings</p>
-      {settings.map(({ label, detail, icon }, i) => (
-        <div key={label} className={`flex min-h-[41px] items-center gap-[8px] text-[10px] ${i >= 4 ? "border-t border-dashed border-black/5" : ""}`}>
-          <DesignArtwork name={`setting-${icon}`} width={30} height={30} className="shrink-0" />
-          <span className="flex-1">{label}{detail && <span className="block text-[9px] text-black/55">{i === 0 && frozen ? "On" : detail}</span>}</span>
-          {i === 0 ? (
-            <motion.span data-freeze-switch={frozen ? "on" : "off"} className="relative h-[19px] w-[36px] rounded-full" style={{ backgroundColor: switchColor }}>
-              <motion.span className="absolute top-[1px] left-[1px] h-[17px] w-[24px] rounded-full bg-white" style={{ x: thumbX }} />
-            </motion.span>
-          ) : <DesignArtwork name="setting-chevron" width={16} height={16} />}
-        </div>
-      ))}
+    <div
+      className="absolute left-0 h-[940px] w-[402px] origin-top-left rounded-t-[32px] bg-white"
+      style={{ top: SETTINGS_TOP, transform: `scale(${PHONE_SCALE})` }}
+    >
+      <p className="absolute top-6 left-4 text-[20px] leading-6 font-medium">Card settings</p>
+      <div className="absolute inset-x-4 top-[68px] h-[436px]">
+        {settings.map(({ label, detail, icon, top }) => (
+          <div key={icon} className="absolute inset-x-0 flex h-11 items-center gap-3 text-[16px] leading-5" style={{ top }}>
+            <DesignArtwork name={`setting-${icon}`} width={44} height={44} className="shrink-0" />
+            <span className={`flex-1 ${icon === "block" ? "text-[#ff3b30]" : ""}`}>
+              {label}
+              {detail && <span className="mt-1 block text-[14px] leading-5 text-[#707070]">{icon === "freeze" && frozen ? "On" : detail}</span>}
+            </span>
+            {icon === "freeze" ? (
+              <motion.span data-freeze-switch={frozen ? "on" : "off"} className="relative h-7 w-[54px] rounded-full" style={{ backgroundColor: switchColor }}>
+                <motion.span className="absolute top-0.5 left-0.5 h-6 w-9 rounded-full bg-white shadow-[0_1px_3px_rgb(0_0_0/0.08)]" style={{ x: thumbX }} />
+              </motion.span>
+            ) : <DesignArtwork name="setting-chevron" width={24} height={24} />}
+          </div>
+        ))}
+        {[240, 376].map((top) => (
+          <div key={top} aria-hidden className="absolute inset-x-0 h-px" style={{ top, background: "repeating-linear-gradient(to right, #efefef 0 6px, transparent 6px 12px)" }} />
+        ))}
+      </div>
     </div>
   );
 }
 
 const screenLift = track([0, 9.3, 10.03, 10.55, 11.03, DURATION], [0, 0, -234, -234, 0, 0], [E, E, E, E, E]);
 const homeSlide = track([0, 11.7, 12.6, 13.5, DURATION], [0, 0, -85, 0, 0], [E, "easeInOut", "easeInOut", E]);
-const detailScroll = track([0, 19.65, 20.52, 21.65, 22.5, DURATION], [0, 0, -366.76, -366.76, 0, 0], [E, "easeInOut", E, "easeInOut", E]);
+// Match the velocity at release, carry the flick into a small overshoot, then settle on the Figma offset.
+const detailScroll = track(
+  [0, 19.65, 19.74, 20.32, 20.52, 21.65, 22.5, DURATION],
+  [0, 0, -45, -SETTINGS_SCROLL - 6.5, -SETTINGS_SCROLL, -SETTINGS_SCROLL, 0, 0],
+  ["linear", [0.32, 0, 0.68, 0.41], [0.34, 0.56, 0.47, 1], "easeInOut", "linear", "easeInOut", "linear"],
+);
 const cardSlide = track([0, 23.02, 23.78, DURATION], [0, 0, -237.49, -237.49], [E, "easeInOut", E]);
 const activatePremium = track([0, 23.44, 23.66, DURATION], [0, 0, 1, 1], "easeInOut");
 const freezeCard = track([0, 21.23, 21.45, DURATION], [0, 0, 1, 1], "easeInOut");
@@ -235,7 +260,7 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
   const premium = useTransform(time, (s) => getNumber(activatePremium, s));
   const frost = useTransform(time, (s) => getNumber(freezeCard, s));
   const actionOpacity = useTransform(() => 1 - 0.67 * frost.get() * (1 - premium.get()));
-  const stickyOpacity = useTransform(contentY, [-366.76, -285, -250], [1, 1, 0]);
+  const stickyOpacity = useTransform(contentY, [-285, -250], [1, 0]);
   const progress = useTransform(time, [14.03, 19.65], [0, 1]);
   const lightX = useTransform(progress, STOPS, [0.5, 0.12, 0.22, 0.86, 0.9, 0.37, 0.5, 0.5, 0.65, 0.4, 0.5]);
   const lightY = useTransform(progress, STOPS, [0.5, 0.36, 0.9, 0.78, 0.11, 0.18, 0.5, 0.5, 0.54, 0.43, 0.5]);

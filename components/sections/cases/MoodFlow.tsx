@@ -150,8 +150,11 @@ function Dashboard({ slide, debitScale }: { slide: MotionValue<number>; debitSca
       <motion.div className="absolute top-[231.39px] left-[10.83px] flex gap-[8.12px]" style={{ x: slide }}>
         {accounts.map(({ name, number, amount, artwork }) => (
           <motion.div key={number} className="flex size-[105.55px] shrink-0 flex-col items-start justify-between rounded-[16.24px] bg-[#efefef] p-[10.83px]" style={name === "Debit" ? { scale: debitScale } : undefined}>
-            <DesignArtwork name={artwork} width={28} height={19} className="h-[18.945px] w-[28.418px] shrink-0" />
-            <div className="flex flex-col gap-[2.706px] whitespace-nowrap">
+            <div className="relative h-[18.945px] w-[28.418px] shrink-0">
+              {/* The exports include transparent space for the shadow. Align the visible card face to the inset. */}
+              <DesignArtwork name={artwork} width={125} height={87} className="absolute top-[-0.76px] left-[-1.51px] h-[21.98px] w-[31.44px] max-w-none" />
+            </div>
+            <div className="flex w-full flex-col gap-[2.706px] whitespace-nowrap">
               <p className="text-[9.47px] leading-[13.53px] tracking-[0.01em] text-[#818181]">{name}</p>
               <p className="text-[11.5px] leading-[14.89px] font-medium tracking-[0.005em]">{amount}</p>
               <p className="text-[9.47px] leading-[13.53px] tracking-[0.01em] text-[#707070]">••{number}</p>

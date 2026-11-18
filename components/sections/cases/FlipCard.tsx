@@ -175,7 +175,7 @@ type CardMotion = {
   maxTilt: number;
 };
 
-export function FlipCard({ label, flipLabel, previewScale, scene }: { label: string; flipLabel: string; previewScale: number; scene?: CardMotion }) {
+export function FlipCard({ label, flipLabel, previewScale, scene, frontArtwork }: { label: string; flipLabel: string; previewScale: number; scene?: CardMotion; frontArtwork?: ReactNode }) {
   const reduce = useReducedMotion();
   const area = useRef<HTMLDivElement>(null);
   const [flipped, setFlipped] = useState(false);
@@ -280,6 +280,7 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
                 <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: RADIUS }}>
                   <Svg name="m" className="absolute right-[-54.15px] bottom-[-0.17px] h-[164px] w-[310.649px]" />
                 </div>
+                {frontArtwork}
                 <Svg name="rim" className="absolute inset-0 size-full" />
                 <div className="absolute top-[16px] left-[16px] flex flex-col gap-(--space-8) font-medium" style={{ textShadow }}>
                   <p className="text-[14px] leading-[20px] tracking-[0.14px] opacity-70">Debit</p>

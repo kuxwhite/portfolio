@@ -21,23 +21,37 @@ function Artwork({ name, className }: { name: string; className?: string }) {
   );
 }
 
-function ScreenHeader({ premium, sticky }: { premium: boolean; sticky: MotionValue<number> }) {
+function DesignArtwork({ name, className, width, height, alt = "" }: { name: string; className?: string; width: number; height: number; alt?: string }) {
+  return <Image src={asset(`motion/mood/${name}.webp`)} className={className} alt={alt} width={width} height={height} draggable={false} />;
+}
+
+function ScreenHeader({ premium, sticky, frozen }: { premium: boolean; sticky: MotionValue<number>; frozen: boolean }) {
   const dotsOpacity = useTransform(sticky, (value) => 1 - value);
   return (
     <>
-      <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82px] bg-gradient-to-b from-white from-80% to-white/0" style={{ opacity: sticky }} />
+      <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px]"
+        style={{ opacity: sticky, backdropFilter: "blur(7px)", maskImage: "linear-gradient(#000 25%, #000b 65%, transparent)" }} />
+      <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px]"
+        style={{ opacity: sticky, backdropFilter: "blur(19px)", maskImage: "linear-gradient(#000, #0009 32%, transparent 75%)" }} />
+      <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px]"
+        style={{ opacity: sticky, background: "linear-gradient(to bottom, rgb(255 255 255 / 96%), rgb(255 255 255 / 92%) 62.79%, rgb(255 255 255 / 72%) 74.42%, rgb(255 255 255 / 38%) 84.88%, rgb(255 255 255 / 12%) 93.02%, transparent)" }} />
       {/* Scale the existing status-bar canvas as a single unit. */}
       <div className="absolute top-0 left-0 w-[310px] origin-top-left" style={{ transform: "scale(0.877419)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" draggable={false} />
       </div>
-      <div aria-hidden className="absolute top-[47px] left-[11px] grid size-[30px] place-items-center rounded-full border border-black/8 bg-white/35">
-        <Artwork name="back" />
-      </div>
+      <DesignArtwork name="sticky-back" width={30} height={30} className="absolute top-[47.36px] left-[10.83px]" />
       <motion.div aria-hidden className="absolute top-[61px] left-1/2 flex -translate-x-1/2 items-center gap-[3px]" style={{ opacity: dotsOpacity }}>
         <span className={premium ? "size-[3px] rounded-full bg-black/25" : "h-[3px] w-[16px] rounded-full bg-[#131313]"} />
         <span className={premium ? "h-[3px] w-[16px] rounded-full bg-[#131313]" : "size-[3px] rounded-full bg-black/25"} />
         <span className="size-[3px] rounded-full bg-black/25" />
+      </motion.div>
+      <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-[41.95px] h-[40.6px]" style={{ opacity: sticky }}>
+        <DesignArtwork name={frozen ? "card-mini" : "card-mini-active"} width={36} height={25} className="absolute top-[8px] left-1/2 -translate-x-1/2" />
+        <div className="absolute top-[7.8px] right-[13.5px] whitespace-nowrap text-right text-[10.83px] leading-[13.53px] font-medium">
+          <p>$15,400.50</p>
+          <p className="text-[8.12px] leading-[10.83px] font-normal text-[#707070]">Debit •• 3688</p>
+        </div>
       </motion.div>
     </>
   );
@@ -45,17 +59,7 @@ function ScreenHeader({ premium, sticky }: { premium: boolean; sticky: MotionVal
 
 function PremiumCard() {
   return (
-    <div aria-hidden className="pointer-events-none absolute top-[130px] left-[264.555px] h-[142.09px] w-[217.871px] overflow-hidden rounded-[16.24px] shadow-[0_7px_14px_rgb(0_0_0/0.23)]">
-      <Artwork name="premium-surface" className="absolute inset-0" />
-      <div className="absolute right-[-36.77px] bottom-0 rotate-[-16deg]">
-        <Artwork name="premium-mark" className="max-w-none" />
-      </div>
-      <Artwork name="premium-rim" className="absolute inset-0" />
-      <div className="absolute inset-0 flex flex-col justify-between p-[11px] text-white">
-        <div><p className="text-[9px] text-white/70">Premium</p><p className="text-[21px] font-medium">$15,750.00</p></div>
-        <div className="flex items-center justify-between text-[8px]"><span className="rounded-full border border-white/20 px-[5px] py-[2px]">•• 3812</span><Image src={asset("cases/card/mir.svg")} alt="" width={47} height={16} /></div>
-      </div>
-    </div>
+    <DesignArtwork name="premium" width={248} height={172} className="pointer-events-none absolute top-[124px] left-[249.55px] max-w-none" />
   );
 }
 
@@ -88,74 +92,57 @@ const accounts = [
 function Dashboard({ slide, debitScale }: { slide: MotionValue<number>; debitScale: MotionValue<number> }) {
   return (
     <>
-      <div className="absolute inset-x-[11px] top-[47px] flex items-center justify-between text-[10px] text-black/55">
-        <span className="grid size-7 place-items-center rounded-full bg-black/8">KN</span>
-        <div className="flex gap-1">
-          <span className="grid size-8 place-items-center rounded-full border border-black/8">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor"><circle cx="8.5" cy="8.5" r="5.75" /><path d="m13 13 4 4" /></svg>
-          </span>
-          <span className="grid size-8 place-items-center rounded-full border border-black/8">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path d="M4 14h12l-2-3V7a4 4 0 0 0-8 0v4l-2 3Zm4 2a2 2 0 0 0 4 0" /></svg>
-          </span>
-        </div>
+      <div className="absolute inset-x-[10.83px] top-[47.36px] flex items-start justify-between">
+        <DesignArtwork name="bank-profile" width={30} height={30} />
+        <DesignArtwork name="bank-toolbar" width={66} height={31} />
       </div>
-      <div className="absolute inset-x-[11px] top-[110px]">
-        <p className="text-[11px] text-black/55">Total balance</p>
-        <p className="mt-[6px] text-[31px] leading-[38px] font-medium tracking-[-1.7px]">$31,450<span className="text-[21px] text-black/55">.50</span></p>
-        <div className="mt-[17px] flex gap-[11px] text-[13px] text-black/55">
+      <div className="absolute inset-x-[10.83px] top-[109.61px]">
+        <p className="text-[11.5px] leading-[14.89px] text-[#707070]">Total balance</p>
+        <p className="mt-[9px] text-[32.48px] leading-[36.54px] font-medium tracking-[-0.03em]">$31,450<span className="text-[21.65px] tracking-[-0.015em] text-[#707070]">.50</span></p>
+        <div className="mt-[22px] flex gap-[10.83px] text-[13.53px] leading-[16.24px] font-medium text-[#707070]">
           <span className="border-b border-black pb-[7px] text-black">Cards</span><span>Accounts</span><span>Deposits</span><span>Loans</span>
         </div>
       </div>
       <motion.div className="absolute top-[232px] left-[11px] flex gap-[8px]" style={{ x: slide }}>
         {accounts.map(({ name, number, amount, artwork }) => (
-          <motion.div key={number} className="h-[106px] w-[105px] rounded-[16px] bg-[#ededed] p-[10px]" style={name === "Debit" ? { scale: debitScale } : undefined}>
+          <motion.div key={number} className="size-[105.55px] rounded-[16.24px] bg-[#ededed] p-[10.83px]" style={name === "Debit" ? { scale: debitScale } : undefined}>
             <div className="relative h-[19px] w-[28px] overflow-hidden rounded-[4px] bg-[#9b9188]">
               {artwork && <Image src={asset(artwork)} alt="" width={28} height={19} />}
               <Image src={asset("cases/card/mir.svg")} className="absolute right-[2px] bottom-[2px]" alt="" width={11} height={4} />
             </div>
-            <p className="mt-[15px] text-[9px] text-black/55">{name}</p>
-            <p className="text-[11px] font-medium">{amount}</p>
-            <p className="text-[8px] text-black/55">••{number}</p>
+            <p className="mt-[16.48px] text-[9.47px] leading-[13.53px] text-[#707070]">{name}</p>
+            <p className="text-[11.5px] leading-[14.89px] font-medium">{amount}</p>
+            <p className="text-[9.47px] leading-[13.53px] text-[#707070]">••{number}</p>
           </motion.div>
         ))}
       </motion.div>
-      <div className="absolute inset-x-[11px] top-[364px] rounded-[17px] bg-[#323232] p-[11px] text-[11px] leading-[14px] text-white">Free card with<br />up to 10% cashback</div>
+      <DesignArtwork name="banner" alt="Free card with up to 10% cashback" width={251} height={33} className="absolute top-[364px] left-[10.83px]" />
     </>
   );
 }
 
 const settings = [
-  { label: "Freeze card", detail: "Off", path: "M8 1v14M2 4.5l12 7M2 11.5l12-7" },
-  { label: "Change PIN", path: "M7 9a3 3 0 1 1 2-2l4-4h2v2l-1 1h-2l-2 2" },
-  { label: "Reissue card", path: "M3 7a5 5 0 0 1 9-2l1 2m0-4v4H9m4 2a5 5 0 0 1-9 2L3 9m0 4V9h4" },
-  { label: "Card statement", path: "M4 2h5l3 3v9H4zM9 2v4h3" },
-  { label: "Rename", detail: "Debit", path: "m3 10 7-7 3 3-7 7H3zM9 4l3 3" },
-  { label: "Terms & fees", path: "m3 13 10-10M5 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm6 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" },
+  { label: "Freeze card", detail: "Off", icon: "freeze" },
+  { label: "Change PIN", icon: "pin" },
+  { label: "Reissue card", icon: "reissue" },
+  { label: "Card statement", icon: "statement" },
+  { label: "Rename", detail: "Debit", icon: "rename" },
+  { label: "Terms & fees", icon: "fees" },
 ];
-
-function FrostIcon() {
-  return (
-    <svg aria-hidden width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 1v14M2 4.5l12 7M2 11.5l12-7M6 2.5l2 2 2-2m-4 11 2-2 2 2M2.5 7l2.7-.7-.7-2.7m9 5.4-2.7.7.7 2.7M2.5 9l2.7.7-.7 2.7m9-5.4-2.7-.7.7-2.7" />
-    </svg>
-  );
-}
 
 function CardSettings({ frozen }: { frozen: boolean }) {
   return (
-    <div className="absolute inset-x-0 top-[392px] min-h-[355px] rounded-t-[21px] bg-white px-[11px] pt-[14px]">
+    <div className="absolute inset-x-0 top-[438.24px] min-h-[355px] rounded-t-[21px] bg-white px-[11px] pt-[14px]">
       <p className="text-[13px] font-medium">Card settings</p>
-      {settings.map(({ label, detail, path }, i) => (
+      {settings.map(({ label, detail, icon }, i) => (
         <div key={label} className={`flex min-h-[41px] items-center gap-[8px] text-[10px] ${i >= 4 ? "border-t border-dashed border-black/5" : ""}`}>
-          <span className="grid size-[30px] shrink-0 place-items-center rounded-full bg-[#f5f5f5] text-black/50">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><path d={path} /></svg>
-          </span>
+          <DesignArtwork name={`setting-${icon}`} width={30} height={30} className="shrink-0" />
           <span className="flex-1">{label}{detail && <span className="block text-[9px] text-black/55">{i === 0 && frozen ? "On" : detail}</span>}</span>
           {i === 0 ? (
             <span data-freeze-switch={frozen ? "on" : "off"} className="relative h-[19px] w-[36px] rounded-full transition-colors duration-150" style={{ background: frozen ? "#11ca5f" : "#e3e3e3" }}>
               <span className="absolute top-[1px] left-[1px] h-[17px] w-[24px] rounded-full bg-white transition-transform duration-150" style={{ transform: frozen ? "translateX(10px)" : undefined }} />
             </span>
-          ) : <span className="mr-1 text-[17px] text-black/45">›</span>}
+          ) : <DesignArtwork name="setting-chevron" width={16} height={16} />}
         </div>
       ))}
     </div>
@@ -164,15 +151,29 @@ function CardSettings({ frozen }: { frozen: boolean }) {
 
 const screenLift = track([0, 9.3, 10.03, 10.55, 11.03, DURATION], [0, 0, -234, -234, 0, 0], [E, E, E, E, E]);
 const homeSlide = track([0, 11.7, 12.6, 13.5, DURATION], [0, 0, -85, 0, 0], [E, "easeInOut", "easeInOut", E]);
-const detailScroll = track([0, 19.65, 20.52, 21.65, 22.5, DURATION], [0, 0, -318, -318, 0, 0], [E, "easeInOut", E, "easeInOut", E]);
+const detailScroll = track([0, 19.65, 20.52, 21.65, 22.5, DURATION], [0, 0, -366.76, -366.76, 0, 0], [E, "easeInOut", E, "easeInOut", E]);
 const cardSlide = track([0, 23.02, 23.78, DURATION], [0, 0, -237.49, -237.49], [E, "easeInOut", E]);
 const contract = track([0, 13.63, 13.76, 13.92, DURATION], [1, 1, 0.97, 1, 1], [E, E, E, E]);
 
 const getNumber = (value: ReturnType<typeof track>, time: number) => Number(sample(value, time));
 const crossfade = (time: number, from: number, to: number) => Math.min(1, Math.max(0, (time - from) / (to - from)));
 
+function PlaybackScrubber({ time, onSeek }: { time: MotionValue<number>; onSeek: (value: number) => void }) {
+  const [position, setPosition] = useState(0);
+  useMotionValueEvent(time, "change", (seconds) => setPosition(Math.round(seconds * 10) / 10));
+  const formatTime = (value: number) => `0:${String(Math.floor(value)).padStart(2, "0")}`;
+  return (
+    <label className="flex items-center gap-3">
+      <input type="range" min={0} max={DURATION} step={0.1} value={position}
+        onChange={(event) => onSeek(event.currentTarget.valueAsNumber)} aria-label="Время анимации"
+        aria-valuetext={`${position.toFixed(1)} с из ${DURATION} с`} className="h-8 min-w-0 flex-1 cursor-pointer accent-[#131313]" />
+      <span className="text-xs text-fg-secondary tabular-nums">{formatTime(position)} / {formatTime(DURATION)}</span>
+    </label>
+  );
+}
+
 export function MoodFlow({ label, lab = false, english = false }: { label: string; lab?: boolean; english?: boolean }) {
-  const { time, observe, pause, restart, playing } = useTimeline(DURATION, { autoplay: !lab });
+  const { time, observe, pause, play, restart, seek, playing } = useTimeline(DURATION, { autoplay: !lab });
   const stage = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [scene, setScene] = useState(0);
@@ -192,7 +193,7 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
   const homeScale = useTransform(time, (s) => getNumber(contract, s));
   const contentY = useTransform(time, (s) => getNumber(detailScroll, s));
   const carouselX = useTransform(time, (s) => getNumber(cardSlide, s));
-  const stickyOpacity = useTransform(contentY, [-318, -252, -225], [1, 1, 0]);
+  const stickyOpacity = useTransform(contentY, [-366.76, -285, -250], [1, 1, 0]);
   const progress = useTransform(time, [14.03, 19.65], [0, 1]);
   const lightX = useTransform(progress, STOPS, [0.5, 0.12, 0.22, 0.86, 0.9, 0.37, 0.5, 0.5, 0.65, 0.4, 0.5]);
   const lightY = useTransform(progress, STOPS, [0.5, 0.36, 0.9, 0.78, 0.11, 0.18, 0.5, 0.5, 0.54, 0.43, 0.5]);
@@ -242,6 +243,24 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
     manual.current = true;
     pause();
   }
+  function scrub(seconds: number) {
+    pause();
+    manual.current = false;
+    angle.stop();
+    seek(seconds);
+    synchronized(seconds);
+  }
+
+  function togglePlayback() {
+    if (playing) pause();
+    else if (!lab || time.get() >= DURATION - 0.1) replay();
+    else {
+      manual.current = false;
+      angle.stop();
+      synchronized(time.get());
+      play();
+    }
+  }
   const playbackLabel = playing ? (english ? "Pause" : "Пауза") : (english ? "Replay" : "Воспроизвести");
 
   return (
@@ -262,8 +281,15 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
                 <motion.div className="absolute inset-0" style={{ x: reduce ? 0 : carouselX }}>
                   <PremiumCard />
                   <div className="absolute top-[130px] left-[27.065px] h-[142.09px] w-[217.871px]" inert={!reduce && (scene === 4 || scene === 6)} onClickCapture={takeOverCard} onKeyDownCapture={(event) => { if (event.key === "Enter" || event.key === " ") takeOverCard(); }}>
-                    <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_WIDTH / 322} scene={{ x: lightX, y: lightY, strength, angle, maxTilt: 13 }} />
-                    {frozen && <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[16px] bg-gradient-to-bl from-[#c9fff6]/50 to-transparent"><span className="absolute top-[11px] right-[11px] grid size-[26px] place-items-center rounded-full border border-white/40 text-white"><FrostIcon /></span></div>}
+                    <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_WIDTH / 322} scene={{ x: lightX, y: lightY, strength, angle, maxTilt: 13 }}
+                      frontArtwork={frozen && (
+                        <div aria-hidden className="pointer-events-none absolute inset-0">
+                          <div className="absolute inset-0 bg-[#808080]/18 mix-blend-saturation" />
+                          <DesignArtwork name="frost" width={322} height={210} className="absolute inset-0" />
+                          <DesignArtwork name="frostBadge" width={56} height={56} className="absolute top-2 right-2" />
+                        </div>
+                      )}
+                    />
                   </div>
                   <motion.span aria-hidden className="pointer-events-none absolute top-[243px] left-[58px] size-[23px] rounded-full border border-white bg-white/70" style={{ opacity: tapOpacity, scale: tapScale }} />
                   <div aria-hidden className="absolute top-[130px] left-[502px] h-[142px] w-[218px] rounded-[16px] bg-[#8e857c]" />
@@ -271,20 +297,17 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
                 <CardActions disabled={frozen && scene !== 6} />
                 <CardSettings frozen={frozen} />
               </motion.div>
-              <ScreenHeader premium={scene === 6} sticky={stickyOpacity} />
-              <motion.div aria-hidden className="pointer-events-none absolute inset-x-[40px] top-[46px] flex h-[33px] items-center justify-end rounded-full bg-[#f7f7f7] pr-2 text-right" style={{ opacity: stickyOpacity }}>
-                <span className="absolute left-1/2 grid h-[21px] w-[32px] -translate-x-1/2 place-items-center overflow-hidden rounded-[5px] bg-[#33ba70] text-white">{frozen ? <FrostIcon /> : <Image src={asset("cases/card/mir.svg")} alt="" width={18} height={6} />}</span>
-                <span className="text-[11px] leading-[11px]">$15,400.50<span className="block text-[8px] text-black/55">Debit ••3688</span></span>
-              </motion.div>
+              <ScreenHeader premium={scene === 6} sticky={stickyOpacity} frozen={frozen} />
             </motion.div>
             {scene === 2 && <div aria-hidden className="pointer-events-none absolute top-0 left-0 w-[310px] origin-top-left scale-[0.877419]"><Image src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" /></div>}
           </motion.div>
         </div>
       </div>
+      {lab && !reduce && <PlaybackScrubber time={time} onSeek={scrub} />}
       {!reduce && (
-        <button type="button" onClick={playing ? pause : replay} aria-label={playbackLabel}
+        <button type="button" onClick={togglePlayback} aria-label={playbackLabel}
           className={lab
-            ? "mx-auto mt-4 block min-h-11 rounded-full bg-bg-subtle px-5 type-label motion-reduce:hidden focus-visible:outline-2"
+            ? "mx-auto mt-1 block min-h-11 rounded-full bg-bg-subtle px-5 type-label motion-reduce:hidden focus-visible:outline-2"
             : "absolute right-3 bottom-3 z-20 grid size-11 place-items-center rounded-full bg-white/95 text-black shadow-sm motion-reduce:hidden focus-visible:outline-2"}
         >
           {lab ? playbackLabel : (

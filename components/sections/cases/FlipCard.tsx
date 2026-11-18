@@ -151,6 +151,7 @@ type CardMotion = {
   y: MotionValue<number>;
   strength: MotionValue<number>;
   angle: MotionValue<number>;
+  maxTilt: number;
 };
 
 export function FlipCard({ label, flipLabel, previewScale, scene }: { label: string; flipLabel: string; previewScale: number; scene?: CardMotion }) {
@@ -165,8 +166,9 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
   const sx = useSpring(scene?.x ?? px, TILT_SPRING);
   const sy = useSpring(scene?.y ?? py, TILT_SPRING);
   const sa = useSpring(scene?.strength ?? active, TILT_SPRING);
-  const tiltY = useTransform(() => (sx.get() - 0.5) * 2 * MAX_TILT * sa.get());
-  const tiltX = useTransform(() => -(sy.get() - 0.5) * 2 * MAX_TILT * sa.get());
+  const maxTilt = scene?.maxTilt ?? MAX_TILT;
+  const tiltY = useTransform(() => (sx.get() - 0.5) * 2 * maxTilt * sa.get());
+  const tiltX = useTransform(() => -(sy.get() - 0.5) * 2 * maxTilt * sa.get());
 
   // Flip: the angle keeps growing by 180°, so the card always turns the same way.
   const localAngle = useMotionValue(0);
@@ -240,6 +242,7 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
       >
         <motion.div
           className="absolute inset-0"
+          data-card-tilt={scene ? "" : undefined}
           style={{ rotateX: tiltX, rotateY: tiltY, transformPerspective: 1100, transformStyle: "preserve-3d" }}
         >
           <motion.div

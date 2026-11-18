@@ -78,9 +78,6 @@ export function MoodCardLab() {
   const progress = useMotionValue(0);
   const angle = useMotionValue(0);
   const running = useRef<{ stop: () => void } | null>(null);
-  const tiltX = useTransform(progress, STOPS, [0, 6, 9, 4, 0, 0, 0, 0, 0]);
-  const tiltY = useTransform(progress, STOPS, [0, -13, 12, -5, 0, 0, 0, 0, 0]);
-  const tiltZ = useTransform(progress, STOPS, [0, -4, 4, -2, 0, 0, 0, 0, 0]);
   const lightX = useTransform(progress, STOPS, [0.5, 0.15, 0.92, 0.28, 0.5, 0.5, 0.65, 0.4, 0.5]);
   const lightY = useTransform(progress, STOPS, [0.5, 0.2, 0.65, 0.28, 0.5, 0.5, 0.54, 0.43, 0.5]);
   const strength = useTransform(progress, STOPS, [0, 0.88, 0.92, 0.56, 0.04, 0.26, 0.3, 0.18, 0]);
@@ -122,26 +119,25 @@ export function MoodCardLab() {
       <h1 className="mb-6 type-body-l text-center">Mood · сцены 13–14</h1>
       <div ref={stage} className="relative w-full overflow-hidden bg-[#efefef]" style={{ aspectRatio: `${WIDTH} / ${HEIGHT}`, borderRadius: 80 * scale }} data-mood-stage>
         <div className="absolute top-0 left-0 origin-top-left" style={{ width: WIDTH, height: HEIGHT, transform: `scale(${scale})` }}>
-          <motion.div
+          <div
             className="absolute top-[39px] left-[39px] h-[591.36px] w-[272px]"
-            style={{ rotateX: tiltX, rotateY: tiltY, rotateZ: tiltZ, transformOrigin: "50% 32%", transformStyle: "preserve-3d" }}
             data-mood-phone
           >
-            <div aria-hidden className="absolute -inset-[2px] rounded-[46px] bg-[#d7d7d7]" style={{ transform: "translateZ(-2px)" }} />
-            <div className="absolute inset-0 overflow-hidden rounded-[44px] bg-[#f7f7f7] text-[#131313]" style={{ fontFamily: "var(--portfolio-font-family-rounded)", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}>
+            <div aria-hidden className="absolute -inset-[2px] rounded-[46px] bg-[#d7d7d7]" />
+            <div className="absolute inset-0 overflow-hidden rounded-[44px] bg-[#f7f7f7] text-[#131313]" style={{ fontFamily: "var(--portfolio-font-family-rounded)" }}>
               <ScreenHeader />
               <PremiumCard />
               <div
                 className="absolute top-[130px] left-[27.065px] h-[142.09px] w-[217.871px]"
                 onPointerDown={() => { running.current?.stop(); running.current = null; progress.set(0); }}
               >
-                <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_WIDTH / 322} scene={{ x: lightX, y: lightY, strength, angle }} />
+                <FlipCard label="Debit" flipLabel="Show or hide card details" previewScale={CARD_WIDTH / 322} scene={{ x: lightX, y: lightY, strength, angle, maxTilt: 28 }} />
               </div>
               <motion.span aria-hidden className="pointer-events-none absolute top-[239px] left-[72px] size-[23px] rounded-full border border-white bg-white/70" style={{ opacity: tapOpacity, scale: tapScale }} />
               <CardActions />
               <div aria-hidden className="absolute inset-x-0 top-[392px] h-[180px] rounded-t-[22px] bg-white" />
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
       {reduce ? (

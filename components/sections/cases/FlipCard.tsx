@@ -49,26 +49,28 @@ const Edge = () => (
   </div>
 );
 
-function NumberChip({ open }: { open: boolean }) {
+function NumberChip({ open, compact }: { open: boolean; compact?: boolean }) {
   return (
     <span
-      className="relative flex items-center justify-end gap-(--space-4) rounded-full px-[6px] py-(--space-4) backdrop-blur-[3px]"
-      style={{
+      className={compact
+        ? "relative flex h-[26px] items-center gap-[5px] rounded-full border border-white/25 bg-[#164c3a]/25 px-[8px]"
+        : "relative flex items-center justify-end gap-(--space-4) rounded-full px-[6px] py-(--space-4) backdrop-blur-[3px]"}
+      style={compact ? undefined : {
         background: "rgb(255 255 255 / 0.12)",
         boxShadow: "inset 0 0.75px 1px rgb(255 255 255 / 0.14), 0 2px 4px rgb(11 27 43 / 0.14)",
       }}
     >
-      <span className="text-[14px] font-medium leading-[20px] tracking-[0.14px] whitespace-nowrap" style={{ textShadow }}>
+      <span className="text-[14px] font-medium leading-[20px] tracking-[0.14px] whitespace-nowrap tabular-nums" style={compact ? undefined : { textShadow }}>
         •• 3688
       </span>
-      <Svg name={open ? "eye-slash" : "eye"} className="size-[20px]" />
+      <Svg name={open ? "eye-slash" : "eye"} className={compact ? "size-[16px] shrink-0" : "size-[20px]"} />
     </span>
   );
 }
 
-const BottomRow = ({ open }: { open: boolean }) => (
+const BottomRow = ({ open, compact }: { open: boolean; compact?: boolean }) => (
   <div className="absolute inset-x-[16px] bottom-[16px] flex items-end justify-between">
-    <NumberChip open={open} />
+    <NumberChip open={open} compact={compact} />
     <Svg name="mir" className="h-[24px] w-[70px]" />
   </div>
 );
@@ -104,13 +106,14 @@ function Glare({ x, y, strength, mirror }: { x: MotionValue<number>; y: MotionVa
  * edge shows when the card leans or turns (a real card is ~0.9% of its width thick → ~3px here).
  */
 const THICKNESS = 3;
+const SCENE_THICKNESS = 2;
 const SLICES = 5;
 const EDGE = "linear-gradient(160deg, #3fcf78, #22a55a)"; // card edge, sampled from the Figma surface
 
-function EdgeSlices({ thickness }: { thickness: number }) {
+function EdgeSlices({ thickness, inset = 0 }: { thickness: number; inset?: number }) {
   return Array.from({ length: SLICES }, (_, i) => {
     const z = -thickness / 2 + (thickness * (i + 0.5)) / SLICES;
-    return <div key={i} aria-hidden className="absolute inset-0" style={{ borderRadius: RADIUS, background: EDGE, transform: `translateZ(${z}px)` }} />;
+    return <div key={i} aria-hidden className="absolute" style={{ inset, borderRadius: RADIUS - inset, background: EDGE, transform: `translateZ(${z}px)` }} />;
   });
 }
 
@@ -138,15 +141,28 @@ function Sheen({ x, y, strength, mirror, scene }: { x: MotionValue<number>; y: M
   );
 }
 
-function Face({ back, thickness, children }: { back?: boolean; thickness: number; children: ReactNode }) {
+function Face({ back, thickness, scene, children }: { back?: boolean; thickness: number; scene?: boolean; children: ReactNode }) {
+  const content = (
+    <>
+      <Svg name="surface" className="absolute inset-0 size-full" />
+      {children}
+    </>
+  );
   return (
     <div
       className="absolute inset-0 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
       style={{ transform: `${back ? "rotateY(180deg) " : ""}translateZ(${thickness / 2}px)`, ...rounded }}
     >
-      <Edge />
-      <Svg name="surface" className="absolute inset-0 size-full" />
-      {children}
+      {scene ? (
+        <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: RADIUS, boxShadow: "0 7px 17px rgb(17 72 49 / 0.15)" }}>
+          {content}
+        </div>
+      ) : (
+        <>
+          <Edge />
+          {content}
+        </>
+      )}
     </div>
   );
 }
@@ -172,7 +188,8 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
   const sy = useSpring(scene?.y ?? py, TILT_SPRING);
   const sa = useSpring(scene?.strength ?? active, TILT_SPRING);
   const maxTilt = scene?.maxTilt ?? MAX_TILT;
-  const thickness = scene ? 5 : THICKNESS;
+  const thickness = scene ? SCENE_THICKNESS : THICKNESS;
+  const isScene = Boolean(scene);
   const tiltY = useTransform(() => (sx.get() - 0.5) * 2 * maxTilt * sa.get());
   const tiltX = useTransform(() => -(sy.get() - 0.5) * 2 * maxTilt * sa.get());
 
@@ -255,10 +272,10 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
             className="absolute inset-0"
             style={reduce ? { transformStyle: "preserve-3d" } : { rotateY: angle, scale: lift, transformStyle: "preserve-3d" }}
           >
-            {!reduce && <EdgeSlices thickness={thickness} />}
+            {!reduce && <EdgeSlices thickness={thickness} inset={scene ? 0.5 : 0} />}
             {/* Front: balance */}
             <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: frontOpacity } : scene ? { visibility: frontVisible } : undefined}>
-              <Face thickness={thickness}>
+              <Face thickness={thickness} scene={isScene}>
                 <Sheen x={sx} y={sy} scene={Boolean(scene)} strength={sa} />
                 <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: RADIUS }}>
                   <Svg name="m" className="absolute right-[-54.15px] bottom-[-0.17px] h-[164px] w-[310.649px]" />
@@ -271,14 +288,14 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
                     <span className="text-[24px] leading-[28px] tracking-[-0.12px] text-white/70">.50</span>
                   </p>
                 </div>
-                <BottomRow open={false} />
+                <BottomRow open={false} compact={isScene} />
                 <Glare x={sx} y={sy} strength={sa} />
               </Face>
             </motion.div>
 
             {/* Back: card details */}
             <motion.div className="absolute inset-0 [transform-style:preserve-3d]" style={reduce ? { opacity: fade } : scene ? { visibility: backVisible } : undefined}>
-              <Face thickness={thickness} back={!reduce}>
+              <Face thickness={thickness} scene={isScene} back={!reduce}>
                 <Sheen x={sx} y={sy} scene={Boolean(scene)} strength={sa} mirror={!reduce} />
                 <div className="absolute top-[16px] left-[16px] flex w-[282px] flex-col gap-[22px]">
                   <Detail label="Card number" value="2200 1234 5678 3688" labelWide />
@@ -288,7 +305,7 @@ export function FlipCard({ label, flipLabel, previewScale, scene }: { label: str
                   </div>
                 </div>
                 <Svg name="rim" className="absolute inset-0 size-full" />
-                <BottomRow open />
+                <BottomRow open compact={isScene} />
                 <Glare x={sx} y={sy} strength={sa} mirror={!reduce} />
               </Face>
             </motion.div>

@@ -269,7 +269,12 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
   const auth = { duration: 12, time: authTime, playing, pause, play: restart, restart, seek: (seconds: number) => authTime.set(seconds), observe };
   const showCard = scene >= 3;
   const frozen = scene >= 5;
-  const homeOpacity = useTransform(time, (s) => s < 25.25 ? smoothFade(s, 10.54, 11.03) : 0);
+  // Retire the outgoing screen before its last subpixel-wide strip can show
+  // through the incoming screen's antialiased edge at fractional preview scales.
+  const homeOpacity = useTransform(time, (s) => s < 25.25
+    ? smoothFade(s, 10.54, 11.03) * (1 - smoothFade(getNumber(enterCard, s), 0.75, 1))
+    : 0);
+  const homeVisibility = useTransform(time, (s) => getNumber(enterCard, s) >= 1 ? "hidden" : "visible");
   const authOpacity = useTransform(time, (s) => s < 11.03 || s >= 25.25 ? 1 : 0);
   const cardOpacity = useTransform(time, (s) => s < 13.75 ? 0 : 1 - smoothFade(s, 25.25, 25.65));
   const cardEntry = useTransform(time, (s) => getNumber(enterCard, s));
@@ -364,7 +369,7 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
             <motion.div className="absolute inset-0" style={{ opacity: reduce ? 0 : authOpacity }} aria-hidden={showCard || Boolean(reduce) || scene === 2}>
               <AuthMotionPreview layout="flow" timeline={auth} />
             </motion.div>
-            <motion.div className="pointer-events-none absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 0 : homeOpacity, x: reduce ? 0 : homePanelX }} aria-hidden={scene !== 2 || Boolean(reduce)}>
+            <motion.div className="pointer-events-none absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 0 : homeOpacity, visibility: reduce ? "hidden" : homeVisibility, x: reduce ? 0 : homePanelX }} aria-hidden={scene !== 2 || Boolean(reduce)}>
               <Dashboard slide={homeX} debitScale={homeScale} />
             </motion.div>
             <motion.div className="absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 1 : cardOpacity, x: reduce ? 0 : cardPanelX }} inert={!(reduce || showCard)} aria-hidden={!(reduce || showCard)}>

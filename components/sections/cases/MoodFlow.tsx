@@ -217,6 +217,7 @@ const detailScroll = track(
   ["linear", [0.32, 0, 0.68, 0.41], [0.34, 0.56, 0.47, 1], "easeInOut", "linear", "easeInOut", "linear"],
 );
 const freezeCard = track([0, 21.23, 21.45, DURATION], [0, 0, 1, 1], "easeInOut");
+const enterCard = track([0, 13.75, 14.13, DURATION], [0, 0, 1, 1], ["linear", E, "linear"]);
 const pressScale = (at: number) => track(
   [0, at, at + 0.06, at + 0.10, at + 0.19, at + 0.25, DURATION],
   [1, 1, 0.975, 0.975, 1.004, 1, 1],
@@ -270,7 +271,10 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
   const frozen = scene >= 5;
   const homeOpacity = useTransform(time, (s) => s < 25.25 ? smoothFade(s, 10.54, 11.03) : 0);
   const authOpacity = useTransform(time, (s) => s < 11.03 || s >= 25.25 ? 1 : 0);
-  const cardOpacity = useTransform(time, (s) => Math.min(smoothFade(s, 13.75, 14.03), 1 - smoothFade(s, 25.25, 25.65)));
+  const cardOpacity = useTransform(time, (s) => s < 13.75 ? 0 : 1 - smoothFade(s, 25.25, 25.65));
+  const cardEntry = useTransform(time, (s) => getNumber(enterCard, s));
+  const cardPanelX = useTransform(cardEntry, [0, 1], [272, 0]);
+  const homePanelX = useTransform(cardEntry, [0, 1], [0, -24]);
   const phoneLift = useTransform(time, (s) => getNumber(screenLift, s));
   const phoneShellY = useTransform(() => phoneLift.get() * scale);
   const homeX = useTransform(time, (s) => -85 * (glide(s, 11.7, 12.46) - glide(s, 12.62, 13.38)));
@@ -360,13 +364,13 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
             <motion.div className="absolute inset-0" style={{ opacity: reduce ? 0 : authOpacity }} aria-hidden={showCard || Boolean(reduce) || scene === 2}>
               <AuthMotionPreview layout="flow" timeline={auth} />
             </motion.div>
-            <motion.div className="pointer-events-none absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 0 : homeOpacity }} aria-hidden={scene !== 2 || Boolean(reduce)}>
+            <motion.div className="pointer-events-none absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 0 : homeOpacity, x: reduce ? 0 : homePanelX }} aria-hidden={scene !== 2 || Boolean(reduce)}>
               <div aria-hidden className="absolute top-0 left-0 w-[310px] origin-top-left scale-[0.877419]">
                 <Image src={asset("motion/auth/status-bar.svg")} width={310} height={48} alt="" />
               </div>
               <Dashboard slide={homeX} debitScale={homeScale} />
             </motion.div>
-            <motion.div className="absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 1 : cardOpacity }} inert={!(reduce || showCard)} aria-hidden={!(reduce || showCard)}>
+            <motion.div className="absolute inset-0 bg-[#f7f7f7]" style={{ opacity: reduce ? 1 : cardOpacity, x: reduce ? 0 : cardPanelX }} inert={!(reduce || showCard)} aria-hidden={!(reduce || showCard)}>
               <motion.div className="absolute inset-0" style={{ y: reduce ? 0 : contentY }}>
                 <motion.div className="absolute inset-0" style={{ x: reduce ? 0 : carouselX }}>
                   <PremiumCard />

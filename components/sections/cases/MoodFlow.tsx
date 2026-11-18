@@ -160,7 +160,7 @@ function Dashboard({ slide, debitScale }: { slide: MotionValue<number>; debitSca
         ))}
       </motion.div>
       <div className="absolute top-[346px] left-[10.83px] h-[49px] w-[250.35px] overflow-hidden rounded-[16.24px] bg-[linear-gradient(161deg,#222,#323232)]">
-        <DesignArtwork name="banner" width={251} height={33} className="absolute inset-0 [clip-path:inset(0_0_0_49%)]" />
+        <DesignArtwork name="banner" width={251} height={33} className="absolute inset-0 [mask-composite:intersect] [mask-image:linear-gradient(to_right,transparent_48%,black_57%),linear-gradient(to_bottom,black_75%,transparent)]" />
         <p className="relative p-[10.83px] text-[11.5px] leading-[14.89px] font-medium tracking-[0.005em] text-white">
           Free card with<br />up to 10% cashback
         </p>

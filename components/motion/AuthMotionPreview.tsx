@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 import { asset } from "@/lib/asset";
 import { E, track, useTimeline, useTracks, type Ease, type Props, type Timeline, type Track } from "@/lib/motion/timeline";
 
@@ -201,24 +201,28 @@ const FACE_PARTS = {
 const STROKE = { stroke: "white", strokeWidth: 8.4828, strokeLinecap: "round", strokeLinejoin: "round", fill: "none" } as const;
 const PART_STYLE: CSSProperties = { transformBox: "fill-box", transformOrigin: "center" };
 
-export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "lab" }: { timeline?: Timeline; label?: string; layout?: "lab" | "navigation" }) {
+export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "lab", facePressed }: { timeline?: Timeline; label?: string; layout?: "lab" | "navigation" | "flow"; facePressed?: boolean }) {
   const own = useTimeline(D, { autoplay: !timeline });
   const tl = timeline ?? own;
   const bind = useTracks(tl);
   const inNavigation = layout === "navigation";
+  const inFlow = layout === "flow";
   const phoneScale = 321 / 310;
+  const glowId = useId();
 
   return (
     <div
-      ref={tl.observe}
+      ref={inFlow ? undefined : tl.observe}
       role="img"
       aria-label={label}
-      className={inNavigation ? "case-auth-artboard" : "relative h-[500px] w-[424px] overflow-hidden rounded-visual bg-bg-subtle"}
+      className={inFlow ? "absolute inset-0" : inNavigation ? "case-auth-artboard" : "relative h-[500px] w-[424px] overflow-hidden rounded-visual bg-bg-subtle"}
       style={{ fontFamily: "var(--portfolio-font-family-rounded)", color: C.primary }}
     >
       <div
         className="absolute w-[310px] origin-top-left overflow-hidden"
-        style={inNavigation
+        style={inFlow
+          ? { inset: 0, height: 674, transform: "scale(0.877419)", background: C.surface }
+          : inNavigation
           ? { left: 51, top: 52, height: 700 / phoneScale, borderRadius: 59 / phoneScale, boxShadow: "0 0 0 3.86px rgb(19 19 19 / 0.08)", transform: `scale(${phoneScale})`, background: C.surface }
           : { left: 57, top: 48, height: 674, borderRadius: 47.812, background: C.surface }}
       >
@@ -329,7 +333,7 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "
             </div>
             <svg viewBox="0 0 310 309" width={310} height={309} className="absolute inset-0 overflow-visible" aria-hidden>
               <defs>
-                <filter id="auth-glow" x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
+                <filter id={glowId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
                   <feGaussianBlur in="SourceAlpha" stdDeviation="3.085" result="b1" />
                   <feColorMatrix in="b1" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.8 0" result="g1" />
                   <feGaussianBlur in="SourceAlpha" stdDeviation="6.94" result="b2" />
@@ -341,7 +345,7 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "
                   </feMerge>
                 </filter>
               </defs>
-              <g ref={bind("face", T.face)} style={PART_STYLE} filter="url(#auth-glow)">
+              <g ref={bind("face", T.face)} style={PART_STYLE} filter={`url(#${glowId})`}>
                 {(["eyeL", "eyeR", "nose", "smile"] as const).map((k) => (
                   <g key={k} transform={`matrix(${FACE_PARTS[k].m})`}>
                     <path
@@ -368,6 +372,12 @@ export function AuthMotionPreview({ timeline, label = "Sign-in flow", layout = "
               </div>
             </div>
           </div>
+          {inFlow && (
+            <div className="absolute left-[12.339px] top-[551px] flex flex-col gap-[6.169px]">
+              <div className={btn} style={{ background: facePressed ? "#6de79c" : C.green, transform: facePressed ? "scale(0.975)" : undefined, transition: "transform 140ms, background-color 140ms" }}>Turn on</div>
+              <div className={`${btn} bg-white`}>Not now</div>
+            </div>
+          )}
         </Screen>
 
         {/* Status bar · static (header below it is empty in Figma: the logo layer has no content) */}

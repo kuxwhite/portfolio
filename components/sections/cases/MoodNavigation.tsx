@@ -2,6 +2,7 @@ import { asset } from "@/lib/asset";
 import { AuthMotionPreview } from "@/components/motion/AuthMotionPreview";
 import { CaseStrip } from "./CaseStrip";
 import { FlipCard } from "./FlipCard";
+import { MoodFlow } from "./MoodFlow";
 import type { Content } from "@/lib/content";
 
 const artwork = {
@@ -21,20 +22,27 @@ function PreviewImage({ name, alt }: { name: keyof typeof artwork; alt: string }
 
 export function MoodNavigation({ t }: { t: Content["cases"] }) {
   return (
-    <CaseStrip label={t.stripLabel}>
-      <div className="case-auth">
-        <AuthMotionPreview label={t.previews.auth} layout="navigation" />
+    <>
+      <div className="hidden w-full justify-center md:flex">
+        <CaseStrip label={t.stripLabel}>
+          <div className="case-auth">
+            <AuthMotionPreview label={t.previews.auth} layout="navigation" />
+          </div>
+          <div className="case-middle">
+            <div className="case-debit">
+              <FlipCard label={t.previews.debit} flipLabel={t.cardFlip} previewScale={251 / 322} />
+            </div>
+            <PreviewImage name="overview" alt={t.previews.overview} />
+            <PreviewImage name="map" alt={t.previews.map} />
+          </div>
+          <div className="case-settings">
+            <PreviewImage name="settings" alt={t.previews.settings} />
+          </div>
+        </CaseStrip>
       </div>
-      <div className="case-middle">
-        <div className="case-debit">
-          <FlipCard label={t.previews.debit} flipLabel={t.cardFlip} previewScale={251 / 322} />
-        </div>
-        <PreviewImage name="overview" alt={t.previews.overview} />
-        <PreviewImage name="map" alt={t.previews.map} />
+      <div className="w-full max-w-[520px] px-(--page-padding-x) md:hidden">
+        <MoodFlow label={t.stripLabel} english={t.stripLabel === "Case screens"} />
       </div>
-      <div className="case-settings">
-        <PreviewImage name="settings" alt={t.previews.settings} />
-      </div>
-    </CaseStrip>
+    </>
   );
 }

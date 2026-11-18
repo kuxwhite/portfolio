@@ -53,7 +53,7 @@ export function NumberChip({ open, compact, digits = "3688" }: { open?: boolean;
   return (
     <span
       className={compact
-        ? "relative flex h-[26px] items-center gap-[5px] rounded-full border border-white/25 bg-[#164c3a]/25 px-[8px]"
+        ? "relative flex h-[26px] items-center gap-[5px] rounded-full bg-black/15 px-[8px]"
         : "relative flex items-center justify-end gap-(--space-4) rounded-full px-[6px] py-(--space-4) backdrop-blur-[3px]"}
       style={compact ? undefined : {
         background: "rgb(255 255 255 / 0.12)",

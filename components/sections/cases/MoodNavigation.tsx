@@ -30,7 +30,7 @@ export function MoodNavigation({ t }: { t: Content["cases"] }) {
           </div>
           <div className="case-middle">
             <div className="case-debit">
-              <FlipCard label={t.previews.debit} flipLabel={t.cardFlip} previewScale={251 / 322} />
+              <FlipCard label={t.previews.debit} flipLabel={t.cardFlip} previewScale={276 / 322} />
             </div>
             <PreviewImage name="overview" alt={t.previews.overview} />
             <PreviewImage name="map" alt={t.previews.map} />

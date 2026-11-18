@@ -31,8 +31,8 @@ function ProjectPart({ part, i }: { part: Part; i: number }) {
     </>
   );
   const mark = part.chip ? (
-    // The chip overhangs the 20px text line, as in Figma, instead of making the row taller.
-    <span className="-my-(--space-4) inline-flex items-center gap-(--space-4) rounded-logo border border-(--portfolio-button-secondary-bg-pressed) p-(--space-2)">{inner}</span>
+    // Grouped word + chip overhangs a 20px line; the standalone Uzum chip keeps its 26px height.
+    <span className={`${part.lead ? "-my-[3px] " : ""}inline-flex items-center gap-(--space-4) rounded-logo border border-(--portfolio-button-secondary-bg-pressed) p-(--space-2)`}>{inner}</span>
   ) : (
     <span className="inline-flex items-center gap-(--space-4)">{inner}</span>
   );
@@ -55,7 +55,7 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
   return (
     // The whole card toggles (the button stays for keyboard and screen readers); hovering it lights up the button.
     <li
-      className="group/exp flex cursor-pointer items-start gap-(--space-16) rounded-card border border-border-subtle p-(--space-24)"
+      className="group/exp flex cursor-pointer items-start gap-(--space-16) rounded-[48px] border border-border-subtle p-(--space-24) md:p-(--space-32)"
       onClick={() => {
         if (window.getSelection()?.toString()) return; // selecting text isn't a click
         setOpen((o) => !o);
@@ -79,7 +79,7 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
             </span>
             <h3 className="type-body-m text-fg-primary">{item.company}</h3>
           </div>
-          <p className="type-label pl-(--space-32) text-fg-tertiary">{item.description}</p>
+          <p className="type-label text-fg-tertiary">{item.description}</p>
         </div>
 
         <AnimatePresence initial={false}>
@@ -93,10 +93,10 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
               transition={{ duration: reduce ? 0.2 : 0.4, ease: EASE }}
               className="overflow-hidden"
             >
-              <ol className="flex flex-col gap-(--space-8) pl-(--space-32) pt-(--space-20)">
+              <ol className="flex flex-col gap-(--space-8) pt-(--space-20)">
                 {item.projects.map((p, idx) => (
                   <li key={idx} className="flex items-start gap-(--space-8)">
-                    <span className="type-mono-m shrink-0 text-fg-subtle">{idx + 1}</span>
+                    <span className="type-mono-m w-[10px] shrink-0 text-fg-subtle md:w-[11px]">{idx + 1}</span>
                     <p className="type-label flex flex-1 flex-wrap items-center gap-(--space-4) text-fg-secondary">
                       {p.map((part, j) => (
                         <ProjectPart key={j} part={part} i={j} />
@@ -114,11 +114,10 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
         variant="secondary"
         content="icon"
         size="sm"
-        strong
         aria-expanded={open}
         aria-controls={panelId}
         aria-label={`${open ? t.collapse : t.expand} ${item.company}`}
-        className="group-hover/exp:bg-(--portfolio-palette-neutral-150)"
+        className="group-hover/exp:bg-(--portfolio-button-secondary-bg-hover)"
         onClick={(e) => {
           e.stopPropagation();
           setOpen((o) => !o);
@@ -141,7 +140,7 @@ function ExperienceCard({ item, t }: { item: Item; t: Content["experience"] }) {
 export function Experience({ t }: { t: Content["experience"] }) {
   return (
     <section id="experience" aria-labelledby="experience-title" className="flex scroll-mt-(--space-24) flex-col items-center gap-(--portfolio-section-gap) py-(--portfolio-section-gap)">
-      <h2 id="experience-title" className="content type-overline text-center text-fg-secondary">
+      <h2 id="experience-title" className="content type-overline text-center text-fg-primary">
         {t.overline}
       </h2>
       <ul className="content flex flex-col gap-(--space-16)">

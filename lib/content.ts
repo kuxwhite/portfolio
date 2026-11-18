@@ -9,6 +9,7 @@ export type Content = {
   menu: { label: string; experience: string; cv: string; telegram: string };
   hero: { pitch: string[]; facts: string; doodleLabel: string };
   cases: {
+    overline: string;
     titleLead: string;
     brand: string;
     subtitle: string;
@@ -55,6 +56,7 @@ export const content: Record<Lang, Content> = {
       doodleLabel: "Иллюстрация: Кирилл лежит, закинув ногу на ногу. Наведите курсор или нажмите, чтобы он сел за ноутбук.",
     },
     cases: {
+      overline: "Кейсы",
       titleLead: "Редизайн мобильного банка",
       brand: "Moud",
       subtitle: "Вернулся к агентской версии и переработал ключевые\u00a0сценарии",
@@ -79,7 +81,7 @@ export const content: Record<Lang, Content> = {
             "Проектирую финтех- и AI-продукты для банков и e-commerce: платежи, кредитование, рассрочка, B2B-сервисы",
           projects: [
             ["Редизайн мобильного", { lead: "банка", logo: "round-20", label: "Round", chip: true }, "сайт и оформление кредита наличными"],
-            ["A2C сервис для мерчантов в", { logo: "uzum", label: "Uzum Bank" }],
+            ["A2C сервис для мерчантов в", { logo: "uzum", label: "Uzum Bank", chip: true }],
             ["Рассрочка BNPL", { lead: "в", logo: "aliexpress-20", label: "Aliexpress", chip: true }],
           ],
           defaultOpen: true,
@@ -116,6 +118,7 @@ export const content: Record<Lang, Content> = {
       doodleLabel: "Illustration: Kirill is lying with his legs crossed. Hover or tap to make him sit down at the laptop.",
     },
     cases: {
+      overline: "Cases",
       titleLead: "Mobile bank redesign",
       brand: "Moud",
       subtitle: "Went back to the agency version and reworked the key\u00a0flows",
@@ -140,7 +143,7 @@ export const content: Record<Lang, Content> = {
             "I design fintech and AI products for banks and e-commerce: payments, lending, installments, B2B services",
           projects: [
             ["Redesign of the", { logo: "round-20", label: "Round", chip: true }, "mobile bank, website and cash loan flow"],
-            ["A2C service for merchants at", { logo: "uzum", label: "Uzum Bank" }],
+            ["A2C service for merchants at", { logo: "uzum", label: "Uzum Bank", chip: true }],
             ["BNPL installments", { lead: "at", logo: "aliexpress-20", label: "Aliexpress", chip: true }],
           ],
           defaultOpen: true,

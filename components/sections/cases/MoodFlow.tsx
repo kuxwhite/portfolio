@@ -125,9 +125,9 @@ function LinkedAccount() {
 }
 
 const accounts = [
-  { name: "Debit", number: "3688", amount: "$15,400.50", artwork: "cases/card/surface.svg" },
-  { name: "Premium", number: "3812", amount: "$15,750.00", artwork: "motion/mood/premium-surface.svg" },
-  { name: "Payroll", number: "4185", amount: "$300.00" },
+  { name: "Debit", number: "3688", amount: "$15,400.50", artwork: "mini-debit" },
+  { name: "Premium", number: "3812", amount: "$15,750.00", artwork: "mini-premium" },
+  { name: "Payroll", number: "4185", amount: "$300.00", artwork: "mini-payroll" },
 ];
 
 function Dashboard({ slide, debitScale }: { slide: MotionValue<number>; debitScale: MotionValue<number> }) {
@@ -138,26 +138,28 @@ function Dashboard({ slide, debitScale }: { slide: MotionValue<number>; debitSca
         <DesignArtwork name="bank-toolbar" width={66} height={31} />
       </div>
       <div className="absolute inset-x-[10.83px] top-[109.61px]">
-        <p className="text-[11.5px] leading-[14.89px] text-[#707070]">Total balance</p>
-        <p className="mt-[9px] text-[32.48px] leading-[36.54px] font-medium tracking-[-0.03em]">$31,450<span className="text-[21.65px] tracking-[-0.015em] text-[#707070]">.50</span></p>
-        <div className="mt-[22px] flex gap-[10.83px] text-[13.53px] leading-[16.24px] font-medium text-[#707070]">
-          <span className="border-b border-black pb-[7px] text-black">Cards</span><span>Accounts</span><span>Deposits</span><span>Loans</span>
+        <p className="text-[11.5px] leading-[14.89px] tracking-[0.005em] text-[#707070]">Total balance</p>
+        <p className="mt-[10.94px] whitespace-nowrap text-[32.48px] leading-[36.54px] font-medium tracking-[-0.03em]">$31,450<span className="text-[21.65px] leading-[36.54px] tracking-[-0.015em] text-[#707070]">.50</span></p>
+        <div className="mt-[21.65px] flex gap-[10.83px] text-[13.53px] leading-[16.24px] font-medium text-[#818181]">
+          <span className="flex flex-col items-center gap-[8.12px] text-[#131313]">
+            Cards<span className="h-[1.35px] w-[27.065px] rounded-full bg-current" />
+          </span>
+          <span>Accounts</span><span>Deposits</span><span>Loans</span>
         </div>
       </div>
-      <motion.div className="absolute top-[232px] left-[11px] flex gap-[8px]" style={{ x: slide }}>
+      <motion.div className="absolute top-[231.39px] left-[10.83px] flex gap-[8.12px]" style={{ x: slide }}>
         {accounts.map(({ name, number, amount, artwork }) => (
-          <motion.div key={number} className="size-[105.55px] rounded-[16.24px] bg-[#ededed] p-[10.83px]" style={name === "Debit" ? { scale: debitScale } : undefined}>
-            <div className="relative h-[19px] w-[28px] overflow-hidden rounded-[4px] bg-[#9b9188]">
-              {artwork && <Image src={asset(artwork)} alt="" width={28} height={19} />}
-              <Image src={asset("cases/card/mir.svg")} className="absolute right-[2px] bottom-[2px]" alt="" width={11} height={4} />
+          <motion.div key={number} className="flex size-[105.55px] shrink-0 flex-col items-start justify-between rounded-[16.24px] bg-[#efefef] p-[10.83px]" style={name === "Debit" ? { scale: debitScale } : undefined}>
+            <DesignArtwork name={artwork} width={28} height={19} className="h-[18.945px] w-[28.418px] shrink-0" />
+            <div className="flex flex-col gap-[2.706px] whitespace-nowrap">
+              <p className="text-[9.47px] leading-[13.53px] tracking-[0.01em] text-[#818181]">{name}</p>
+              <p className="text-[11.5px] leading-[14.89px] font-medium tracking-[0.005em]">{amount}</p>
+              <p className="text-[9.47px] leading-[13.53px] tracking-[0.01em] text-[#707070]">••{number}</p>
             </div>
-            <p className="mt-[16.48px] text-[9.47px] leading-[13.53px] text-[#707070]">{name}</p>
-            <p className="text-[11.5px] leading-[14.89px] font-medium">{amount}</p>
-            <p className="text-[9.47px] leading-[13.53px] text-[#707070]">••{number}</p>
           </motion.div>
         ))}
       </motion.div>
-      <DesignArtwork name="banner" alt="Free card with up to 10% cashback" width={251} height={33} className="absolute top-[364px] left-[10.83px]" />
+      <DesignArtwork name="banner" alt="Free card with up to 10% cashback" width={251} height={33} className="absolute top-[348px] left-[10.83px]" />
     </>
   );
 }

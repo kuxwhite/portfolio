@@ -20,19 +20,21 @@ function BrandMark({ name }: { name: string }) {
 
 export function Cases({ t }: { t: Content["cases"] }) {
   return (
-    <section aria-labelledby="cases-title" className="flex flex-col items-center gap-(--space-32) py-(--portfolio-section-gap)">
-      <div className="content flex flex-col items-center gap-(--space-24) text-center">
-        <h2 id="cases-title" className="type-body-l max-md:leading-6">
-          <span className="text-fg-primary">{t.titleLead}</span>
-          <BrandMark name={t.brand} />
-          <span className="block text-fg-tertiary">{t.subtitle}</span>
-        </h2>
-        <p className="type-overline text-fg-muted">{t.tags}</p>
+    <section aria-labelledby="cases-title" className="flex flex-col items-center gap-12 py-(--portfolio-section-gap)">
+      <h2 id="cases-title" className="type-overline text-center text-fg-primary">{t.overline}</h2>
+      <div className="flex w-full flex-col items-center gap-(--space-24)">
+        <div className="content flex flex-col items-center gap-(--space-24) text-center">
+          <h3 className="type-body-l max-md:leading-6">
+            <span className="text-fg-primary">{t.titleLead}</span>
+            <BrandMark name={t.brand} />
+            <span className="block text-fg-tertiary">{t.subtitle}</span>
+          </h3>
+          <p className="type-overline text-fg-muted">{t.tags}</p>
+        </div>
+
+        <Button href={links.caseMoud} variant="secondary" size="sm" label={t.cta} />
+        <MoodNavigation t={t} />
       </div>
-
-      <MoodNavigation t={t} />
-
-      <Button href={links.caseMoud} variant="secondary" size="sm" label={t.cta} />
     </section>
   );
 }

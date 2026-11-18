@@ -32,9 +32,10 @@ function DesignArtwork({ name, className, width, height, alt = "" }: { name: str
   return <Image src={asset(`motion/mood/${name}.webp`)} className={className} alt={alt} width={width} height={height} draggable={false} />;
 }
 
-function ScreenHeader({ premium, sticky, frost, scroll, actionOpacity }: {
+function ScreenHeader({ premium, sticky, glass, frost, scroll, actionOpacity }: {
   premium: MotionValue<number>;
   sticky: MotionValue<number>;
+  glass: MotionValue<number>;
   frost: MotionValue<number>;
   scroll: MotionValue<number>;
   actionOpacity: MotionValue<number>;
@@ -48,7 +49,7 @@ function ScreenHeader({ premium, sticky, frost, scroll, actionOpacity }: {
       {/* Render the layers that pass under the glass with the same scroll position.
           This keeps the blur live inside the clipped phone in Chromium and WebKit. */}
       <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px] overflow-hidden bg-[#f7f7f7]"
-        style={{ opacity: sticky, maskImage: "linear-gradient(#000 34%, #000e 63%, #0009 80%, transparent)" }}>
+        style={{ opacity: glass, maskImage: "linear-gradient(#000 34%, #000e 63%, #0009 80%, transparent)" }}>
         <div className="absolute inset-0 blur-[8px]">
           <motion.div className="absolute inset-0" style={{ y: scroll }}>
             <CardActions opacity={actionOpacity} />
@@ -57,7 +58,7 @@ function ScreenHeader({ premium, sticky, frost, scroll, actionOpacity }: {
         </div>
       </motion.div>
       <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[82.55px]"
-        style={{ opacity: sticky, background: "linear-gradient(to bottom, rgb(255 255 255 / 96%), rgb(255 255 255 / 92%) 62.79%, rgb(255 255 255 / 72%) 74.42%, rgb(255 255 255 / 38%) 84.88%, rgb(255 255 255 / 12%) 93.02%, transparent)" }} />
+        style={{ opacity: glass, background: "linear-gradient(to bottom, rgb(255 255 255 / 96%), rgb(255 255 255 / 92%) 62.79%, rgb(255 255 255 / 72%) 74.42%, rgb(255 255 255 / 38%) 84.88%, rgb(255 255 255 / 12%) 93.02%, transparent)" }} />
       {/* Scale the existing status-bar canvas as a single unit. */}
       <div className="absolute top-0 left-0 w-[310px] origin-top-left" style={{ transform: "scale(0.877419)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -211,7 +212,7 @@ function CardSettings({ frozen, frost }: { frozen: boolean; frost: MotionValue<n
 const screenLift = track([0, 9.3, 10.03, 10.55, 11.03, DURATION], [0, 0, -234, -234, 0, 0], [E, E, E, E, E]);
 // Match the velocity at release, carry the flick into a small overshoot, then settle on the Figma offset.
 const detailScroll = track(
-  [0, 19.65, 19.74, 20.32, 20.52, 21.65, 22.5, DURATION],
+  [0, 19.65, 19.77, 20.53, 20.79, 21.65, 22.5, DURATION],
   [0, 0, -45, -SETTINGS_SCROLL - 6.5, -SETTINGS_SCROLL, -SETTINGS_SCROLL, 0, 0],
   ["linear", [0.32, 0, 0.68, 0.41], [0.34, 0.56, 0.47, 1], "easeInOut", "linear", "easeInOut", "linear"],
 );
@@ -281,7 +282,8 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
   const premium = useTransform(carouselProgress, (position) => smoothFade(position, 0.48, 0.995));
   const frost = useTransform(time, (s) => getNumber(freezeCard, s));
   const actionOpacity = useTransform(() => 1 - 0.67 * frost.get() * (1 - premium.get()));
-  const stickyOpacity = useTransform(contentY, [-285, -250], [1, 0]);
+  const glassOpacity = useTransform(contentY, (scroll) => smoothFade(-scroll, 155, 330));
+  const stickyOpacity = useTransform(contentY, (scroll) => smoothFade(-scroll, 208, 348));
   const progress = useTransform(time, [14.03, 19.65], [0, 1]);
   const lightX = useTransform(progress, STOPS, [0.5, 0.12, 0.22, 0.86, 0.9, 0.37, 0.5, 0.5, 0.65, 0.4, 0.5]);
   const lightY = useTransform(progress, STOPS, [0.5, 0.36, 0.9, 0.78, 0.11, 0.18, 0.5, 0.5, 0.54, 0.43, 0.5]);
@@ -385,7 +387,7 @@ export function MoodFlow({ label, lab = false, english = false }: { label: strin
                 <LinkedAccount />
                 <CardSettings frozen={frozen} frost={frost} />
               </motion.div>
-              <ScreenHeader premium={premium} sticky={stickyOpacity} frost={frost} scroll={contentY} actionOpacity={actionOpacity} />
+              <ScreenHeader premium={premium} sticky={stickyOpacity} glass={glassOpacity} frost={frost} scroll={contentY} actionOpacity={actionOpacity} />
             </motion.div>
           </motion.div>
         </div>
